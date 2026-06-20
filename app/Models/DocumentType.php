@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class DocumentType extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'code',
+        'codegroup',
+        'slug',
+        'regex_pattern',
+        'priority',
+        'phase',
+        'is_person',
+        'is_company',
+        'is_employee',
+        'is_agent',
+        'is_principal',
+        'is_client',
+        'is_practice',
+        'is_signed',
+        'is_monitored',
+        'duration',
+        'emitted_by',
+        'is_sensible',
+        'is_template',
+        'is_stored',
+        'regex',
+        'is_endmonth',
+        'is_AiAbstract',
+        'is_AiCheck',
+        'AiPattern',
+        'min_confidence',
+        'allow_auto_verification',
+        'notify_days_before',
+        'retention_years',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+    ];
+
+    protected $casts = [
+        'is_person' => 'boolean',
+        'is_company' => 'boolean',
+        'is_employee' => 'boolean',
+        'is_agent' => 'boolean',
+        'is_principal' => 'boolean',
+        'is_client' => 'boolean',
+        'is_practice' => 'boolean',
+        'is_signed' => 'boolean',
+        'is_monitored' => 'boolean',
+        'is_sensible' => 'boolean',
+        'is_template' => 'boolean',
+        'is_stored' => 'boolean',
+        'is_endmonth' => 'boolean',
+        'is_AiAbstract' => 'boolean',
+        'is_AiCheck' => 'boolean',
+        'allow_auto_verification' => 'boolean',
+        'notify_days_before' => 'array',
+        'priority' => 'integer',
+        'duration' => 'integer',
+        'min_confidence' => 'integer',
+        'retention_years' => 'integer',
+    ];
+
+    /**
+     * Relazione con i documenti fisici caricati.
+     */
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    /**
+     * I Task a cui è associato questo tipo di documento
+     */
+    public function tasks(): BelongsToMany
+    {
+        return $this
+            ->belongsToMany(Task::class, 'task_document_types')
+            ->withPivot('is_required')
+            ->withTimestamps();
+    }
+}

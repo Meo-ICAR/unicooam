@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Document extends Model
+{
+    use HasFactory, HasUuids, SoftDeletes;
+
+    protected $fillable = [
+        'company_id',
+        'documentable_type',
+        'documentable_id',
+        'document_type_id',
+        'name',
+        'docnumber',
+        'spatie_collection',
+        'document_url',
+        'status',
+        'sync_status',
+        'source_app',
+        'app_id',
+        'app_drive_id',
+        'app_etag',
+        'extracted_text',
+        'metadata',
+        'ai_abstract',
+        'ai_confidence_score',
+        'is_template',
+        'is_signed',
+        'is_unique',
+        'is_endMonth',
+        'emitted_by',
+        'emitted_at',
+        'expires_at',
+        'delivered_at',
+        'signed_at',
+        'description',
+        'internal_notes',
+        'rejection_note',
+        'user_id',
+        'uploaded_by',
+        'verified_by',
+        'verified_at',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+        'file_hash',
+    ];
+
+    protected $casts = [
+        'metadata' => 'array',
+        'is_template' => 'boolean',
+        'is_signed' => 'boolean',
+        'is_unique' => 'boolean',
+        'is_endMonth' => 'boolean',
+        'emitted_at' => 'date',
+        'expires_at' => 'date',
+        'delivered_at' => 'datetime',
+        'signed_at' => 'datetime',
+        'verified_at' => 'datetime',
+        'ai_confidence_score' => 'integer',
+    ];
+
+    /**
+     * Relazione: Tenant proprietario
+     */
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Relazione Polimorfica (es. User, Employee, Contract)
+     */
+    public function documentable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    /**
+     * Relazione: Tipo di documento
+     */
+    public function documentType(): BelongsTo
+    {
+        return $this->belongsTo(DocumentType::class);  // Presume l'esistenza del model DocumentType
+    }
+
+    // --- Audit & User Relations ---
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function uploader(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function verifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+}
