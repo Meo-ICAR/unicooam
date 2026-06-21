@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->integer('timeframe_hours')->nullable();
             $table->string('timeframe_desc')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index('remediation_type');
         });

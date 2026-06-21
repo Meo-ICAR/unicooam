@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Audits;
+namespace App\Filament\Resources\AuditFindings;
 
-use App\Filament\Resources\Audits\Pages\CreateAudit;
-use App\Filament\Resources\Audits\Pages\EditAudit;
-use App\Filament\Resources\Audits\Pages\ListAudits;
-use App\Filament\Resources\Audits\Schemas\AuditForm;
-use App\Filament\Resources\Audits\Tables\AuditsTable;
-use App\Models\Audit;
+use App\Filament\Resources\AuditFindings\Pages\CreateAuditFinding;
+use App\Filament\Resources\AuditFindings\Pages\EditAuditFinding;
+use App\Filament\Resources\AuditFindings\Pages\ListAuditFindings;
+use App\Filament\Resources\AuditFindings\Schemas\AuditFindingForm;
+use App\Filament\Resources\AuditFindings\Tables\AuditFindingsTable;
+use App\Models\AuditFinding;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -16,9 +16,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class AuditResource extends Resource
+class AuditFindingResource extends Resource
 {
-    protected static ?string $model = Audit::class;
+    protected static ?string $model = AuditFinding::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -26,12 +26,12 @@ class AuditResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return AuditForm::configure($schema);
+        return AuditFindingForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return AuditsTable::configure($table);
+        return AuditFindingsTable::configure($table);
     }
 
     public static function getRelations(): array
@@ -44,9 +44,9 @@ class AuditResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListAudits::route('/'),
-            'create' => CreateAudit::route('/create'),
-            'edit' => EditAudit::route('/{record}/edit'),
+            'index' => ListAuditFindings::route('/'),
+            'create' => CreateAuditFinding::route('/create'),
+            'edit' => EditAuditFinding::route('/{record}/edit'),
         ];
     }
 

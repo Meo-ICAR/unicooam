@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\ComplaintRegistries\Schemas;
 
 use App\Enums\ComplaintStatus;
-use App\Models\COMPILANCE\ComplaintRegistry;
+use App\Models\ComplaintRegistry;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;

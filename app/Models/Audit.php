@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Audit extends Model
@@ -32,24 +32,17 @@ class Audit extends Model
     protected function casts(): array
     {
         return [
-            'audit_date'    => 'date',
+            'audit_date' => 'date',
             'followup_date' => 'date',
-            'created_at'    => 'datetime',
-            'updated_at'    => 'datetime',
-            'deleted_at'    => 'datetime',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
-
-    // ── Relationships ────────────────────────────────────────────────────────
 
     public function auditable(): MorphTo
     {
         return $this->morphTo();
-    }
-
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
     }
 
     public function findings(): HasMany
@@ -101,7 +94,7 @@ class Audit extends Model
         return match ($this->direction) {
             'outgoing' => 'info',
             'incoming' => 'warning',
-            default    => 'gray',
+            default => 'gray',
         };
     }
 
@@ -113,11 +106,11 @@ class Audit extends Model
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'planned'          => 'gray',
-            'in_progress'      => 'warning',
-            'completed'        => 'success',
+            'planned' => 'gray',
+            'in_progress' => 'warning',
+            'completed' => 'success',
             'pending_followup' => 'danger',
-            default            => 'gray',
+            default => 'gray',
         };
     }
 
@@ -144,9 +137,9 @@ class Audit extends Model
     public static function getStatusOptions(): array
     {
         return [
-            'planned'          => 'Pianificato',
-            'in_progress'      => 'In corso',
-            'completed'        => 'Completato',
+            'planned' => 'Pianificato',
+            'in_progress' => 'In corso',
+            'completed' => 'Completato',
             'pending_followup' => 'In attesa follow-up',
         ];
     }
@@ -154,43 +147,23 @@ class Audit extends Model
     public static function getAuthorityTypeOptions(): array
     {
         return [
-            'garante'      => 'Garante Privacy (GPDP)',
-            'oam'          => 'OAM',
-            'ivass'        => 'IVASS',
-            'banca_italia' => 'Banca d\'Italia',
-            'client'       => 'Cliente (titolare del trattamento)',
-            'internal'     => 'Audit interno',
-            'other'        => 'Altro',
+            'garante' => 'Garante Privacy (GPDP)',
+            'oam' => 'OAM',
+            'ivass' => 'IVASS',
+            'banca_italia' => "Banca d'Italia",
+            'client' => 'Cliente (titolare del trattamento)',
+            'internal' => 'Audit interno',
+            'other' => 'Altro',
         ];
     }
 
     public static function getAuditableTypeOptions(): array
     {
         return [
-            Client::class  => 'Cliente (responsabile del trattamento)',
+            Client::class => 'Cliente (responsabile del trattamento)',
             Company::class => 'Azienda',
         ];
     }
 
     // ── booted ───────────────────────────────────────────────────────────────
-
-    protected static function booted(): void
-    {
-        static::creating(function (self $record) {
-            if (empty($record->company_id) && auth()->check()) {
-                if (function_exists('filament') && filament()->getTenant()) {
-                    $record->company_id = filament()->getTenant()->id;
-                } elseif (auth()->user()->companies()->exists()) {
-                    $record->company_id = auth()->user()->companies()->first()->id;
-                }
-            }
-        });
-
-        // Quando tutti i rilievi sono chiusi → aggiorna stato audit
-        static::saved(function (self $record) {
-            if ($record->findings()->exists() && !$record->openFindings()->exists()) {
-                $record->updateQuietly(['status' => 'completed']);
-            }
-        });
-    }
 }

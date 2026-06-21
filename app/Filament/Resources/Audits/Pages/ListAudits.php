@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Audits\Pages;
+namespace App\Filament\Resources\Audits\Pages;
 
-use App\Filament\Admin\Resources\Audits\AuditResource;
+use App\Filament\Resources\Audits\AuditResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
@@ -13,7 +13,7 @@ class ListAudits extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()->label('Nuovo audit'),
+            CreateAction::make(),
         ];
     }
 }

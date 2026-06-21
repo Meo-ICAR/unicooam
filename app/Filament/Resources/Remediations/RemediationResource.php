@@ -7,7 +7,7 @@ use App\Filament\Resources\Remediations\Pages\EditRemediation;
 use App\Filament\Resources\Remediations\Pages\ListRemediations;
 use App\Filament\Resources\Remediations\Schemas\RemediationForm;
 use App\Filament\Resources\Remediations\Tables\RemediationsTable;
-use App\Models\COMPILANCE\Remediation;
+use App\Models\Remediation;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;

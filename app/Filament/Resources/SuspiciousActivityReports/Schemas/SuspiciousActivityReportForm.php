@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Resources\COMPILANCE\SuspiciousActivityReports\Schemas;
+namespace App\Filament\Resources\SuspiciousActivityReports\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class SuspiciousActivityReportForm
@@ -14,11 +14,6 @@ class SuspiciousActivityReportForm
     {
         return $schema
             ->components([
-                Select::make('company_id')
-                    ->relationship('company', 'name')
-                    ->required(),
-                Select::make('client_id')
-                    ->relationship('client', 'name'),
                 TextInput::make('reporter_type')
                     ->required(),
                 TextInput::make('reporter_id')
@@ -30,11 +25,11 @@ class SuspiciousActivityReportForm
                     ->columnSpanFull(),
                 Select::make('status')
                     ->options([
-            'pending' => 'Pending',
-            'investigated' => 'Investigated',
-            'reported' => 'Reported',
-            'archived' => 'Archived',
-        ])
+                        'pending' => 'Pending',
+                        'investigated' => 'Investigated',
+                        'reported' => 'Reported',
+                        'archived' => 'Archived',
+                    ])
                     ->default('pending')
                     ->required(),
                 DateTimePicker::make('reported_at'),

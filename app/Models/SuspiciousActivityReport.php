@@ -30,18 +30,8 @@ class SuspiciousActivityReport extends Model
         'reported_at' => 'datetime',
     ];
 
-    public function client(): BelongsTo
-    {
-        return $this->belongsTo(\App\Models\PROFORMA\Client::class);
-    }
-
     public function reporter(): MorphTo
     {
         return $this->morphTo();
-    }
-
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(\App\Models\PROFORMA\Company::class, 'company_id', 'id');
     }
 }

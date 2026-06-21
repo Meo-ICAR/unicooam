@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Audits\Pages;
+namespace App\Filament\Resources\Audits\Pages;
 
-use App\Filament\Admin\Resources\Audits\AuditResource;
+use App\Filament\Resources\Audits\AuditResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateAudit extends CreateRecord

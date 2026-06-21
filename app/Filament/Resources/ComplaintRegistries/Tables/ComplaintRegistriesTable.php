@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\ComplaintRegistries\Tables;
 
 use App\Enums\ComplaintStatus;
-use App\Models\COMPILANCE\ComplaintRegistry;
+use App\Models\ComplaintRegistry;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;

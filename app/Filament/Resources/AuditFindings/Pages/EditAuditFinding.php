@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Filament\Resources\Complaints\Pages;
+namespace App\Filament\Resources\AuditFindings\Pages;
 
-use App\Filament\Resources\Complaints\ComplaintResource;
+use App\Filament\Resources\AuditFindings\AuditFindingResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 
-class EditComplaint extends EditRecord
+class EditAuditFinding extends EditRecord
 {
-    protected static string $resource = ComplaintResource::class;
+    protected static string $resource = AuditFindingResource::class;
 
     protected function getHeaderActions(): array
     {
