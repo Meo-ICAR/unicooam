@@ -1,0 +1,47 @@
+<?php declare(strict_types=1);
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class SuspiciousActivityReport extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'suspicious_activity_reports';
+
+    protected $fillable = [
+        'client_id',
+        'reporter_type',
+        'reporter_id',
+        'anomalies_codes',
+        'description',
+        'status',
+        'reported_at',
+    ];
+
+    protected $casts = [
+        'anomalies_codes' => 'array',
+        'description' => 'encrypted',
+        'reported_at' => 'datetime',
+    ];
+
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\PROFORMA\Client::class);
+    }
+
+    public function reporter(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\PROFORMA\Company::class, 'company_id', 'id');
+    }
+}

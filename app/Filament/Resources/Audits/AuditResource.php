@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Filament\Admin\Resources\Audits;
+
+use App\Filament\Admin\RelationManagers\AuditFindingsRelationManager;
+use App\Filament\Admin\Resources\Audits\Pages\CreateAudit;
+use App\Filament\Admin\Resources\Audits\Pages\EditAudit;
+use App\Filament\Admin\Resources\Audits\Pages\ListAudits;
+use App\Filament\Admin\Resources\Audits\Schemas\AuditForm;
+use App\Filament\Admin\Resources\Audits\Tables\AuditsTable;
+use App\Models\Audit;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BackedEnum;
+
+class AuditResource extends Resource
+{
+    protected static ?string $model = Audit::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
+
+    protected static ?string $navigationLabel = 'Audit';
+
+    protected static ?string $modelLabel = 'Audit';
+
+    protected static ?string $pluralModelLabel = 'Registro Audit';
+
+    protected static ?string $recordTitleAttribute = 'title';
+
+    protected static ?int $navigationSort = 25;
+
+    public static function form(Schema $schema): Schema
+    {
+        return AuditForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return AuditsTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            AuditFindingsRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListAudits::route('/'),
+            'create' => CreateAudit::route('/create'),
+            'edit' => EditAudit::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([SoftDeletingScope::class]);
+    }
+}

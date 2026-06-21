@@ -11,6 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('email_templates', function (Blueprint $table) {
+            $table->comment('Registro dei template email configurabili');
             $table->id();
             $table->string('code')->unique()->comment('Codice univoco di task  (es. AUDIT_REMOTE)');
             $table->string('name')->comment('Nome descrittivo per gli utenti');
