@@ -24,11 +24,6 @@ return new class extends Migration {
             $table->timestamps();  // created_at e updated_at
 
             // Indici e Vincoli di Chiave Esterna
-            $table
-                ->foreign('clienti_id')
-                ->references('id')
-                ->on('clientis')
-                ->onDelete('set null');  // Sicurezza in caso di eliminazione del cliente
 
             $table
                 ->foreign('oam_code_id')
