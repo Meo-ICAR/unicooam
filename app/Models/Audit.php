@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AuditStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,157 +14,100 @@ class Audit extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * I campi che possono essere assegnati massivamente.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'company_id',
         'auditable_type',
         'auditable_id',
-        'direction',
+        'protocol_number',
+        'origin_type',
+        'execution_method',
         'authority_type',
         'authority_name',
         'title',
         'scope',
-        'audit_date',
+        'scheduled_at',
+        'executed_at',
         'followup_date',
         'status',
+        'outcome',
         'summary',
         'auditor_notes',
     ];
 
-    protected function casts(): array
+    /**
+     * I cast nativi per gli attributi del database.
+     * Sfruttiamo i PHP Enums per automatizzare la logica in Filament.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'scheduled_at' => 'date',
+        'executed_at' => 'date',
+        'followup_date' => 'date',
+        // Cast degli Enum (Assicurati di creare questi file in App\Enums)
+        'status' => AuditStatus::class,
+        // Puoi creare enum dedicati anche per gli altri campi stringa se preferisci:
+        // 'origin_type' => \App\Enums\AuditOrigin::class,
+        // 'execution_method' => \App\Enums\AuditExecution::class,
+        // 'outcome' => \App\Enums\AuditOutcome::class,
+    ];
+
+    /**
+     * Relazione con l'azienda principale (Tenant / Proprietaria del record).
+     * Nota: nella migrazione è foreignUuid, Laravel gestirà l'integrità automaticamente.
+     */
+    public function company(): BelongsTo
     {
-        return [
-            'audit_date' => 'date',
-            'followup_date' => 'date',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-            'deleted_at' => 'datetime',
-        ];
+        return $this->belongsTo(Company::class);
     }
 
+    /**
+     * Relazione Polimorfica (auditable_type + auditable_id).
+     * Rappresenta il soggetto controllato (es. ReteCommerciale, BancaMandante, OrganismoVigilanza, Client).
+     */
     public function auditable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function findings(): HasMany
+    /**
+     * Relazione con i rilievi dell'audit (Audit Items).
+     * Un audit può generare zero o molti rilievi/non conformità.
+     */
+    public function items(): HasMany
     {
-        return $this->hasMany(AuditFinding::class);
+        return $this->hasMany(AuditItem::class);
     }
 
-    public function openFindings(): HasMany
+    /**
+     * SCOPE: Filtra gli audit che richiedono un follow-up urgente.
+     */
+    public function scopeNeedsFollowup($query)
     {
-        return $this->hasMany(AuditFinding::class)->whereNotIn('status', ['resolved', 'accepted_risk', 'closed']);
+        return $query
+            ->where('status', AuditStatus::PendingFollowup)
+            ->where('followup_date', '<=', now()->addDays(7));
     }
 
-    // ── Scopes ───────────────────────────────────────────────────────────────
-
-    public function scopeByCompany($query, $companyId)
+    /**
+     * HELPER: Verifica se l'audit è stato eseguito in ritardo rispetto alla pianificazione.
+     */
+    public function isDelayed(): bool
     {
-        return $query->where('company_id', $companyId);
+        if ($this->executed_at && $this->scheduled_at) {
+            return $this->executed_at->isAfter($this->scheduled_at);
+        }
+
+        return $this->scheduled_at->isPast() && !$this->executed_at;
     }
 
-    public function scopeOutgoing($query)
+    public function findings(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $query->where('direction', 'outgoing');
+        return $this->hasMany(AuditFinding::class, 'audit_id');
     }
-
-    public function scopeIncoming($query)
-    {
-        return $query->where('direction', 'incoming');
-    }
-
-    public function scopeByStatus($query, string $status)
-    {
-        return $query->where('status', $status);
-    }
-
-    public function scopePendingFollowup($query)
-    {
-        return $query->where('status', 'pending_followup');
-    }
-
-    // ── Accessors ────────────────────────────────────────────────────────────
-
-    public function getDirectionLabelAttribute(): string
-    {
-        return self::getDirectionOptions()[$this->direction] ?? $this->direction;
-    }
-
-    public function getDirectionColorAttribute(): string
-    {
-        return match ($this->direction) {
-            'outgoing' => 'info',
-            'incoming' => 'warning',
-            default => 'gray',
-        };
-    }
-
-    public function getStatusLabelAttribute(): string
-    {
-        return self::getStatusOptions()[$this->status] ?? $this->status;
-    }
-
-    public function getStatusColorAttribute(): string
-    {
-        return match ($this->status) {
-            'planned' => 'gray',
-            'in_progress' => 'warning',
-            'completed' => 'success',
-            'pending_followup' => 'danger',
-            default => 'gray',
-        };
-    }
-
-    public function getAuthorityTypeLabelAttribute(): string
-    {
-        return self::getAuthorityTypeOptions()[$this->authority_type] ?? ($this->authority_type ?? '—');
-    }
-
-    public function getHasOpenFindingsAttribute(): bool
-    {
-        return $this->openFindings()->exists();
-    }
-
-    // ── Options ──────────────────────────────────────────────────────────────
-
-    public static function getDirectionOptions(): array
-    {
-        return [
-            'outgoing' => 'Audit su responsabile del trattamento (outgoing)',
-            'incoming' => 'Audit ricevuto da autorità / cliente (incoming)',
-        ];
-    }
-
-    public static function getStatusOptions(): array
-    {
-        return [
-            'planned' => 'Pianificato',
-            'in_progress' => 'In corso',
-            'completed' => 'Completato',
-            'pending_followup' => 'In attesa follow-up',
-        ];
-    }
-
-    public static function getAuthorityTypeOptions(): array
-    {
-        return [
-            'garante' => 'Garante Privacy (GPDP)',
-            'oam' => 'OAM',
-            'ivass' => 'IVASS',
-            'banca_italia' => "Banca d'Italia",
-            'client' => 'Cliente (titolare del trattamento)',
-            'internal' => 'Audit interno',
-            'other' => 'Altro',
-        ];
-    }
-
-    public static function getAuditableTypeOptions(): array
-    {
-        return [
-            Client::class => 'Cliente (responsabile del trattamento)',
-            Company::class => 'Azienda',
-        ];
-    }
-
-    // ── booted ───────────────────────────────────────────────────────────────
 }

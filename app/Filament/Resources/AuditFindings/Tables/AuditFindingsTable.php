@@ -33,8 +33,9 @@ class AuditFindingsTable
                     ->sortable(),
                 IconColumn::make('requires_corrective_action')
                     ->boolean(),
-                TextColumn::make('remediation.name')
-                    ->searchable(),
+                TextColumn::make('remediation_id')
+                    ->numeric()
+                    ->sortable(),
                 TextColumn::make('corrective_action_deadline')
                     ->date()
                     ->sortable(),

@@ -2,53 +2,121 @@
 
 namespace App\Models;
 
-use App\Models\PROFORMA\Company;
+use App\Enums\ComplaintCategory;
+use App\Enums\ComplaintMacroCategory;
+use App\Enums\ComplaintStatus;
+use App\Enums\ReceptionChannel;
+use App\Models\PROFORMA\Clienti;
+use App\Models\PROFORMA\Fornitore;
+use App\Models\Company;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-// use Mattiverse\Userstamps\HasUserstamps;
 
 class ComplaintRegistry extends Model
 {
-    use SoftDeletes;  // , HasUserstamps;
+    use SoftDeletes;
 
+    // Specifica il nome corretto della tabella se diverso dal plurale standard di Laravel
     protected $table = 'complaint_registry';
 
     protected $fillable = [
         'company_id',
-        'complaint_number',
+        'protocol_number',
+        'received_at',
+        'reception_channel',
+        'receiving_email',
+        'complainant_type',
+        'complainant_id',
         'complainant_name',
+        'complainant_email',
+        'macro_category',
         'category',
+        'subject_type',
+        'subject_id',
+        'agent_id',
+        'bank_id',
         'description',
         'financial_impact',
         'status',
+        'deadline_at',
+        'is_extended',
+        'resolved_at',
+        'resolution_notes',
+        'escalated_to',
     ];
 
+    /**
+     * Cast degli attributi per l'integrazione nativa con gli Enum.
+     */
     protected $casts = [
+        'received_at' => 'date',
+        'deadline_at' => 'date',
+        'resolved_at' => 'datetime',
         'financial_impact' => 'decimal:2',
+        'is_extended' => 'boolean',
+        // Colleghiamo gli Enum per fare in modo che Filament legga i badge e i colori
+        'status' => ComplaintStatus::class,
+        'macro_category' => ComplaintMacroCategory::class,
+        'category' => ComplaintCategory::class,
+        'reception_channel' => ReceptionChannel::class,
     ];
 
-    // Constants for enums
-    const CATEGORY_TYPES = [
-        'delay' => 'Ritardo',
-        'behavior' => 'Comportamento',
-        'privacy' => 'Privacy',
-        'fraud' => 'Frode',
-        'quality' => 'Qualità del Servizio',
-        'contract' => 'Contrattuale',
-        'other' => 'Altro',
-    ];
+    // ==========================================
+    // RELAZIONI POLIMORFICHE (I MORPHS)
+    // ==========================================
 
-    const STATUS_TYPES = [
-        'open' => 'Aperto',
-        'investigating' => 'In Investigazione',
-        'resolved' => 'Risolto',
-        'rejected' => 'Rifiutato',
-        'closed' => 'Chiuso',
-    ];
-
-    public function company(): BelongsTo
+    /**
+     * Chi ha fatto il reclamo (es. Cliente, Dipendente, OAM, Fornitore)
+     */
+    public function complainant(): MorphTo
     {
-        return $this->belongsTo(Company::class, 'company_id', 'id');
+        return $this->morphTo();
+    }
+
+    /**
+     * L'oggetto del reclamo (es. una specifica Pratica, un Lead, un Contratto)
+     */
+    public function subject(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    // ==========================================
+    // RELAZIONI DIRETTE (TIPICHE DEL MEDIATORE)
+    // ==========================================
+
+    /**
+     * L'agente o collaboratore della rete commerciale coinvolto nel reclamo.
+     */
+    public function agent(): BelongsTo
+    {
+        // Se utilizzi un modello differente (es. User, Collaboratore), cambialo qui
+        return $this->belongsTo(Fornitore::class, 'id');
+    }
+
+    /**
+     * La Banca Mandante o l'Istituto Erogante coinvolto nel prodotto contestato.
+     */
+    public function bank(): BelongsTo
+    {
+        return $this->belongsTo(Clienti::class, 'id');
+    }
+
+    // ==========================================
+    // LOGICA DI BUSINESS / HELPER UTILI
+    // ==========================================
+
+    /**
+     * Verifica se il reclamo ha superato la data massima di risoluzione senza essere chiuso.
+     */
+    public function isOverdue(): bool
+    {
+        if (in_array($this->status, [ComplaintStatus::Accepted, ComplaintStatus::Rejected])) {
+            return false;
+        }
+
+        return $this->deadline_at && $this->deadline_at->isPast();
     }
 }

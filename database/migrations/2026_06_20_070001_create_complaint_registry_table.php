@@ -5,47 +5,61 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('complaint_registry', function (Blueprint $table) {
-            $table->comment('Registro dettaglio delle segnalazioni e reclami ricevuti');
+            $table->comment('Registro ufficiale Reclami e Segnalazioni (OAM, IVASS, Privacy)');
             $table->id();
             $table->uuid('company_id')->comment('Logical FK: db_bpm.companies');
-            $table->string('name')->comment('Name of the person or entity making the complaint');
-            $table->date('received_at');
-            $table->string('company_email')->comment('Email of the company that received the complaint');
-            $table->string('category', 50)->comment('Enum: delay, behavior, privacy, fraud');
-            $table->string('request_type')->comment('Type of request Enum: investigation, access, rectification, erasure, portability');
-            $table->text('request_details');
-            $table->string('complaint_number', 50)->unique();
-            $table->string('complaint_email')->comment('Email of the person or entity making the complaint');
 
-            $table->string('complaint_type')->comment('Identifier for the  model of the complaint OAM / Client / Fornitore / Employee / Clienti ');
-            $table->string('complaint_id')->comment('Identifier for the complaint');
+            // 1. IDENTIFICAZIONE E RICEZIONE
+            $table->string('protocol_number', 50)->unique()->comment('Protocollo interno univoco');
+            $table->date('received_at')->comment('Data ufficiale di ricezione');
+            $table->string('reception_channel', 50)->comment('Enum: pec, raccomandata, email, brevi_manu');
+            $table->string('receiving_email')->nullable()->comment('La casella aziendale che ha ricevuto la notifica');
 
-            $table->text('description');
-            $table->string('entity_type')->comment('Identifier for the  model destination of the complaint pratica / client / fornitori / employee');
-            $table->string('entity_id')->comment('Identifier for destination of the complaint');
-            $table->decimal('financial_impact', 10, 2)->default(0.0);
-            $table->string('status', 30)->comment('Enum: open, investigating, resolved, rejected');
+            // 2. IL RECLAMANTE (CHI FA LA SEGNALAZIONE)
+            // Usa UUID Morphs se i tuoi modelli (Clienti, Fornitori) usano UUID come chiavi primarie,
+            // altrimenti usa $table->nullableMorphs('complainant');
+            $table->nullableUuidMorphs('complainant');
+            $table->string('complainant_name')->nullable()->comment('Nome se il reclamante non è censito a DB');
+            $table->string('complainant_email')->nullable()->comment('Contatto del reclamante');
 
-            $table->timestamp('deadline_at')->nullable();
-            $table->boolean('is_extended')->default(false);
-            $table->text('resolution_notes')->nullable();
+            // 3. CLASSIFICAZIONE DEL RECLAMO
+            $table->string('macro_category', 30)->comment('Enum: financial, privacy, insurance, operational');
+            $table->string('category', 50)->comment('Enum: delay, behavior, fraud, gdpr_access, gdpr_erasure');
+
+            // 4. OGGETTO DELLA SEGNALAZIONE E SOGGETTI COINVOLTI
+            // A cosa si riferisce il reclamo? (Es. una specifica Pratica, un Contratto)
+            $table->nullableUuidMorphs('subject');
+
+            // Soggetti aziendali/esterni coinvolti (Cruciale per i Mediatori Creditizi)
+            $table->uuid('agent_id')->nullable()->comment('Collaboratore/Agente della rete coinvolto');
+            $table->uuid('bank_id')->nullable()->comment('Banca Mandante / Ente Erogante coinvolto');
+
+            $table->text('description')->comment('Testo principale del reclamo');
+            $table->decimal('financial_impact', 10, 2)->default(0.0)->comment('Eventuale richiesta danni o rimborso in EUR');
+
+            // 5. WORKFLOW, STATO E SCADENZE
+            $table->string('status', 30)->default('open')->comment('Enum: open, investigating, accepted, rejected, escalated');
+            $table->date('deadline_at')->nullable()->comment('Scadenza legale (es. 60gg per bancari, 30gg per GDPR)');
+            $table->boolean('is_extended')->default(false)->comment('Se i termini sono stati estesi legalmente');
+
+            // 6. RISOLUZIONE ED ESCALATION
             $table->timestamp('resolved_at')->nullable();
+            $table->text('resolution_notes')->nullable()->comment("Esito dell'istruttoria e motivazioni");
+            $table->string('escalated_to', 50)->nullable()->comment('Se rigettato, eventuale ricorso a: abf, oam, ivass, garante');
+
             $table->timestamps();
             $table->softDeletes();
 
-            // $table->index('company_id', 'idx_complaint_company');
+            // INDICI OTTIMIZZATI PER LE DASHBOARD DI COMPLIANCE
+            $table->index(['company_id', 'status']);
+            $table->index('deadline_at');
+            $table->index(['macro_category', 'category']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::connection('mysql_compliance')->dropIfExists('complaint_registry');

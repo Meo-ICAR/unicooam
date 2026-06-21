@@ -11,58 +11,59 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('audits', function (Blueprint $table) {
-            $table->comment('Registro degli audit interni ed esterni alle aziende');
+            $table->comment('Registro degli audit interni ed esterni gestiti dal mediatore');
             $table->id();
 
+            // Identificativo del tenant / azienda principale
             $table->foreignUuid('company_id')->constrained('companies')->cascadeOnDelete();
 
-            // Chi viene auditato — polimorfico: Client (responsabile del trattamento) o Company stessa
-            $table->morphs('auditable');  // auditable_type + auditable_id
+            // FIX: Usiamo uuidMorphs perché i soggetti (es. Company o Clienti) usano chiavi UUID
+            $table->uuidMorphs('auditable');
 
-            // Direzione dell'audit
-            $table->enum('audit_type', [
-                'outgoing',  // Company audita un suo Client (responsabile del trattamento)
-                'incoming',  // Company riceve audit da autorità o da Client che l'ha nominata responsabile
-                'documentale',  // Company audita un suo Produttore
-                'ispezione',  // Company ispeziona in sede produttore
-            ]);
+            // Numero protocollo: fondamentale per tracciabilità ispezioni OAM / Autorità
+            $table->string('protocol_number')->nullable()->unique();
 
-            // Origine per audit incoming
-            $table->enum('authority_type', [
-                'garante',  // Garante Privacy (GPDP)
-                'oam',  // OAM
-                'ivass',  // IVASS
-                'banca_italia',  // Banca d'Italia
-                'client',  // Client che ha nominato la company come responsabile
-                'internal',  // Audit interno
-                'other',
-            ])->nullable();
+            // Origine/Direzione dell'audit (Es. Interno, In entrata, In uscita)
+            $table->string('origin_type')->default('internal');
 
-            $table->string('authority_name')->nullable();  // Nome specifico autorità/cliente richiedente
+            // Modalità di esecuzione (Es. Documentale, In Loco/Ispezione, Schedulato)
+            $table->string('execution_method')->default('documentale');
 
-            // Dati audit
+            // Ente Vigilante / Soggetto terzo che richiede o esegue l'audit (OAM, Banca d'Italia, IVASS, ecc.)
+            // Diventa stringa libera o slug gestito da PHP Enum, molto più flessibile
+            $table->string('authority_type')->nullable();
+            $table->string('authority_name')->nullable();
+
+            // Dati descrittivi
             $table->string('title');
-            $table->text('scope')->nullable();  // Perimetro / oggetto dell'audit
-            $table->date('audit_date');
-            $table->date('followup_date')->nullable();  // Data prevista follow-up
+            $table->text('scope')->nullable();
 
-            $table->enum('status', [
-                'planned',  // Pianificato
-                'in_progress',  // In corso
-                'completed',  // Completato (senza rilievi o rilievi chiusi)
-                'pending_followup',  // In attesa di follow-up
-            ])->default('planned');
+            // Date: separiamo pianificata ed effettiva per calcolare i ritardi
+            $table->date('scheduled_at');
+            $table->date('executed_at')->nullable();
+            $table->date('followup_date')->nullable();
 
-            $table->text('summary')->nullable();  // Sintesi dell'audit
-            $table->text('auditor_notes')->nullable();  // Note dell'auditor
+            // Stato dell'avanzamento (gestito tramite PHP Enum)
+            $table->string('status')->default('planned');
+
+            // Esito finale dell'audit: aiuta a fare reportistica immediata (es. Superato, Con Rilievi, Fallito)
+            $table->string('outcome')->nullable();
+
+            // Note e sintesi
+            $table->text('summary')->nullable();
+            $table->text('auditor_notes')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::connection('mysql')->dropIfExists('audits');
+        // FIX: Rimosso il vincolo fisso su 'mysql' per garantire compatibilità con i test (es. SQLite in-memory)
+        Schema::dropIfExists('audits');
     }
 };
