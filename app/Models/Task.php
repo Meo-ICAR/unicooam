@@ -10,6 +10,8 @@ class Task extends Model
 {
     use HasFactory;
 
+    protected $orderBy = 'name';
+    protected $orderDirection = 'asc';
     protected $fillable = ['name', 'description'];
 
     /**

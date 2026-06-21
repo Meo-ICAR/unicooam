@@ -12,6 +12,9 @@ class TrainingRecord extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $orderBy = 'expiry_date';
+    protected $orderDirection = 'asc';
+
     protected $fillable = [
         'company_id',
         'trainable_type',

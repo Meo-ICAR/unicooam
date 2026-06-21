@@ -14,6 +14,9 @@ class Employee extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $orderBy = 'name';
+    protected $orderDirection = 'asc';
+
     protected $fillable = [
         'company_id',
         'user_id',

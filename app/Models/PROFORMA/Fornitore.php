@@ -20,11 +20,15 @@ class Fornitore extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
+    protected $orderBy = 'name';
+    protected $orderDirection = 'asc';
 
     protected $fillable = [
         'codice',
         'coge',
         'name',
+        'pec',
+        'email_private',
         'nome',
         'natoil',
         'indirizzo',

@@ -27,6 +27,8 @@ class CompanyResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Settings';
 
+    protected static ?string $navigationLabel = 'Azienda';
+
     public static function form(Schema $schema): Schema
     {
         return CompanyForm::configure($schema);

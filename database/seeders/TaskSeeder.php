@@ -15,12 +15,24 @@ class TaskSeeder extends Seeder
                 'description' => 'Attività e documenti richiesti per il caricamento di una nuova anagrafica.',
             ],
             [
-                'name' => 'Renew',
+                'name' => 'OAM-Agenti',
+                'description' => 'Attività e controlli per il rinnovo periodico OAM',
+            ],
+            [
+                'name' => 'OAM-Semestrale',
+                'description' => 'Documenti semestrale OAM',
+            ],
+            [
+                'name' => 'Renewal',
                 'description' => 'Attività e controlli per il rinnovo periodico delle convenzioni o contratti.',
             ],
             [
                 'name' => 'Audit',
                 'description' => 'Attività di controllo conformità e verifica della documentazione interna.',
+            ],
+            [
+                'name' => 'Ispezione',
+                'description' => 'Attività di ispezione e verifica della documentazione.',
             ],
             [
                 'name' => 'OffBoarding',

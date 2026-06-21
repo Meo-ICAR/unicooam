@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Fornitores\Tables;
 
+use App\Filament\Exports\DynamicGroupExport;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -10,12 +11,24 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class FornitoresTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('name')
+            ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        DynamicGroupExport::make()
+                        //    ->groupBy('Produttore')  // Campo per il raggruppamento
+                        //    ->sumColumns(['Provvigione']),  // Campi da sommare
+                    ])
+                    ->label('Excel')
+                    ->color('success'),
+            ])
             ->columns([
                 // DATI PRINCIPALI
                 TextColumn::make('name')
@@ -23,6 +36,28 @@ class FornitoresTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
+                TextColumn::make('piva')
+                    ->label('P. IVA')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('oam')
+                    ->label('OAM')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable()
+                    ->icon('heroicon-m-envelope')
+                    ->copyable(),
+                TextColumn::make('tel')
+                    ->label('Telefono')
+                    ->searchable()
+                    ->icon('heroicon-m-phone'),
+                TextColumn::make('pec')
+                    ->label('PEC')
+                    ->searchable()
+                    ->icon('heroicon-m-envelope')
+                    ->copyable(),
                 TextColumn::make('nome')
                     ->label('Referente')
                     ->searchable()
@@ -39,14 +74,6 @@ class FornitoresTable
                     ->searchable()
                     ->icon('heroicon-m-envelope')
                     ->copyable(),
-                TextColumn::make('tel')
-                    ->label('Telefono')
-                    ->searchable()
-                    ->icon('heroicon-m-phone'),
-                TextColumn::make('piva')
-                    ->label('P. IVA')
-                    ->searchable()
-                    ->toggleable(),
                 // STATO E INQUADRAMENTO
                 IconColumn::make('is_active')
                     ->label('Attivo')
@@ -61,10 +88,6 @@ class FornitoresTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 // ALBI PROFESSIONALI (nascosti di default per non affollare la vista)
-                TextColumn::make('oam')
-                    ->label('OAM')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ivass')
                     ->label('IVASS')
                     ->searchable()

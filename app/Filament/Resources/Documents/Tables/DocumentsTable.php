@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Documents\Tables;
 
+use App\Filament\Exports\DynamicGroupExport;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -11,12 +12,23 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class DocumentsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        DynamicGroupExport::make()
+                        //    ->groupBy('Produttore')  // Campo per il raggruppamento
+                        //    ->sumColumns(['Provvigione']),  // Campi da sommare
+                    ])
+                    ->label('Excel')
+                    ->color('success'),
+            ])
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')

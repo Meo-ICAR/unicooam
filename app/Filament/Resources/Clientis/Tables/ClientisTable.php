@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Clientis\Tables;
 
+use App\Filament\Exports\DynamicGroupExport;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -10,12 +11,24 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\ToggledFilter;
 use Filament\Tables\Table;
+use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class ClientisTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('name')
+            ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        DynamicGroupExport::make()
+                        //    ->groupBy('Produttore')  // Campo per il raggruppamento
+                        //    ->sumColumns(['Provvigione']),  // Campi da sommare
+                    ])
+                    ->label('Excel')
+                    ->color('success'),
+            ])
             ->columns([
                 TextColumn::make('name')
                     ->searchable()

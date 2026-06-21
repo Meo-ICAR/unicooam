@@ -10,6 +10,9 @@ class DocumentType extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $orderBy = 'name';
+    protected $orderDirection = 'asc';
+
     protected $fillable = [
         'name',
         'description',

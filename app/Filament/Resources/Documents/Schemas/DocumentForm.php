@@ -5,8 +5,8 @@ namespace App\Filament\Resources\Documents\Schemas;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -16,21 +16,17 @@ class DocumentForm
     {
         return $schema
             ->components([
-                Select::make('company_id')
-                    ->relationship('company', 'name'),
-                TextInput::make('documentable_type')
-                    ->required(),
-                TextInput::make('documentable_id')
-                    ->required(),
-                Select::make('document_type_id')
-                    ->relationship('documentType', 'name'),
                 TextInput::make('name'),
-                TextInput::make('docnumber'),
-                TextInput::make('spatie_collection')
-                    ->required()
-                    ->default('default'),
+                DatePicker::make('emitted_at'),
+                DatePicker::make('expires_at'),
+                Toggle::make('is_endMonth')
+                    ->required(),
                 TextInput::make('document_url')
                     ->url()
+                    ->required()
+                    ->default('default'),
+                TextInput::make('docnumber'),
+                TextInput::make('spatie_collection')
                     ->required()
                     ->default('default'),
                 TextInput::make('status')
@@ -58,11 +54,7 @@ class DocumentForm
                     ->required(),
                 Toggle::make('is_unique')
                     ->required(),
-                Toggle::make('is_endMonth')
-                    ->required(),
                 TextInput::make('emitted_by'),
-                DatePicker::make('emitted_at'),
-                DatePicker::make('expires_at'),
                 DateTimePicker::make('delivered_at'),
                 DateTimePicker::make('signed_at'),
                 Textarea::make('description')
@@ -85,6 +77,14 @@ class DocumentForm
                 TextInput::make('deleted_by')
                     ->numeric(),
                 TextInput::make('file_hash'),
+                Select::make('company_id')
+                    ->relationship('company', 'name'),
+                TextInput::make('documentable_type')
+                    ->required(),
+                TextInput::make('documentable_id')
+                    ->required(),
+                Select::make('document_type_id')
+                    ->relationship('documentType', 'name'),
             ]);
     }
 }

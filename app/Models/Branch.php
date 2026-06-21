@@ -12,6 +12,9 @@ class Branch extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $orderBy = 'name';
+    protected $orderDirection = 'asc';
+
     /**
      * I campi assegnabili in massa.
      *

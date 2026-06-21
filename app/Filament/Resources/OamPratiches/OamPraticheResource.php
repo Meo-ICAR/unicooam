@@ -24,6 +24,8 @@ class OamPraticheResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'prodotto_creditizio';
 
+    protected static ?string $navigationLabel = 'Semestrale Dettaglio';
+
     protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $schema): Schema

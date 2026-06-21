@@ -27,6 +27,8 @@ class EmployeeResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
+    protected static ?string $navigationLabel = 'Dipendenti';
+
     protected static ?int $navigationSort = 7;
 
     public static function form(Schema $schema): Schema

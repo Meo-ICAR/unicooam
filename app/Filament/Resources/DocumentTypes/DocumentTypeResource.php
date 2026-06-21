@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use BackedEnum;
+use UnitEnum;
 
 class DocumentTypeResource extends Resource
 {
@@ -24,7 +25,10 @@ class DocumentTypeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static bool $shouldRegisterNavigation = false;
+    // protected static bool $shouldRegisterNavigation = false;
+    protected static UnitEnum|string|null $navigationGroup = 'Settings';
+
+    protected static ?string $navigationLabel = 'Tipo Documenti';
 
     public static function form(Schema $schema): Schema
     {

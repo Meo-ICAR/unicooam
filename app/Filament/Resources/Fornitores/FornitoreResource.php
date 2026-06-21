@@ -25,6 +25,10 @@ class FornitoreResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
+    protected static ?string $navigationLabel = 'Produttori';
+
+    protected static ?int $navigationSort = 2;
+
     public static function form(Schema $schema): Schema
     {
         return FornitoreForm::configure($schema);

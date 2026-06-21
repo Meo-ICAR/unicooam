@@ -8,17 +8,19 @@ use App\Filament\Resources\OamSemestrales\Pages\ListOamSemestrales;
 use App\Filament\Resources\OamSemestrales\Schemas\OamSemestraleForm;
 use App\Filament\Resources\OamSemestrales\Tables\OamSemestralesTable;
 use App\Models\OamSemestrale;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use BackedEnum;
 
 class OamSemestraleResource extends Resource
 {
     protected static ?string $model = OamSemestrale::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static ?string $navigationLabel = 'OAM Semestrale';
 
     public static function form(Schema $schema): Schema
     {

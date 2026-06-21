@@ -18,6 +18,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 // use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use App\Filament\Exports\DynamicGroupExport;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -39,6 +40,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use pxlrbt\FilamentExcel\Actions\ExportAction;
 // use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeesTable
@@ -49,39 +51,36 @@ class EmployeesTable
     {
         return $table
             ->defaultSort('name')
+            ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        DynamicGroupExport::make()
+                        //    ->groupBy('Produttore')  // Campo per il raggruppamento
+                        //    ->sumColumns(['Provvigione']),  // Campi da sommare
+                    ])
+                    ->label('Excel')
+                    ->color('success'),
+            ])
             ->columns([
                 TextColumn::make('name')
                     ->label('Nominativo')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('role_title')
-                    ->label('Ruolo')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('employe_type.name')
-                    ->label('Tipo di impiego')
-                    ->searchable(),
                 TextColumn::make('hiring_date')
                     ->date()
                     ->sortable(),
-                TextColumn::make('coordinatedBy.name')
-                    ->label('Coordinato da')
-                    ->searchable()
-                    ->placeholder('Nessun coordinatore'),
-                TextColumn::make('company_branch.name')
-                    ->label('Sede')
-                    ->sortable()
-                    ->searchable(),
                 TextColumn::make('numero_iscrizione_rui')
-                    ->label('Numero Iscrizione OAM')
+                    ->label('Cod. OAM')
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
                     ->searchable(),
                 TextColumn::make('phone')
                     ->searchable(),
-                TextColumn::make('department')
-                    ->searchable(),
+                TextColumn::make('coordinatedBy.name')
+                    ->label('Coordinato da')
+                    ->searchable()
+                    ->placeholder('Nessun coordinatore'),
                 TextColumn::make('termination_date')
                     ->date()
                     ->sortable(),

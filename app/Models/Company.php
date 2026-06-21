@@ -15,6 +15,10 @@ class Company extends Model
      *
      * @var array<int, string>
      */
+    protected $orderBy = 'name';
+
+    protected $orderDirection = 'asc';
+
     protected $fillable = [
         'name',
         'vat_number',

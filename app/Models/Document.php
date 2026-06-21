@@ -13,6 +13,9 @@ class Document extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
+    protected $orderBy = 'name';
+    protected $orderDirection = 'asc';
+
     protected $fillable = [
         'company_id',
         'documentable_type',

@@ -25,6 +25,10 @@ class ClientiResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
+    protected static ?string $navigationLabel = 'Istituti';
+
+    protected static ?int $navigationSort = 5;
+
     public static function form(Schema $schema): Schema
     {
         return ClientiForm::configure($schema);

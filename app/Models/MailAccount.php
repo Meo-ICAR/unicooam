@@ -11,6 +11,9 @@ class MailAccount extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $orderBy = 'name';
+    protected $orderDirection = 'asc';
+
     protected $fillable = [
         'name',
         'email_address',
