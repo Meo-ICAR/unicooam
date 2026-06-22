@@ -23,6 +23,14 @@ return new class extends Migration {
 
             $table->string('name')->comment('Nome della filiale (es. Sede Milano, Ufficio Roma)');
 
+            // Campi Indirizzo (posizionati in sequenza naturale)
+            $table->string('address', 255)->nullable()->comment('Via/Piazza della sede');
+            $table->string('street_number', 20)->nullable()->comment('Numero civico della sede');
+            $table->string('city', 100)->nullable()->comment('Città della sede');
+            $table->string('zip_code', 10)->nullable()->comment('CAP della sede');
+            $table->string('province', 100)->nullable()->comment('Provincia della sede (nome esteso)');
+            $table->string('region', 100)->nullable()->comment('Regione della sede');
+
             // Campi per Relazione Polimorfica (Manuali poiché l'ID deve supportare stringhe/UUID)
             $table->string('branchable_type')->nullable()->comment('Nome della classe del modello associato (Relazione Polimorfica)');
             $table->string('branchable_id')->nullable()->comment('ID del record del modello associato (Relazione Polimorfica)');
@@ -37,32 +45,6 @@ return new class extends Migration {
             // Date specifiche della filiale
             $table->timestamp('founded_at')->nullable()->comment('Data e ora di apertura/fondazione della filiale');
             $table->timestamp('dismissed_at')->nullable()->comment('Data e ora di chiusura/dismissione della filiale');
-
-            $table
-                ->string('address', 255)
-                ->nullable()
-                ->comment('Via/Piazza della sede');
-            $table
-                ->string('street_number', 20)
-                ->nullable()
-                ->comment('Numero civico');
-            $table
-                ->string('city', 100)
-                ->nullable()
-                ->comment('Città della sede');
-            $table
-                ->string('zip_code', 10)
-                ->nullable()
-                ->comment('CAP della sede');
-            $table
-                ->string('province', 100)
-                ->nullable()
-                ->comment('Provincia della sede (nome esteso)');
-            $table
-                ->string('region', 100)
-                ->nullable()
-                ->after('province')
-                ->comment('Regione della sede');
 
             // Timestamps e SoftDeletes di Laravel
             $table->timestamps();
