@@ -22,7 +22,7 @@ return new class extends Migration {
             // Enum Ambiti Regolatori
             $table->enum('regulatory_framework', [
                 'gdpr', 'oam', 'ivass', 'sicurezza_lavoro', 'antiriciclaggio', 'mifid', 'other'
-            ]);
+            ])->nullable();
 
             $table->string('name')->nullable();
             $table->text('description')->nullable();

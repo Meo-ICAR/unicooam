@@ -57,8 +57,8 @@ class DatabaseSeeder extends Seeder
             OamCodeSeeder::class,
             RemediationSeeder::class,
             TaskSeeder::class,
-            TrainingRecordSeeder::class,
             SuspiciousActivityReportSeeder::class,
+            TrainingRecordSeeder::class,
         ]);
     }
 }

@@ -22,6 +22,7 @@ class TrainingRecordSeeder extends Seeder
         // Per il polimorfismo stabiliamo che il corso sia frequentato da un Fornitore
         $fornitoreId = Fornitore::first()->id;
         $trainableType = 'App\Models\PROFORMA\Fornitore';
+        $userId = User::first()->id;
 
         $records = [
             [
@@ -29,8 +30,8 @@ class TrainingRecordSeeder extends Seeder
                 'trainable_type' => $trainableType,
                 'trainable_id' => $userId,
                 'regulatory_framework' => 'oam',
-                'course_title' => 'Aggiornamento Professionale OAM 2026',
-                'course_description' => 'Corso obbligatorio sulle nuove direttive di trasparenza bancaria.',
+                'name' => 'Aggiornamento Professionale OAM 2026',
+                'description' => 'Corso obbligatorio sulle nuove direttive di trasparenza bancaria.',
                 'provider' => 'Accademia Finanziaria Italiana',
                 'trainer' => 'Dott. Mario Rossi',
                 'delivery_mode' => 'online',
@@ -50,8 +51,8 @@ class TrainingRecordSeeder extends Seeder
                 'trainable_type' => $trainableType,
                 'trainable_id' => $userId,
                 'regulatory_framework' => 'gdpr',
-                'course_title' => 'Privacy e Sicurezza dei Dati in Azienda',
-                'course_description' => 'Sensibilizzazione al trattamento dei dati sensibili della clientela.',
+                'name' => 'Privacy e Sicurezza dei Dati in Azienda',
+                'description' => 'Sensibilizzazione al trattamento dei dati sensibili della clientela.',
                 'provider' => 'E-Learning Corporate',
                 'trainer' => 'Ing. Silvia Bianchi',
                 'delivery_mode' => 'webinar',
