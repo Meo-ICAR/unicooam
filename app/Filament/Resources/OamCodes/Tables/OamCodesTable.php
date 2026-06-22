@@ -15,15 +15,19 @@ class OamCodesTable
         return $table
             ->columns([
                 TextColumn::make('tipo_prodotto')
+                    ->label('Tipo prodotto')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('description')
+                    ->label('Descrizione')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('code')
+                    ->label('Codice OAM')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nome')
                     ->sortable()
                     ->searchable(),
             ])

@@ -31,100 +31,151 @@ class WebsitesRelationManager extends RelationManager
 {
     protected static string $relationship = 'websites';
 
+    protected static ?string $title = 'Siti web';
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('company_id')
+                    ->label('Azienda')
                     ->relationship('company', 'name'),
                 TextInput::make('name')
+                    ->label('Nome sito')
                     ->required(),
-                TextInput::make('type'),
+                TextInput::make('type')
+                    ->label('Tipologia')
+                    ->placeholder('es. vetrina, e-commerce, landing'),
                 TextInput::make('clienti_id')
+                    ->label('ID mandante')
                     ->numeric(),
                 Toggle::make('is_active')
+                    ->label('Attivo')
                     ->required(),
                 TextInput::make('domain')
+                    ->label('Dominio')
                     ->required(),
                 Toggle::make('is_typical')
+                    ->label('Attività tipica')
                     ->required(),
-                DatePicker::make('privacy_date'),
-                DatePicker::make('transparency_date'),
-                DatePicker::make('privacy_prior_date'),
-                DatePicker::make('transparency_prior_date'),
-                TextInput::make('url_privacy'),
-                TextInput::make('url_cookies'),
+                DatePicker::make('privacy_date')
+                    ->label('Data privacy policy')
+                    ->native(false)
+                    ->displayFormat('d/m/Y'),
+                DatePicker::make('transparency_date')
+                    ->label('Data trasparenza')
+                    ->native(false)
+                    ->displayFormat('d/m/Y'),
+                DatePicker::make('privacy_prior_date')
+                    ->label('Data precedente privacy')
+                    ->native(false)
+                    ->displayFormat('d/m/Y'),
+                DatePicker::make('transparency_prior_date')
+                    ->label('Data precedente trasparenza')
+                    ->native(false)
+                    ->displayFormat('d/m/Y'),
+                TextInput::make('url_privacy')
+                    ->label('URL privacy policy')
+                    ->url(),
+                TextInput::make('url_cookies')
+                    ->label('URL cookie policy')
+                    ->url(),
                 Toggle::make('is_footercompilant')
+                    ->label('Footer conforme')
                     ->required(),
-                TextInput::make('url_transparency'),
+                TextInput::make('url_transparency')
+                    ->label('URL trasparenza')
+                    ->url(),
                 Toggle::make('is_iso27001_certified')
+                    ->label('Certificato ISO 27001')
                     ->required(),
-                TextInput::make('websiteable_type'),
-                TextInput::make('websiteable_id'),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('url')
+            ->recordTitleAttribute('domain')
             ->columns([
                 TextColumn::make('company.name')
+                    ->label('Azienda')
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
                 TextColumn::make('type')
+                    ->label('Tipologia')
                     ->searchable(),
                 TextColumn::make('clienti_id')
+                    ->label('ID mandante')
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_active')
+                    ->label('Attivo')
                     ->boolean(),
                 TextColumn::make('domain')
+                    ->label('Dominio')
                     ->searchable(),
                 IconColumn::make('is_typical')
+                    ->label('Attività tipica')
                     ->boolean(),
                 TextColumn::make('privacy_date')
-                    ->date()
+                    ->label('Privacy')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('transparency_date')
-                    ->date()
+                    ->label('Trasparenza')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('privacy_prior_date')
-                    ->date()
-                    ->sortable(),
+                    ->label('Privacy precedente')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('transparency_prior_date')
-                    ->date()
-                    ->sortable(),
+                    ->label('Trasparenza precedente')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('url_privacy')
-                    ->searchable(),
+                    ->label('URL privacy')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('url_cookies')
-                    ->searchable(),
+                    ->label('URL cookie')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_footercompilant')
-                    ->boolean(),
+                    ->label('Footer conforme')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('url_transparency')
-                    ->searchable(),
+                    ->label('URL trasparenza')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_iso27001_certified')
-                    ->boolean(),
-                TextColumn::make('websiteable_type')
-                    ->searchable(),
-                TextColumn::make('websiteable_id')
-                    ->searchable(),
+                    ->label('ISO 27001')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Aggiornato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->label('Eliminato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->label('Eliminati'),
             ])
             ->headerActions([
                 CreateAction::make(),

@@ -19,91 +19,138 @@ class DocumentTypesTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
                 TextColumn::make('description')
+                    ->label('Descrizione')
                     ->searchable(),
                 TextColumn::make('code')
+                    ->label('Codice')
                     ->searchable(),
                 TextColumn::make('codegroup')
+                    ->label('Gruppo codice')
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable(),
                 TextColumn::make('regex_pattern')
-                    ->searchable(),
+                    ->label('Pattern regex')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('priority')
+                    ->label('Priorità')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('phase')
-                    ->searchable(),
+                    ->label('Fase')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_person')
-                    ->boolean(),
+                    ->label('Persona fisica')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_company')
-                    ->boolean(),
+                    ->label('Azienda')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_employee')
-                    ->boolean(),
+                    ->label('Dipendente')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_agent')
-                    ->boolean(),
+                    ->label('Agente')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_principal')
-                    ->boolean(),
+                    ->label('Mandante')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_client')
-                    ->boolean(),
+                    ->label('Cliente')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_practice')
-                    ->boolean(),
+                    ->label('Pratica')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_signed')
-                    ->boolean(),
+                    ->label('Richiede firma')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_monitored')
-                    ->boolean(),
+                    ->label('Monitorato')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('duration')
+                    ->label('Durata (giorni)')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('emitted_by')
-                    ->searchable(),
+                    ->label('Emesso da')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_sensible')
-                    ->boolean(),
+                    ->label('Dati sensibili')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_template')
-                    ->boolean(),
+                    ->label('Modello')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_stored')
-                    ->boolean(),
+                    ->label('Archiviato')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('regex')
-                    ->searchable(),
+                    ->label('Regex validazione')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_endmonth')
-                    ->boolean(),
+                    ->label('Scadenza a fine mese')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_AiAbstract')
-                    ->boolean(),
+                    ->label('Riassunto AI')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_AiCheck')
-                    ->boolean(),
+                    ->label('Controllo AI')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('min_confidence')
+                    ->label('Affidabilità minima (%)')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('allow_auto_verification')
-                    ->boolean(),
+                    ->label('Verifica automatica')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('retention_years')
+                    ->label('Anni conservazione')
                     ->numeric()
-                    ->sortable(),
-                TextColumn::make('created_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('updated_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('deleted_by')
-                    ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Aggiornato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->label('Eliminato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->label('Eliminati'),
             ])
             ->recordActions([
                 EditAction::make(),

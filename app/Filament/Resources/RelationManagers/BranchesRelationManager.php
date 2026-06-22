@@ -15,7 +15,6 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -31,6 +30,8 @@ class BranchesRelationManager extends RelationManager
 {
     protected static string $relationship = 'branches';
 
+    protected static ?string $title = 'Filiali';
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -41,6 +42,20 @@ class BranchesRelationManager extends RelationManager
                 Toggle::make('is_main_office')
                     ->label('Indica se è la Sede Legale/Operativa principale (1 = Sì, 0 = No)')
                     ->required(),
+                TextInput::make('address')
+                    ->label('Via / Piazza'),
+                TextInput::make('street_number')
+                    ->label('Numero civico')
+                    ->maxLength(20),
+                TextInput::make('city')
+                    ->label('Città'),
+                TextInput::make('zip_code')
+                    ->label('CAP')
+                    ->maxLength(10),
+                TextInput::make('province')
+                    ->label('Provincia'),
+                TextInput::make('region')
+                    ->label('Regione'),
                 TextInput::make('manager_first_name')
                     ->label('Nome del responsabile della filiale'),
                 TextInput::make('manager_last_name')
@@ -63,23 +78,27 @@ class BranchesRelationManager extends RelationManager
                     ->label('Nome della filiale (es. Sede Milano, Ufficio Roma)')
                     ->searchable(),
                 IconColumn::make('is_main_office')
-                    ->label('Indica se è la Sede Legale/Operativa principale (1 = Sì, 0 = No)')
+                    ->label('Sede principale')
                     ->boolean(),
-                TextColumn::make('manager_first_name')
-                    ->label('Nome del responsabile della filiale')
+                TextColumn::make('address')
+                    ->label('Indirizzo')
+                    ->formatStateUsing(fn ($record) => trim(($record->address ?? '').' '.($record->street_number ?? '')))
                     ->searchable(),
+                TextColumn::make('city')
+                    ->label('Città')
+                    ->searchable(),
+                TextColumn::make('province')
+                    ->label('Provincia'),
                 TextColumn::make('manager_last_name')
-                    ->label('Cognome del responsabile della filiale')
-                    ->searchable(),
-                TextColumn::make('manager_tax_code')
-                    ->label('Codice Fiscale del responsabile della filiale')
+                    ->label('Responsabile')
+                    ->formatStateUsing(fn ($record) => trim(($record->manager_last_name ?? '').' '.($record->manager_first_name ?? '')))
                     ->searchable(),
                 TextColumn::make('founded_at')
-                    ->label('Data e ora di apertura/fondazione della filiale')
+                    ->label('Data apertura')
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('dismissed_at')
-                    ->label('Data e ora di chiusura/dismissione della filiale')
+                    ->label('Data chiusura')
                     ->dateTime()
                     ->sortable(),
             ])

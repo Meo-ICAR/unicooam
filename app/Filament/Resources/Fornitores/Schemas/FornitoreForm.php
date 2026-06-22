@@ -6,7 +6,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -41,7 +40,7 @@ class FornitoreForm
                                 ->tel()
                                 ->maxLength(255),
                             TextInput::make('email')
-                                ->label('Email')
+                                ->label('Indirizzo email')
                                 ->email()
                                 ->maxLength(255),
                             TextInput::make('pec')
@@ -113,7 +112,7 @@ class FornitoreForm
                             DatePicker::make('ivass_at')
                                 ->label('Data iscrizione IVASS')
                                 ->displayFormat('d/m/Y'),
-                        ])
+                        ]),
                     ])
                     ->collapsed(),
                 // 3. DATI CONTRATTUALI E INQUADRAMENTO
@@ -143,7 +142,7 @@ class FornitoreForm
                             Select::make('enasarco')
                                 ->label('Mandato ENASARCO')
                                 ->options([
-                                    'no' => 'No',
+                                    'no' => 'Nessuno',
                                     'monomandatario' => 'Monomandatario',
                                     'plurimandatario' => 'Plurimandatario',
                                     'societa' => 'Società',
@@ -156,7 +155,7 @@ class FornitoreForm
                             Select::make('supervisor_type')
                                 ->label('Tipo Supervisore')
                                 ->options([
-                                    'no' => 'No',
+                                    'no' => 'Nessuno',
                                     'si' => 'Sì',
                                     'filiale' => 'Filiale',
                                 ])
@@ -177,7 +176,7 @@ class FornitoreForm
                             TextInput::make('campagna')
                                 ->label('Codice Campagna')
                                 ->maxLength(255),
-                        ])
+                        ]),
                     ])
                     ->collapsed(),
                 // 4. DATI ECONOMICI E CONTABILI
@@ -199,7 +198,7 @@ class FornitoreForm
                         ]),
                         Grid::make(3)->schema([
                             TextInput::make('budget')
-                                ->label('Budget')
+                                ->label('Budget previsto')
                                 ->numeric()
                                 ->prefix('€'),
                             TextInput::make('welcome_bonus')
@@ -233,7 +232,7 @@ class FornitoreForm
                             DatePicker::make('contributodalmese')
                                 ->label('Contributo Dal Mese')
                                 ->displayFormat('m/Y'),
-                        ])
+                        ]),
                     ])
                     ->collapsed(),
                 // 5. RELAZIONI E ID DI SISTEMA
@@ -264,7 +263,7 @@ class FornitoreForm
                                 ->label('Note / Descrizione Aggiuntiva')
                                 ->maxLength(255)
                                 ->columnSpanFull(),
-                        ])
+                        ]),
                     ])
                     ->collapsed(),
             ]);

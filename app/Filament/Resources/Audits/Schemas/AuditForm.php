@@ -8,15 +8,11 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Filament\Forms;
 use Illuminate\Support\Str;
 
 class AuditForm
@@ -37,7 +33,7 @@ class AuditForm
                             ->columnSpanFull(),
                         TextInput::make('protocol_number')
                             ->label('Numero Protocollo')
-                            ->default(fn() => 'AUD-' . date('Y') . '-' . strtoupper(Str::random(6)))
+                            ->default(fn () => 'AUD-'.date('Y').'-'.strtoupper(Str::random(6)))
                             ->unique(ignoreRecord: true)
                             ->placeholder('Autogenerato se vuoto'),
                         Select::make('origin_type')
@@ -52,7 +48,7 @@ class AuditForm
                         // CAMPI CONDIZIONALI: Mostrati solo se l'audit è "In Entrata" (Incoming)
                         Grid::make(2)
                             ->schema([
-                                Forms\Components\Select::make('authority_type')
+                                Select::make('authority_type')
                                     ->label('Tipo Autorità / Richiedente')
                                     ->options([
                                         'oam' => 'OAM',
@@ -94,17 +90,18 @@ class AuditForm
                             ->required()
                             ->live()
                             // Quando cambia il tipo, resetta l'ID del soggetto precedentemente selezionato
-                            ->afterStateUpdated(fn(Set $set) => $set('auditable_id', null)),
+                            ->afterStateUpdated(fn (Set $set) => $set('auditable_id', null)),
                         Select::make('auditable_id')
                             ->label('Soggetto Specifico')
-                            ->placeholder(fn(Get $get) => $get('auditable_type')
+                            ->placeholder(fn (Get $get) => $get('auditable_type')
                                 ? 'Seleziona dalla lista...'
                                 : 'Scegli prima la Natura del Soggetto')
                             //    ->disabled(fn(Get $get) => !$get('auditable_type'))
                             ->options(function (Get $get) {
                                 $type = $get('auditable_type');
-                                if (!$type || !class_exists($type))
+                                if (! $type || ! class_exists($type)) {
                                     return [];
+                                }
 
                                 // Pluck dinamico dei dati in base al modello selezionato
                                 return match ($type) {
@@ -137,7 +134,7 @@ class AuditForm
                                 'con_rilievi' => 'Superato con Rilievi',
                                 'fallito' => 'Non Superato / Critico',
                             ])
-                            ->disabled(fn(Get $get) => in_array($get('status'), [AuditStatus::Planned->value, null]))
+                            ->disabled(fn (Get $get) => in_array($get('status'), [AuditStatus::Planned->value, null]))
                             ->placeholder('In attesa di esito'),
                         DatePicker::make('scheduled_at')
                             ->label('Data Pianificata')
@@ -149,7 +146,7 @@ class AuditForm
                             ->native(false)
                             ->displayFormat('d/m/Y'),
                         DatePicker::make('followup_date')
-                            ->label('Data Prevista Follow-up')
+                            ->label('Data prevista verifica di follow-up')
                             ->native(false)
                             ->displayFormat('d/m/Y'),
                     ]),
@@ -164,7 +161,7 @@ class AuditForm
                         RichEditor::make('summary')
                             ->label("Sintesi dell'Audit (Verbale / Risultanze)")
                             ->toolbarButtons([
-                                'blockquote', 'bold', 'bulletList', 'orderedList', 'redo', 'undo'
+                                'blockquote', 'bold', 'bulletList', 'orderedList', 'redo', 'undo',
                             ])
                             ->columnSpanFull(),
                         Textarea::make('auditor_notes')

@@ -18,34 +18,44 @@ class SuspiciousActivityReportsTable
         return $table
             ->columns([
                 TextColumn::make('company.name')
+                    ->label('Azienda')
                     ->searchable(),
                 TextColumn::make('client.name')
+                    ->label('Cliente')
                     ->searchable(),
                 TextColumn::make('reporter_type')
+                    ->label('Tipo segnalatore')
                     ->searchable(),
                 TextColumn::make('reporter_id')
+                    ->label('ID segnalatore')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('status')
+                    ->label('Stato')
                     ->badge(),
                 TextColumn::make('reported_at')
-                    ->dateTime()
+                    ->label('Segnalato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Aggiornato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->label('Eliminato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->label('Eliminati'),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -2,37 +2,13 @@
 
 namespace App\Filament\Resources\Employees\Schemas;
 
-use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ImportAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
-use Filament\Notifications\Notification;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Table;
-use Filament\Forms;
-use Filament\Tables;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class EmployeeForm
 {
@@ -49,7 +25,7 @@ class EmployeeForm
                             ->required()
                             ->maxLength(255),
                         TextInput::make('email')
-                            ->label('Email')
+                            ->label('Indirizzo email')
                             ->email()
                             ->required()
                             ->maxLength(255),
@@ -113,16 +89,16 @@ class EmployeeForm
                         DatePicker::make('oam_at')
                             ->label('Data Iscrizione OAM')
                             ->nullable()
-                            ->visible(fn(callable $get) => $get('numero_iscrizione_rui')),
+                            ->visible(fn (callable $get) => $get('numero_iscrizione_rui')),
                         TextInput::make('oam_name')
                             ->label('Nome OAM')
                             ->maxLength(255)
                             ->nullable()
-                            ->visible(fn(callable $get) => $get('numero_iscrizione_rui')),
+                            ->visible(fn (callable $get) => $get('numero_iscrizione_rui')),
                         DatePicker::make('oam_dismissed_at')
                             ->label('Data Cancellazione OAM')
                             ->nullable()
-                            ->visible(fn(callable $get) => $get('numero_iscrizione_rui')),
+                            ->visible(fn (callable $get) => $get('numero_iscrizione_rui')),
                     ]),
                 // Documenti
                 Section::make('Documenti')

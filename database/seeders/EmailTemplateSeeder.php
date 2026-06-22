@@ -41,11 +41,12 @@ class EmailTemplateSeeder extends Seeder
                 'name' => 'Promemoria Scadenza Documentazione',
                 'subject' => 'Attenzione: Scadenza documentazione imminente ({documento_nome})',
                 'body' => "<p>Gentile <strong>{agente_nome}</strong>,</p>
-                           <p>Ti scriviamo per ricordarti che il documento <strong>{documento_nome}</strong> presente nei nostri archivi scadrà in data <strong>{data_scadenza}</strong>.</p>
-                           <p>Al fine di mantenere attivo il tuo mandato operativo senza interruzioni, ti invitiamo a caricare il documento aggiornato all'interno del tuo portale agente o a inviarlo in risposta a questa email il prima possibile.</p>
+                           <p>Ti scriviamo per ricordarti che i seguenti documenti presenti nei nostri archivi sono in scadenza o scaduti:</p>
+                           {elenco_documenti}
+                           <p>Al fine di mantenere attivo il tuo mandato operativo senza interruzioni, ti invitiamo a caricare i documenti aggiornati all'interno del portale o a inviarli in risposta a questa email il prima possibile.</p>
                            <p>Restiamo a disposizione per qualsiasi chiarimento.</p>
                            <p>Cordiali saluti,<br>Ufficio Rete</p>",
-                'placeholders' => json_encode(['{agente_nome}', '{documento_nome}', '{data_scadenza}']),
+                'placeholders' => json_encode(['{agente_nome}', '{documento_nome}', '{data_scadenza}', '{elenco_documenti}']),
                 'is_active' => true,
             ],
             [

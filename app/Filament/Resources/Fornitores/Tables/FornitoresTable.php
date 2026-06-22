@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Fornitores\Tables;
 
 use App\Filament\Exports\DynamicGroupExport;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -22,11 +21,11 @@ class FornitoresTable
             ->headerActions([
                 ExportAction::make()
                     ->exports([
-                        DynamicGroupExport::make()
+                        DynamicGroupExport::make(),
                         //    ->groupBy('Produttore')  // Campo per il raggruppamento
                         //    ->sumColumns(['Provvigione']),  // Campi da sommare
                     ])
-                    ->label('Excel')
+                    ->label('Esporta Excel')
                     ->color('success'),
             ])
             ->columns([
@@ -45,7 +44,7 @@ class FornitoresTable
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('email')
-                    ->label('Email')
+                    ->label('Indirizzo email')
                     ->searchable()
                     ->icon('heroicon-m-envelope')
                     ->copyable(),
@@ -70,7 +69,7 @@ class FornitoresTable
                     ->color('info'),
                 // CONTATTI
                 TextColumn::make('email')
-                    ->label('Email')
+                    ->label('Indirizzo email')
                     ->searchable()
                     ->icon('heroicon-m-envelope')
                     ->copyable(),
@@ -115,7 +114,7 @@ class FornitoresTable
                 SelectFilter::make('enasarco')
                     ->label('Mandato Enasarco')
                     ->options([
-                        'no' => 'No',
+                        'no' => 'Nessuno',
                         'monomandatario' => 'Monomandatario',
                         'plurimandatario' => 'Plurimandatario',
                         'societa' => 'Società',

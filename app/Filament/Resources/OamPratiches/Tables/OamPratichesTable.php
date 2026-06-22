@@ -3,15 +3,12 @@
 namespace App\Filament\Resources\OamPratiches\Tables;
 
 use App\Filament\Exports\DynamicGroupExport;
-use App\Models\OamCode;
 use App\Models\OamPratiche;
-use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
@@ -66,7 +63,7 @@ class OamPratichesTable
                     ->alignRight()
                     ->sortable(),
                 TextColumn::make('pratiche_intermediate')
-                    ->label('Intermediate')
+                    ->label('Intermedie')
                     ->numeric()  // Formatta automaticamente come € 1.234,56
                     ->alignRight()  // Allinea a destra per una lettura migliore
                     ->sortable(),
@@ -178,63 +175,59 @@ class OamPratichesTable
                     ->label('Prodotto Creditizio')
                     ->multiple()
                     ->searchable()
-                    ->options(fn() =>
-                        OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
-                            ->distinct()
-                            ->orderBy('prodotto_creditizio')  // Opzionale: ordina alfabeticamente se vuoi
-                            ->pluck('prodotto_creditizio', 'prodotto_creditizio')
-                            ->toArray()),
+                    ->options(fn () => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
+                        ->distinct()
+                        ->orderBy('prodotto_creditizio')  // Opzionale: ordina alfabeticamente se vuoi
+                        ->pluck('prodotto_creditizio', 'prodotto_creditizio')
+                        ->toArray()),
                 SelectFilter::make('tipo_prodotto')
                     ->label('Prodotto')
                     ->multiple()
                     ->searchable()
-                    ->options(fn() =>
-                        OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
-                            ->whereNotNull('tipo_prodotto')
-                            ->where('tipo_prodotto', '!=', '')  // Evita stringhe vuote
-                            ->distinct()
-                            ->orderBy('tipo_prodotto')  // Opzionale: ordina alfabeticamente se vuoi
-                            ->pluck('tipo_prodotto', 'tipo_prodotto')
-                            ->toArray()),
+                    ->options(fn () => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
+                        ->whereNotNull('tipo_prodotto')
+                        ->where('tipo_prodotto', '!=', '')  // Evita stringhe vuote
+                        ->distinct()
+                        ->orderBy('tipo_prodotto')  // Opzionale: ordina alfabeticamente se vuoi
+                        ->pluck('tipo_prodotto', 'tipo_prodotto')
+                        ->toArray()),
                 SelectFilter::make('istituto')
                     ->label('Istituto')
                     ->multiple()
                     ->searchable()
-                    ->options(fn() =>
-                        OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
-                            ->whereNotNull('istituto')
-                            ->where('istituto', '!=', '')  // Evita stringhe vuote
-                            ->distinct()
-                            ->orderBy('istituto')  // Opzionale: ordina alfabeticamente se vuoi
-                            ->pluck('istituto', 'istituto')
-                            ->toArray()),
+                    ->options(fn () => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
+                        ->whereNotNull('istituto')
+                        ->where('istituto', '!=', '')  // Evita stringhe vuote
+                        ->distinct()
+                        ->orderBy('istituto')  // Opzionale: ordina alfabeticamente se vuoi
+                        ->pluck('istituto', 'istituto')
+                        ->toArray()),
                 Filter::make('importo_retrocesse')
                     ->label('Stornate')
-                    ->query(fn(Builder $query): Builder => $query->where('importo_retrocesse', '!=', 0)),
+                    ->query(fn (Builder $query): Builder => $query->where('importo_retrocesse', '!=', 0)),
                 Filter::make('intermediari_non_convenzionati')
                     ->label('Intermediari Non Convenzionati')
-                    ->query(fn(Builder $query): Builder => $query->where('intermediari_non_convenzionati', '=', 1)),
+                    ->query(fn (Builder $query): Builder => $query->where('intermediari_non_convenzionati', '=', 1)),
                 SelectFilter::make('agente')
                     ->label('Agente')
                     ->multiple()
                     ->searchable()
-                    ->options(fn() =>
-                        OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
-                            ->whereNotNull('agente')
-                            ->where('agente', '!=', '')  // Evita stringhe vuote
-                            ->distinct()
-                            ->orderBy('agente')  // Opzionale: ordina alfabeticamente se vuoi
-                            ->pluck('agente', 'agente')
-                            ->toArray()),
+                    ->options(fn () => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
+                        ->whereNotNull('agente')
+                        ->where('agente', '!=', '')  // Evita stringhe vuote
+                        ->distinct()
+                        ->orderBy('agente')  // Opzionale: ordina alfabeticamente se vuoi
+                        ->pluck('agente', 'agente')
+                        ->toArray()),
             ], layout: FiltersLayout::AboveContent)
             ->headerActions([
                 ExportAction::make()
                     ->exports([
-                        DynamicGroupExport::make()
+                        DynamicGroupExport::make(),
                         //    ->groupBy('Produttore')  // Campo per il raggruppamento
                         //    ->sumColumns(['Provvigione']),  // Campi da sommare
                     ])
-                    ->label('Excel')
+                    ->label('Esporta Excel')
                     ->color('success'),
             ])
             ->recordActions([

@@ -22,7 +22,13 @@ class AuditFindingResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'title';
+
+    protected static ?string $navigationLabel = 'Rilievi audit';
+
+    protected static ?string $modelLabel = 'Rilievo';
+
+    protected static ?string $pluralModelLabel = 'Rilievi audit';
 
     public static function form(Schema $schema): Schema
     {

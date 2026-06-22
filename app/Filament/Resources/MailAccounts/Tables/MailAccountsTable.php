@@ -19,52 +19,73 @@ class MailAccountsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
                 TextColumn::make('email_address')
+                    ->label('Indirizzo email')
                     ->searchable(),
                 IconColumn::make('is_pec')
+                    ->label('PEC')
                     ->boolean(),
                 TextColumn::make('incoming_protocol')
+                    ->label('Protocollo in entrata')
                     ->badge(),
                 TextColumn::make('incoming_host')
+                    ->label('Host in entrata')
                     ->searchable(),
                 TextColumn::make('incoming_port')
+                    ->label('Porta in entrata')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('incoming_username')
+                    ->label('Username in entrata')
                     ->searchable(),
                 TextColumn::make('incoming_encryption')
+                    ->label('Crittografia in entrata')
                     ->badge(),
                 TextColumn::make('smtp_host')
+                    ->label('Host SMTP')
                     ->searchable(),
                 TextColumn::make('smtp_port')
+                    ->label('Porta SMTP')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('smtp_username')
+                    ->label('Username SMTP')
                     ->searchable(),
                 TextColumn::make('smtp_encryption')
+                    ->label('Crittografia SMTP')
                     ->badge(),
                 IconColumn::make('is_active')
+                    ->label('Attivo')
                     ->boolean(),
                 TextColumn::make('mailable_type')
-                    ->searchable(),
+                    ->label('Tipo entità collegata')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('mailable_id')
-                    ->searchable(),
+                    ->label('ID entità collegata')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Aggiornato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->label('Eliminato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->label('Eliminati'),
             ])
             ->recordActions([
                 EditAction::make(),

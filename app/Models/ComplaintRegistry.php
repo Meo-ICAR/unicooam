@@ -8,10 +8,10 @@ use App\Enums\ComplaintStatus;
 use App\Enums\ReceptionChannel;
 use App\Models\PROFORMA\Clienti;
 use App\Models\PROFORMA\Fornitore;
-use App\Models\Company;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ComplaintRegistry extends Model
@@ -102,6 +102,11 @@ class ComplaintRegistry extends Model
     public function bank(): BelongsTo
     {
         return $this->belongsTo(Clienti::class, 'id');
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 
     // ==========================================

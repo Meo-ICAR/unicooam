@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\OamSemestrales\Pages;
 
+use App\Filament\Actions\ExportOamAction;
+use App\Filament\Actions\ImportOamAction;
 use App\Filament\Resources\OamSemestrales\OamSemestraleResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -13,6 +15,8 @@ class ListOamSemestrales extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ImportOamAction::make(),
+            ExportOamAction::make(),
             CreateAction::make(),
         ];
     }

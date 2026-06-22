@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use App\Models\TrainingRecord;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
@@ -15,6 +14,7 @@ class Employee extends Model
     use HasFactory, SoftDeletes;
 
     protected $orderBy = 'name';
+
     protected $orderDirection = 'asc';
 
     protected $fillable = [
@@ -101,5 +101,10 @@ class Employee extends Model
     public function subordinates(): HasMany
     {
         return $this->hasMany(Employee::class, 'coordinated_by_id');
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 }

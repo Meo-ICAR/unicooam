@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Company extends Model
 {
@@ -55,5 +58,20 @@ class Company extends Model
     public function websites()
     {
         return $this->morphMany(Website::class, 'websiteable');
+    }
+
+    public function inspections(): HasMany
+    {
+        return $this->hasMany(CompanyInspection::class, 'company_id');
+    }
+
+    public function mailAccount(): MorphOne
+    {
+        return $this->morphOne(MailAccount::class, 'mailable');
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 }

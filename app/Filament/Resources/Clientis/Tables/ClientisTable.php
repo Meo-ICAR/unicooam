@@ -9,7 +9,6 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\ToggledFilter;
 use Filament\Tables\Table;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
@@ -22,11 +21,11 @@ class ClientisTable
             ->headerActions([
                 ExportAction::make()
                     ->exports([
-                        DynamicGroupExport::make()
+                        DynamicGroupExport::make(),
                         //    ->groupBy('Produttore')  // Campo per il raggruppamento
                         //    ->sumColumns(['Provvigione']),  // Campi da sommare
                     ])
-                    ->label('Excel')
+                    ->label('Esporta Excel')
                     ->color('success'),
             ])
             ->columns([

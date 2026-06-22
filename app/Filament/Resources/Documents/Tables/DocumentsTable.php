@@ -22,11 +22,9 @@ class DocumentsTable
             ->headerActions([
                 ExportAction::make()
                     ->exports([
-                        DynamicGroupExport::make()
-                        //    ->groupBy('Produttore')  // Campo per il raggruppamento
-                        //    ->sumColumns(['Provvigione']),  // Campi da sommare
+                        DynamicGroupExport::make(),
                     ])
-                    ->label('Excel')
+                    ->label('Esporta Excel')
                     ->color('success'),
             ])
             ->columns([
@@ -34,95 +32,140 @@ class DocumentsTable
                     ->label('ID')
                     ->searchable(),
                 TextColumn::make('company.name')
+                    ->label('Azienda')
                     ->searchable(),
                 TextColumn::make('documentable_type')
-                    ->searchable(),
+                    ->label('Tipo entità collegata')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('documentable_id')
-                    ->searchable(),
+                    ->label('ID entità collegata')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('documentType.name')
+                    ->label('Tipo documento')
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
                 TextColumn::make('docnumber')
+                    ->label('Numero documento')
                     ->searchable(),
                 TextColumn::make('spatie_collection')
-                    ->searchable(),
+                    ->label('Collection media')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('document_url')
-                    ->searchable(),
+                    ->label('URL documento')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')
+                    ->label('Stato')
                     ->searchable(),
                 TextColumn::make('sync_status')
-                    ->searchable(),
+                    ->label('Stato sincronizzazione')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('source_app')
-                    ->searchable(),
+                    ->label('Applicazione origine')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('app_id')
-                    ->searchable(),
+                    ->label('ID applicazione')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('app_drive_id')
-                    ->searchable(),
+                    ->label('ID drive cloud')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('app_etag')
-                    ->searchable(),
+                    ->label('ETag cloud')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ai_confidence_score')
+                    ->label('Affidabilità AI (%)')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_template')
-                    ->boolean(),
+                    ->label('Modello')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_signed')
+                    ->label('Firmato')
                     ->boolean(),
                 IconColumn::make('is_unique')
-                    ->boolean(),
+                    ->label('Unico')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 IconColumn::make('is_endMonth')
-                    ->boolean(),
+                    ->label('Scadenza a fine mese')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('emitted_by')
-                    ->searchable(),
+                    ->label('Emesso da')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('emitted_at')
-                    ->date()
+                    ->label('Data emissione')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('expires_at')
-                    ->date()
+                    ->label('Data scadenza')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('delivered_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->label('Consegnato il')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('signed_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->label('Firmato il')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('user.name')
-                    ->searchable(),
+                    ->label('Intestatario')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('uploaded_by')
+                    ->label('Caricato da')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('verified_by')
+                    ->label('Verificato da')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('verified_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('created_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('updated_by')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('deleted_by')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Verificato il')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('file_hash')
-                    ->searchable(),
+                    ->label('Hash file')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Creato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->label('Aggiornato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->label('Eliminato il')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->label('Eliminati'),
             ])
             ->recordActions([
                 EditAction::make(),

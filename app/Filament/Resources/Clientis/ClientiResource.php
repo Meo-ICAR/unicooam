@@ -7,12 +7,15 @@ use App\Filament\Resources\Clientis\Pages\EditClienti;
 use App\Filament\Resources\Clientis\Pages\ListClientis;
 use App\Filament\Resources\Clientis\Schemas\ClientiForm;
 use App\Filament\Resources\Clientis\Tables\ClientisTable;
+use App\Filament\Resources\RelationManagers\BranchesRelationManager;
+use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
+use App\Filament\Resources\RelationManagers\WebsitesRelationManager;
 use App\Models\PROFORMA\Clienti;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class ClientiResource extends Resource
@@ -42,7 +45,9 @@ class ClientiResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            BranchesRelationManager::class,
+            WebsitesRelationManager::class,
+            DocumentsRelationManager::class,
         ];
     }
 

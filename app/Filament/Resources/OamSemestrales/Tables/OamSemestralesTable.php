@@ -5,8 +5,6 @@ namespace App\Filament\Resources\OamSemestrales\Tables;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\OamPratiches\OamPraticheResource;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
@@ -36,7 +34,7 @@ class OamSemestralesTable
                     ->alignRight()
                     ->sortable(),
                 TextColumn::make('pratiche_intermediate')
-                    ->label('Intermediate')
+                    ->label('Intermedie')
                     ->numeric()  // Formatta automaticamente come € 1.234,56
                     ->alignRight()  // Allinea a destra per una lettura migliore
                     ->sortable(),
@@ -122,11 +120,11 @@ class OamSemestralesTable
             ->headerActions([
                 ExportAction::make()
                     ->exports([
-                        DynamicGroupExport::make()
+                        DynamicGroupExport::make(),
                         //    ->groupBy('Produttore')  // Campo per il raggruppamento
                         //    ->sumColumns(['Provvigione']),  // Campi da sommare
                     ])
-                    ->label('Excel')
+                    ->label('Esporta Excel')
                     ->color('success'),
             ])
             ->recordActions([
@@ -135,13 +133,13 @@ class OamSemestralesTable
                     ->label(false)
                     ->icon('heroicon-o-magnifying-glass-plus')
                     ->color('info')
-                    ->url(fn($record) => OamPraticheResource::getUrl('index', [
+                    ->url(fn ($record) => OamPraticheResource::getUrl('index', [
                         'filters' => [
                             // 'company_id' => ['value' => $record->company_id],
                             //  'period' => ['value' => $record->period],
                             'prodotto_creditizio' => ['values' => [0 => $record->prodotto_creditizio]],
-                        ]
-                    ]))
+                        ],
+                    ])),
             ]);
     }
 }

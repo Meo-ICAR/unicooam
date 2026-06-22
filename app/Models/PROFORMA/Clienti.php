@@ -2,12 +2,15 @@
 
 namespace App\Models\PROFORMA;
 
+use App\Models\Branch;
+use App\Models\Document;
+use App\Models\Website;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $id
@@ -22,9 +25,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;;
  * @property string|null $citta
  * @property string $company_id
  * @property int|null $customertype_id
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Clienti extends Model
 {
@@ -47,6 +50,7 @@ class Clienti extends Model
     protected $primaryKey = 'id';
 
     protected $orderBy = 'name';
+
     protected $orderDirection = 'asc';
 
     /**
@@ -134,12 +138,24 @@ class Clienti extends Model
         });
     }
 
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function branches(): MorphMany
+    {
+        return $this->morphMany(Branch::class, 'branchable');
+    }
+
+    public function websites(): MorphMany
+    {
+        return $this->morphMany(Website::class, 'websiteable');
+    }
+
     /**
      * Cerca un cliente per name, prende la piva, cerca il fornitore con la stessa piva
      * e flag is_dummy = false, e ritorna il campo nome del fornitore.
-     *
-     * @param string $name
-     * @return string|null
      */
     public static function getClienteNomeByName(string $name): ?string
     {
@@ -159,6 +175,7 @@ class Clienti extends Model
     {
         $cliente = static::where('nome', $name)->first();
         $tipo = $cliente->principal_type;
-        return $nome;
+
+        return $tipo;
     }
 }

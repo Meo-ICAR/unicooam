@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Enums\AuditStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Audit extends Model
@@ -76,15 +77,6 @@ class Audit extends Model
     }
 
     /**
-     * Relazione con i rilievi dell'audit (Audit Items).
-     * Un audit può generare zero o molti rilievi/non conformità.
-     */
-    public function items(): HasMany
-    {
-        return $this->hasMany(AuditItem::class);
-    }
-
-    /**
      * SCOPE: Filtra gli audit che richiedono un follow-up urgente.
      */
     public function scopeNeedsFollowup($query)
@@ -103,11 +95,16 @@ class Audit extends Model
             return $this->executed_at->isAfter($this->scheduled_at);
         }
 
-        return $this->scheduled_at->isPast() && !$this->executed_at;
+        return $this->scheduled_at->isPast() && ! $this->executed_at;
     }
 
-    public function findings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function findings(): HasMany
     {
         return $this->hasMany(AuditFinding::class, 'audit_id');
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 }

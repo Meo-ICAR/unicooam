@@ -5,16 +5,19 @@ namespace App\Filament\Resources\Companies;
 use App\Filament\Resources\Companies\Pages\CreateCompany;
 use App\Filament\Resources\Companies\Pages\EditCompany;
 use App\Filament\Resources\Companies\Pages\ListCompanies;
+use App\Filament\Resources\Companies\RelationManagers\InspectionsRelationManager;
+use App\Filament\Resources\Companies\RelationManagers\MailAccountRelationManager;
 use App\Filament\Resources\Companies\Schemas\CompanyForm;
 use App\Filament\Resources\Companies\Tables\CompaniesTable;
 use App\Filament\Resources\RelationManagers\BranchesRelationManager;
+use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Resources\RelationManagers\WebsitesRelationManager;
 use App\Models\Company;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class CompanyResource extends Resource
@@ -25,7 +28,7 @@ class CompanyResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static UnitEnum|string|null $navigationGroup = 'Settings';
+    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
     protected static ?string $navigationLabel = 'Azienda';
 
@@ -44,6 +47,9 @@ class CompanyResource extends Resource
         return [
             BranchesRelationManager::class,
             WebsitesRelationManager::class,
+            MailAccountRelationManager::class,
+            InspectionsRelationManager::class,
+            DocumentsRelationManager::class,
         ];
     }
 

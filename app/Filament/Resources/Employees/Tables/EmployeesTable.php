@@ -3,44 +3,23 @@
 namespace App\Filament\Resources\Employees\Tables;
 
 // use App\Filament\Traits\CanExportTable;
-use App\Models\BPM\Employee;
+use App\Filament\Exports\DynamicGroupExport;
 // use App\Models\Rui;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\BPM\Employee;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ImportAction;
-use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 // use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use App\Filament\Exports\DynamicGroupExport;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
-use Filament\Illuminate\Http\UploadedFile;
 use Filament\Notifications\Notification;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
+
 // use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeesTable
@@ -54,11 +33,11 @@ class EmployeesTable
             ->headerActions([
                 ExportAction::make()
                     ->exports([
-                        DynamicGroupExport::make()
+                        DynamicGroupExport::make(),
                         //    ->groupBy('Produttore')  // Campo per il raggruppamento
                         //    ->sumColumns(['Provvigione']),  // Campi da sommare
                     ])
-                    ->label('Excel')
+                    ->label('Esporta Excel')
                     ->color('success'),
             ])
             ->columns([
@@ -67,22 +46,25 @@ class EmployeesTable
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('hiring_date')
-                    ->date()
+                    ->label('Data assunzione')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('numero_iscrizione_rui')
                     ->label('Cod. OAM')
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email address')
+                    ->label('Indirizzo email')
                     ->searchable(),
                 TextColumn::make('phone')
+                    ->label('Telefono')
                     ->searchable(),
                 TextColumn::make('coordinatedBy.name')
                     ->label('Coordinato da')
                     ->searchable()
                     ->placeholder('Nessun coordinatore'),
                 TextColumn::make('termination_date')
-                    ->date()
+                    ->label('Data cessazione')
+                    ->date('d/m/Y')
                     ->sortable(),
             ])
             ->filters([

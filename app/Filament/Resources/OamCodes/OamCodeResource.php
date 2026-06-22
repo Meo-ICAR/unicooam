@@ -8,11 +8,11 @@ use App\Filament\Resources\OamCodes\Pages\ListOamCodes;
 use App\Filament\Resources\OamCodes\Schemas\OamCodeForm;
 use App\Filament\Resources\OamCodes\Tables\OamCodesTable;
 use App\Models\OamCode;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class OamCodeResource extends Resource
@@ -23,7 +23,7 @@ class OamCodeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static UnitEnum|string|null $navigationGroup = 'Settings';
+    protected static UnitEnum|string|null $navigationGroup = 'Impostazioni';
 
     protected static ?string $navigationLabel = 'OAM Codici';
 

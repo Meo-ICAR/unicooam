@@ -2,23 +2,22 @@
 
 namespace App\Services;
 
+use App\Models\OamPratiche;
 use App\Models\PROFORMA\Clienti;
 use App\Models\PROFORMA\Fornitore;
 use App\Models\PROFORMA\Pratica;
 use App\Models\PROFORMA\Provvigione;
-use App\Models\OamPratiche;
-use App\Services\OamSemestraleService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ImportPraticheService
 {
     /**
      * Importa i dati da Pratica a OamPratiche
      *
-     * @param Carbon $startAt Data di inizio
-     * @param Carbon $endAt Data di fine
+     * @param  Carbon  $startAt  Data di inizio
+     * @param  Carbon  $endAt  Data di fine
      * @return int Numero di record importati
      */
     public function import(Carbon $startAt, Carbon $endAt): int
@@ -74,29 +73,26 @@ class ImportPraticheService
              o.erogato_lordo = 0
             where o.pratiche_lavorazione = 1');
 
-        $service = new OamSemestraleService();
-        $count = $service->aggregate();
+        $service = new OamSemestraleService;
+        $count = $service->aggregate(period: $startAt->format('Ym'), companyId: app(CompanyResolver::class)->resolveId());
 
         return $importedCount;
     }
 
     /**
      * Importa una singola pratica
-     *
-     * @param Pratica $pratica
-     * @return OamPratiche
      */
     public function importSingle(Pratica $pratica, Carbon $startAt, Carbon $endAt): OamPratiche
     {
-        $company_id = '45d36df8-369f-40ce-b4fd-b5907c342fe9';
+        $company_id = app(CompanyResolver::class)->resolveId();
         $period = $startAt->format('Ym');
 
         $erogato = $pratica->net;
 
         $rejected = $pratica->rejected_at;
 
-        $cliente = trim(($pratica->nome_cliente ?? '') . ' '
-            . ($pratica->cognome_cliente ?? ''));
+        $cliente = trim(($pratica->nome_cliente ?? '').' '
+            .($pratica->cognome_cliente ?? ''));
         $erogated = $pratica->erogated_at;
         $approved = $pratica->approved_at;
         if ($approved == null) {
@@ -140,7 +136,7 @@ class ImportPraticheService
                 'premi_istituto_comp' => $premi_istituto_comp,
                 'payout_rete_credito' => $payout_rete_credito,
                 'importo_retrocesse' => $storno,
-                'num_rivalse' => $storno <> 0 ? 1 : 0,
+                'num_rivalse' => $storno != 0 ? 1 : 0,
             ]
         );
     }

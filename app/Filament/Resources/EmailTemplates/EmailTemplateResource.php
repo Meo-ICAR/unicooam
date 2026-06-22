@@ -8,11 +8,11 @@ use App\Filament\Resources\EmailTemplates\Pages\ListEmailTemplates;
 use App\Filament\Resources\EmailTemplates\Schemas\EmailTemplateForm;
 use App\Filament\Resources\EmailTemplates\Tables\EmailTemplatesTable;
 use App\Models\EmailTemplate;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class EmailTemplateResource extends Resource
@@ -23,9 +23,15 @@ class EmailTemplateResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static ?string $navigationLabel = 'Modelli email';
+
+    protected static ?string $modelLabel = 'Modello email';
+
+    protected static ?string $pluralModelLabel = 'Modelli email';
+
     // protected static bool $shouldRegisterNavigation = false;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Settings';
+    protected static UnitEnum|string|null $navigationGroup = 'Impostazioni';
 
     public static function form(Schema $schema): Schema
     {

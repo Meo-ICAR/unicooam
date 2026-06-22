@@ -3,11 +3,8 @@
 namespace App\Filament\Resources\Tasks\Schemas;
 
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
 
 class TaskForm
@@ -16,20 +13,23 @@ class TaskForm
     {
         return $schema
             ->components([
-                TextInput::make('name'),
-                TextInput::make('description'),
-                Section::make('Associazione Documenti')
-                    ->description('Spunta i documenti da  associare al task.')
+                TextInput::make('name')
+                    ->label('Nome attività'),
+                TextInput::make('description')
+                    ->label('Descrizione'),
+                Section::make('Associazione documenti')
+                    ->description('Seleziona i tipi documento da associare all\'attività.')
                     ->schema([
                         CheckboxList::make('documentTypes')
+                            ->label('Tipi documento')
                             ->relationship(
                                 name: 'documentTypes',
-                                titleAttribute: 'name'  // Assicurati che nel model Cliente ci sia la colonna 'name'
+                                titleAttribute: 'name'
                             )
-                            ->searchable()  // Permette di cercare tra i clienti se sono tanti
-                            ->bulkToggleable()  // Aggiunge i pulsanti per selezionare/deselezionare tutto
-                            ->columns(3)  // Mette le spunte su 3 colonne
-                            ->gridDirection('row')
+                            ->searchable()
+                            ->bulkToggleable()
+                            ->columns(3)
+                            ->gridDirection('row'),
                     ])
                     ->columnSpanFull(),
             ]);

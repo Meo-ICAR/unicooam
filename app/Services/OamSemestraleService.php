@@ -2,39 +2,32 @@
 
 namespace App\Services;
 
-use App\Models\PROFORMA\Provvigione;
 use App\Models\OamPratiche;
 use App\Models\OamSemestrale;
+use App\Models\PROFORMA\Provvigione;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class OamSemestraleService
 {
     /**
-     * Aggrega le pratiche OAM e le importa in OamSemestrale
+     * Aggrega le pratiche OAM e le importa in OamSemestrale.
      *
+     * @param  string|null  $period  Periodo nel formato YYYYMM (es. 202501). Se null, riaggrega tutto.
+     * @param  string|null  $companyId  UUID della company. Se null, usa la prima company.
      * @return int Numero di record aggregati salvati
      */
-    public function aggregate(string $period = null): int
+    public function aggregate(?string $period = null, ?string $companyId = null): int
     {
-        // 1. Svuotiamo prima di aprire la transazione
-        if (!$period) {
+        // Svuotiamo prima di aprire la transazione
+        if (! $period) {
             OamSemestrale::truncate();
         } else {
             OamSemestrale::where('period', $period)->delete();
         }
-        return DB::transaction(function () use ($period) {
-            // Svuota la tabella prima di ricostruire gli aggregati
 
-            /*
-             * $deleteQuery = OamSemestrale::query();
-             * if ($period) {
-             *     $deleteQuery->where('period', $period);
-             * }
-             * $deleteQuery->delete();
-             */
-
-            $aggregates = OamPratiche::query()
+        return DB::transaction(function () use ($period, $companyId) {
+            $query = OamPratiche::query()
                 ->select('company_id', 'period', 'prodotto_creditizio')
                 ->selectRaw('SUM(intermediari_convenzionati) as intermediari_convenzionati')
                 ->selectRaw('SUM(intermediari_non_convenzionati) as intermediari_non_convenzionati')
@@ -57,12 +50,27 @@ class OamSemestraleService
                 ->groupBy('company_id', 'period', 'prodotto_creditizio')
                 ->orderBy('company_id')
                 ->orderBy('period')
-                ->orderBy('prodotto_creditizio')
-                ->get();
+                ->orderBy('prodotto_creditizio');
+
+            if ($period) {
+                $query->where('period', $period);
+            }
+
+            if ($companyId) {
+                $query->where('company_id', $companyId);
+            }
+
+            $aggregates = $query->get();
+
+            // Tracciamo il company_id e period dell'ultimo record aggregato
+            // per usarli nel ciclo storni
+            $lastCompanyId = $companyId;
+            $lastPeriod = $period;
 
             foreach ($aggregates as $row) {
-                $company_id = $row->company_id;
-                $period = $row->period;
+                $lastCompanyId = $row->company_id;
+                $lastPeriod = $row->period;
+
                 OamSemestrale::create([
                     'company_id' => $row->company_id,
                     'period' => $row->period,
@@ -88,68 +96,47 @@ class OamSemestraleService
                 ]);
             }
 
+            // Calcolo storni: provvigioni Istituto con "storno" in descrizione
             $risultati = Provvigione::query()
                 ->with([
-                    // 1. Carica la relazione 'pratica'
-                    'pratica' => function ($query) {
-                        $query->select('id', 'tipo_prodotto');
-                    },
-                    // 2. Carica la relazione 'oamCode' DENTRO 'pratica' (Passando dal punto)
-                    'pratica.oamCode' => function ($query) {
-                        // Selezioniamo 'tipo_prodotto' (serve a Laravel per il match) e i campi extra che vuoi recuperare
-                        $query->select('tipo_prodotto', 'description');  // Sostituisci con i campi reali di oam_codes
-                    }
+                    'pratica' => fn ($q) => $q->select('id', 'tipo_prodotto'),
+                    'pratica.oamCode' => fn ($q) => $q->select('tipo_prodotto', 'description'),
                 ])
                 ->where('descrizione', 'like', '%storno%')
                 ->where('tipo', 'Istituto')
                 ->get()
                 ->map(function ($provvigione) {
-                    // Estraiamo in sicurezza l'oggetto OamCode se esiste
                     $oamCode = $provvigione->pratica?->oamCode;
 
                     return (object) [
                         'id_pratica' => $provvigione->id_pratica,
-                        'tipo' => $provvigione->tipo,
-                        'data_status' => $provvigione->data_status,
                         'importo' => -$provvigione->importo,
-                        // Dati dal DB Pratiche
-                        'tipo_prodotto' => $provvigione->pratica?->tipo_prodotto,
-                        // Dati dal terzo DB (OamCode) tramite Pratica
-                        'oam_descrizione' => $oamCode?->description,  // Es. "Mutuo Ipotecario"
+                        'oam_descrizione' => $oamCode?->description,
                     ];
                 });
 
-            // Scrive nel log una riga di info con i dati strutturati
             Log::info('Risultati Storni Istituto:', [
                 'totale_record' => $risultati->count(),
-                'dati' => $risultati->toArray()
             ]);
 
-            // Raggruppa per descrizione e mappa i dati calcolando somma e conteggio
             $reportStorni = $risultati->groupBy('oam_descrizione')->map(function ($gruppo) {
                 return [
                     'importo_retrocesse' => $gruppo->sum('importo'),
-                    'num_rivalse' => $gruppo->count(),  // Questo fa il lavoro del count(*)
+                    'num_rivalse' => $gruppo->count(),
                 ];
             });
 
-            // Scrive il report finale nel log
             Log::info('Report Storni OAM (Somma e Conteggio):', $reportStorni->toArray());
 
-            // Cicliamo sulla collection ottenendo sia la chiave (prodotto) che i dati associati
             foreach ($reportStorni as $prodottoCreditizio => $datiStorno) {
                 OamSemestrale::updateOrCreate(
-                    // 1. Criteri di ricerca univoci per questa riga del ciclo
                     [
-                        'company_id' => $company_id,
-                        'period' => $period,
-                        'prodotto_creditizio' => $prodottoCreditizio,  // Usa la chiave corrente del ciclo
+                        'company_id' => $lastCompanyId,
+                        'period' => $lastPeriod,
+                        'prodotto_creditizio' => $prodottoCreditizio,
                     ],
-                    // 2. I dati dinamici presi dall'elemento corrente
                     [
-                        // Mappiamo il conteggio sul tuo campo 'num_rivalse'
                         'num_rivalse' => $datiStorno['num_rivalse'] ?? 0,
-                        // Mappiamo l'importo totale sul tuo campo 'importo_retrocesse'
                         'importo_retrocesse' => $datiStorno['importo_retrocesse'] ?? 0.0,
                     ]
                 );

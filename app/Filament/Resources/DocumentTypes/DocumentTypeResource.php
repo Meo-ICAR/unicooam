@@ -8,13 +8,13 @@ use App\Filament\Resources\DocumentTypes\Pages\ListDocumentTypes;
 use App\Filament\Resources\DocumentTypes\Schemas\DocumentTypeForm;
 use App\Filament\Resources\DocumentTypes\Tables\DocumentTypesTable;
 use App\Models\DocumentType;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BackedEnum;
 use UnitEnum;
 
 class DocumentTypeResource extends Resource
@@ -26,9 +26,13 @@ class DocumentTypeResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     // protected static bool $shouldRegisterNavigation = false;
-    protected static UnitEnum|string|null $navigationGroup = 'Settings';
+    protected static UnitEnum|string|null $navigationGroup = 'Impostazioni';
 
-    protected static ?string $navigationLabel = 'Tipo Documenti';
+    protected static ?string $navigationLabel = 'Tipi documento';
+
+    protected static ?string $modelLabel = 'Tipo documento';
+
+    protected static ?string $pluralModelLabel = 'Tipi documento';
 
     public static function form(Schema $schema): Schema
     {

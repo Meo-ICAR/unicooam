@@ -13,6 +13,8 @@ class MailAccountRelationManager extends RelationManager
 
     protected static ?string $relatedResource = MailAccountResource::class;
 
+    protected static ?string $title = 'Account email';
+
     public function table(Table $table): Table
     {
         return $table

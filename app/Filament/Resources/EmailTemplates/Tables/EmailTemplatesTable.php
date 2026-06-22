@@ -16,12 +16,17 @@ class EmailTemplatesTable
         return $table
             ->columns([
                 TextColumn::make('code')
+                    ->label('Codice')
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
                 TextColumn::make('subject')
+                    ->label('Oggetto')
                     ->searchable(),
                 IconColumn::make('is_active')
+                    ->label('Attivo')
+                    ->boolean(),
             ])
             ->filters([
                 //

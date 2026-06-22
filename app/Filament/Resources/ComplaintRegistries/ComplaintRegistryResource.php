@@ -7,6 +7,7 @@ use App\Filament\Resources\ComplaintRegistries\Pages\EditComplaintRegistry;
 use App\Filament\Resources\ComplaintRegistries\Pages\ListComplaintRegistries;
 use App\Filament\Resources\ComplaintRegistries\Schemas\ComplaintRegistryForm;
 use App\Filament\Resources\ComplaintRegistries\Tables\ComplaintRegistriesTable;
+use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Models\ComplaintRegistry;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -22,7 +23,13 @@ class ComplaintRegistryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'protocol_number';
+
+    protected static ?string $navigationLabel = 'Reclami';
+
+    protected static ?string $modelLabel = 'Reclamo';
+
+    protected static ?string $pluralModelLabel = 'Reclami';
 
     public static function form(Schema $schema): Schema
     {
@@ -37,7 +44,7 @@ class ComplaintRegistryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DocumentsRelationManager::class,
         ];
     }
 

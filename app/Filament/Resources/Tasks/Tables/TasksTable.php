@@ -15,10 +15,13 @@ class TasksTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
                 TextColumn::make('description')
+                    ->label('Descrizione')
                     ->searchable(),
                 TextColumn::make('taskable')
+                    ->label('Entità collegata')
                     ->searchable(),
             ])
             ->filters([

@@ -2,10 +2,6 @@
 
 namespace App\Filament\Resources\ComplaintRegistries\Schemas;
 
-use App\Enums\ComplaintCategory;
-use App\Enums\ComplaintMacroCategory;
-use App\Enums\ComplaintStatus;
-use App\Enums\ReceptionChannel;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -73,7 +69,7 @@ class ComplaintRegistryForm
                                 ->label('Macro Ambito')
                                 ->options([
                                     'financial' => 'Intermediazione Creditizia / Finanziario',
-                                    'privacy' => 'Privacy & GDPR',
+                                    'privacy' => 'Privacy e GDPR',
                                     'insurance' => 'Comparto Assicurativo (IVASS)',
                                     'operational' => 'Operativo / Servizi Generali',
                                 ])
@@ -118,7 +114,7 @@ class ComplaintRegistryForm
                             ->default(0.0),
                     ]),
                 // SEZIONE 3: ISTRUTTORIA, SCADENZE E RISOLUZIONE
-                Section::make('Workflow e Termini di Legge')
+                Section::make('Flusso di lavoro e termini di legge')
                     ->description("Gestione dei tempi di risposta e note di chiusura dell'istruttoria")
                     ->collapsible()
                     ->schema([

@@ -8,11 +8,11 @@ use App\Filament\Resources\Remediations\Pages\ListRemediations;
 use App\Filament\Resources\Remediations\Schemas\RemediationForm;
 use App\Filament\Resources\Remediations\Tables\RemediationsTable;
 use App\Models\Remediation;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 
 class RemediationResource extends Resource
 {
@@ -24,7 +24,13 @@ class RemediationResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Privacy & GDPR';
+    protected static ?string $navigationLabel = 'Azioni correttive';
+
+    protected static ?string $modelLabel = 'Azione correttiva';
+
+    protected static ?string $pluralModelLabel = 'Azioni correttive';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Privacy e GDPR';
 
     protected static ?int $navigationSort = 95;
 

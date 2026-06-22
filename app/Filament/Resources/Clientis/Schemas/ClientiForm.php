@@ -7,7 +7,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Form;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
@@ -32,7 +31,7 @@ class ClientiForm
                                     TextInput::make('name')
                                         ->required()
                                         ->maxLength(255)
-                                        ->label('Ragione Sociale (Name)'),
+                                        ->label('Ragione sociale'),
                                     TextInput::make('nome')
                                         ->maxLength(255)
                                         ->label('Nome Commerciale / Alternativo'),
@@ -190,7 +189,7 @@ class ClientiForm
                                     TextInput::make('dpo_email')
                                         ->email()
                                         ->maxLength(255)
-                                        ->label('Email DPO (Data Protection Officer)'),
+                                        ->label('Email DPO (Responsabile protezione dati)'),
                                 ]),
                                 Toggle::make('is_reported')
                                     ->label('Accordi di Segnalazione Attivi'),
@@ -199,7 +198,7 @@ class ClientiForm
                                     ->label('Note su Provvigioni Particolari o Patti Specifici')
                                     ->placeholder('Inserisci qui accordi extra, sconti o patti di storno...'),
                             ]),
-                    ])
+                    ]),
             ])
             ->columns(1);  // Mantiene il contenitore dei Tab a larghezza piena
     }

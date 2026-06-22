@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Branch extends Model
@@ -13,6 +13,7 @@ class Branch extends Model
     use HasFactory, SoftDeletes;
 
     protected $orderBy = 'name';
+
     protected $orderDirection = 'asc';
 
     /**
@@ -23,6 +24,12 @@ class Branch extends Model
     protected $fillable = [
         'company_id',
         'name',
+        'address',
+        'street_number',
+        'city',
+        'zip_code',
+        'province',
+        'region',
         'branchable_type',
         'branchable_id',
         'is_main_office',
