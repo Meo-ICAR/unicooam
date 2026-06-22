@@ -8,10 +8,10 @@ use App\Enums\ComplaintStatus;
 use App\Enums\ReceptionChannel;
 use App\Models\PROFORMA\Clienti;
 use App\Models\PROFORMA\Fornitore;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ComplaintRegistry extends Model
@@ -67,12 +67,14 @@ class ComplaintRegistry extends Model
     // RELAZIONI POLIMORFICHE (I MORPHS)
     // ==========================================
 
+    /** Chi ha fatto il reclamo (es. Cliente, Dipendente, OAM, Fornitore) */
+
     /**
-     * Chi ha fatto il reclamo (es. Cliente, Dipendente, OAM, Fornitore)
+     * Ottiene il reclamante (può essere un Fornitore, un Cliente, ecc.)
      */
     public function complainant(): MorphTo
     {
-        return $this->morphTo();
+        return $this->morphTo('complainant');
     }
 
     /**

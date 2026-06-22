@@ -46,9 +46,9 @@ class ClientiResource extends Resource
     {
         return [
             DocumentsRelationManager::class,
-            WebsitesRelationManager::class,
-            BranchesRelationManager::class,
-            InspectionsRelationManager::class,
+            //   WebsitesRelationManager::class,
+            //  BranchesRelationManager::class,
+            //   InspectionsRelationManager::class,
         ];
     }
 

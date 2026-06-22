@@ -17,9 +17,6 @@ class SuspiciousActivityReportsTable
     {
         return $table
             ->columns([
-                TextColumn::make('company.name')
-                    ->label('Azienda')
-                    ->searchable(),
                 TextColumn::make('client.name')
                     ->label('Cliente')
                     ->searchable(),
@@ -37,21 +34,6 @@ class SuspiciousActivityReportsTable
                     ->label('Segnalato il')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->label('Creato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->label('Aggiornato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->label('Eliminato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make()

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Clientis\Schemas;
 
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,24 +26,9 @@ class ClientiForm
                             ->icon('heroicon-m-user')
                             ->schema([
                                 Grid::make(3)->schema([
-                                    TextInput::make('codice')
-                                        ->maxLength(255)
-                                        ->label('Codice Interno'),
-                                    TextInput::make('name')
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->label('Ragione sociale'),
                                     TextInput::make('nome')
                                         ->maxLength(255)
-                                        ->label('Nome Commerciale / Alternativo'),
-                                ]),
-                                Grid::make(3)->schema([
-                                    TextInput::make('piva')
-                                        ->maxLength(16)
-                                        ->label('Partita IVA'),
-                                    TextInput::make('cf')
-                                        ->maxLength(255)
-                                        ->label('Codice Fiscale'),
+                                        ->label('Denominazione in fatturazione'),
                                     Select::make('type')
                                         ->options([
                                             'banca' => 'Banca',
@@ -51,17 +37,20 @@ class ClientiForm
                                             'assicurazione' => 'Assicurazione',
                                         ])
                                         ->label('Tipo Cliente'),
+                                    TextInput::make('piva')
+                                        ->maxLength(16)
+                                        ->label('Partita IVA'),
                                 ]),
-                                Grid::make(3)->schema([
-                                    TextInput::make('email')
-                                        ->email()
-                                        ->maxLength(255)
-                                        ->label('Email principale'),
-                                ]),
+                                Grid::make(3)->schema([]),
+                                Grid::make(3)->schema([]),
                                 Section::make('Stato Operativo')
                                     ->compact()
                                     ->schema([
                                         Grid::make(3)->schema([
+                                            TextInput::make('name')
+                                                ->required()
+                                                ->maxLength(255)
+                                                ->label('Dizione in istruttoria'),
                                             Toggle::make('is_active')
                                                 ->default(true)
                                                 ->label('Cliente Attivo operativo'),
@@ -70,6 +59,21 @@ class ClientiForm
                                                 ->label('Record di Test (Dummy)'),
                                         ]),
                                     ]),
+                                Section::make('Associazione prodotti')
+                                    ->description('Seleziona i prodotti convenzionati a questo cliente.')
+                                    ->schema([
+                                        CheckboxList::make('oamCodes')
+                                            ->label('Prodotti')
+                                            ->relationship(
+                                                name: 'oamCodes',
+                                                titleAttribute: 'name'
+                                            )
+                                            ->searchable()
+                                            ->bulkToggleable()
+                                            ->columns(3)
+                                            ->gridDirection('row'),
+                                    ])
+                                    ->columnSpanFull(),
                             ]),
                         // TAB 2: DATI MANDATO E VIGILANZA (OAM / IVASS)
                         Tabs\Tab::make('Mandato & Vigilanza')
@@ -78,6 +82,10 @@ class ClientiForm
                                 Section::make('Dettagli Contratto Mandato')
                                     ->columns(3)
                                     ->schema([
+                                        TextInput::make('email')
+                                            ->email()
+                                            ->maxLength(255)
+                                            ->label('Email principale'),
                                         TextInput::make('mandate_number')
                                             ->maxLength(100)
                                             ->label('Protocollo/N° Mandato'),

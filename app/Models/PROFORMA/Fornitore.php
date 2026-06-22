@@ -2,8 +2,8 @@
 // app/Models/Fornitore.php
 namespace App\Models\PROFORMA;
 
-use App\Models\Proforma;
-use App\Models\Provvigione;
+use App\Models\PROFORMA\Provvigione;
+use App\Models\ComplaintRegistry;
 use App\Models\TrainingRecord;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -89,5 +89,15 @@ class Fornitore extends Model
         $nome = $cliente->nome;
 
         return $nome;
+    }
+
+    public function complaints(): MorphMany
+    {
+        return $this->morphMany(ComplaintRegistry::class, 'complainant');
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 }

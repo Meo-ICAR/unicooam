@@ -4,11 +4,13 @@ namespace App\Models\PROFORMA;
 
 use App\Models\Branch;
 use App\Models\Document;
+use App\Models\OamCode;
 use App\Models\Website;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -177,5 +179,13 @@ class Clienti extends Model
         $tipo = $cliente->principal_type;
 
         return $tipo;
+    }
+
+    public function oamCodes(): BelongsToMany
+    {
+        return $this
+            ->belongsToMany(OamCode::class, 'clienti_oam', 'clienti_id', 'oam_code_id')
+            ->withPivot(['dal', 'al'])
+            ->withTimestamps();
     }
 }

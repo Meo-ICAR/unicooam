@@ -23,7 +23,7 @@ class OamCodeSeeder extends Seeder
             ['id' => 8, 'code' => 'A.8', 'name' => 'Leasing su fonti rinnovabili ed altre tipologie di investimento', 'description' => 'A.8 Leasing su fonti rinnovabili ed altre tipologie di investimento', 'tipo_prodotto' => null, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 9, 'code' => 'A.9', 'name' => 'Aperture di credito in conto corrente', 'description' => 'A.9 Aperture di credito in conto corrente', 'tipo_prodotto' => null, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 10, 'code' => 'A.10', 'name' => 'Credito personale', 'description' => 'A.10 Credito personale', 'tipo_prodotto' => 'Prestito', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
-            ['id' => 11, 'code' => 'A.11', 'name' => 'Credito finalizzato', 'description' => 'A.11 Credito finalizzato', 'tipo_prodotto' => 'Chirografario', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+            ['id' => 11, 'code' => 'A.11', 'name' => 'Credito finalizzato', 'description' => 'A.11 Credito finalizzato', 'tipo_prodotto' => null, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 12, 'code' => 'A.12', 'name' => 'Prestito su pegno', 'description' => 'A.12 Prestito su pegno', 'tipo_prodotto' => null, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 13, 'code' => 'A.13', 'name' => 'Rilascio di fidejussioni e garanzie', 'description' => 'A.13 Rilascio di fidejussioni e garanzie', 'tipo_prodotto' => null, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 14, 'code' => 'A.13-bis', 'name' => 'Garanzia collettiva dei fidi', 'description' => 'A.13-bis Garanzia collettiva dei fidi', 'tipo_prodotto' => null, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
@@ -36,6 +36,7 @@ class OamCodeSeeder extends Seeder
             ['id' => 22, 'code' => 'A.4bis', 'name' => 'TFS', 'description' => 'A.4bis TFS', 'tipo_prodotto' => 'TFS', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 23, 'code' => 'A.10', 'name' => 'Credito personale', 'description' => 'A.10 Credito personale', 'tipo_prodotto' => 'Microcredito', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 24, 'code' => 'A.11', 'name' => 'Credito finalizzato', 'description' => 'A.11 Credito finalizzato', 'tipo_prodotto' => 'Aziendale', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+            ['id' => 25, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Chirografario', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
         ];
 
         // Se la tabella potrebbe contenere già questi ID, 'upsert' previene errori di chiave duplicata.
