@@ -7,19 +7,19 @@ use App\Filament\Resources\CompanyInspections\Pages\EditCompanyInspection;
 use App\Filament\Resources\CompanyInspections\Pages\ListCompanyInspections;
 use App\Filament\Resources\CompanyInspections\Schemas\CompanyInspectionForm;
 use App\Filament\Resources\CompanyInspections\Tables\CompanyInspectionsTable;
-use App\Models\CompanyIspection;
-use BackedEnum;
+use App\Models\CompanyInspection;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use BackedEnum;
 use UnitEnum;
 
 class CompanyInspectionResource extends Resource
 {
     protected static ?string $model = CompanyIspection::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';  // Heroicon::OutlinedBuildingOffice;
 
     protected static ?string $navigationLabel = 'Ispezioni Aziendali';
 

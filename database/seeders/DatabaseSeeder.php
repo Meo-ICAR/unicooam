@@ -46,12 +46,20 @@ class DatabaseSeeder extends Seeder
             // CompanyUserSeeder::class,
             // BusinessFunctionSeeder::class,
             // CompanyBranchSeeder::class,
-            // EmployeeSeeder::class,
-            BranchSeeder::class,
+            //
             WebsiteSeeder::class,
+            BranchSeeder::class,
+            EmployeeSeeder::class,
             MailAccountSeeder::class,
             DocumentTypeSeeder::class,
             DocumentSeeder::class,
+            EmailTemplateSeeder::class,
+            OamCodeSeeder::class,
+            RemediationSeeder::class,
+            SuspiciousActivityReportSeeder::class,
+            TaskSeeder::class,
+            TrainingRecordSeeder::class,
+            WebsiteSeeder::class,
         ]);
     }
 }

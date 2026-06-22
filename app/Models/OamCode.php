@@ -13,6 +13,7 @@ class OamCode extends Model
     use HasFactory;
 
     // Definito esplicitamente per mappare la tabella plurale corretta
+    protected $connection = 'mysql';
     protected $table = 'oam_codes';
 
     protected $fillable = [

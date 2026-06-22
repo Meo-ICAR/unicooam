@@ -12,6 +12,7 @@ class Website extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $connection = 'mysql';
     protected $orderBy = 'name';
     protected $orderDirection = 'asc';
 

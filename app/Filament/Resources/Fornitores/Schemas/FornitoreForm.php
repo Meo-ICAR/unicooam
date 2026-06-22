@@ -47,6 +47,10 @@ class FornitoreForm
                                 ->label('PEC (Posta Elettronica Certificata)')
                                 ->email()
                                 ->maxLength(255),
+                            TextInput::make('dpo_email')
+                                ->label('Indirizzo email privata')
+                                ->email()
+                                ->maxLength(255),
                         ]),
                         Grid::make(3)->schema([
                             TextInput::make('indirizzo')

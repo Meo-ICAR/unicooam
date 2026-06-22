@@ -10,13 +10,13 @@ use App\Filament\Resources\Audits\Schemas\AuditForm;
 use App\Filament\Resources\Audits\Tables\AuditsTable;
 use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Models\Audit;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BackedEnum;
 
 class AuditResource extends Resource
 {
@@ -31,6 +31,8 @@ class AuditResource extends Resource
     protected static ?string $modelLabel = 'Audit';
 
     protected static ?string $pluralModelLabel = 'Audit';
+
+    //     protected static string|\UnitEnum|null $navigationGroup = 'Impostazioni';
 
     public static function form(Schema $schema): Schema
     {

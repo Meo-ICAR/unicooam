@@ -8,20 +8,20 @@ use App\Filament\Resources\DocumentTypes\Pages\ListDocumentTypes;
 use App\Filament\Resources\DocumentTypes\Schemas\DocumentTypeForm;
 use App\Filament\Resources\DocumentTypes\Tables\DocumentTypesTable;
 use App\Models\DocumentType;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BackedEnum;
 use UnitEnum;
 
 class DocumentTypeResource extends Resource
 {
     protected static ?string $model = DocumentType::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';  // Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
 

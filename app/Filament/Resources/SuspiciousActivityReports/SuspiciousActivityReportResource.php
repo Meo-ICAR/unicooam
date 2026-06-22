@@ -8,19 +8,19 @@ use App\Filament\Resources\SuspiciousActivityReports\Pages\ListSuspiciousActivit
 use App\Filament\Resources\SuspiciousActivityReports\Schemas\SuspiciousActivityReportForm;
 use App\Filament\Resources\SuspiciousActivityReports\Tables\SuspiciousActivityReportsTable;
 use App\Models\SuspiciousActivityReport;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BackedEnum;
 
 class SuspiciousActivityReportResource extends Resource
 {
     protected static ?string $model = SuspiciousActivityReport::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFlag;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-exclamation-triangle';  // Heroicon::OutlinedFlag;
 
     protected static ?string $recordTitleAttribute = 'description';
 
@@ -30,7 +30,7 @@ class SuspiciousActivityReportResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Segnalazioni SOS';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Antiriciclaggio';
+    // protected static string|\UnitEnum|null $navigationGroup = 'Antiriciclaggio';
 
     protected static ?int $navigationSort = 30;
 

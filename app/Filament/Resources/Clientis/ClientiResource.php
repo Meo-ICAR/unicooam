@@ -11,18 +11,18 @@ use App\Filament\Resources\RelationManagers\BranchesRelationManager;
 use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Resources\RelationManagers\WebsitesRelationManager;
 use App\Models\PROFORMA\Clienti;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use BackedEnum;
 use UnitEnum;
 
 class ClientiResource extends Resource
 {
     protected static ?string $model = Clienti::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-library';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -45,9 +45,10 @@ class ClientiResource extends Resource
     public static function getRelations(): array
     {
         return [
-            BranchesRelationManager::class,
-            WebsitesRelationManager::class,
             DocumentsRelationManager::class,
+            WebsitesRelationManager::class,
+            BranchesRelationManager::class,
+            InspectionsRelationManager::class,
         ];
     }
 

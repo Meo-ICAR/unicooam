@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
 
 class TaskDocumentType extends Model
 {
@@ -15,6 +15,8 @@ class TaskDocumentType extends Model
      *
      * @var string
      */
+    protected $connection = 'mysql';
+
     protected $table = 'task_document_types';
 
     /**

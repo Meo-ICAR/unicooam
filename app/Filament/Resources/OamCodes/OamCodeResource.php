@@ -8,18 +8,18 @@ use App\Filament\Resources\OamCodes\Pages\ListOamCodes;
 use App\Filament\Resources\OamCodes\Schemas\OamCodeForm;
 use App\Filament\Resources\OamCodes\Tables\OamCodesTable;
 use App\Models\OamCode;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use BackedEnum;
 use UnitEnum;
 
 class OamCodeResource extends Resource
 {
     protected static ?string $model = OamCode::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-hashtag';  // Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
 

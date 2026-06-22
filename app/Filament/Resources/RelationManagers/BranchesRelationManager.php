@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\RelationManagers;
 
+use App\Models\Branch;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -25,6 +26,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BackedEnum;
 
 class BranchesRelationManager extends RelationManager
 {
@@ -82,7 +84,7 @@ class BranchesRelationManager extends RelationManager
                     ->boolean(),
                 TextColumn::make('address')
                     ->label('Indirizzo')
-                    ->formatStateUsing(fn ($record) => trim(($record->address ?? '').' '.($record->street_number ?? '')))
+                    ->formatStateUsing(fn($record) => trim(($record->address ?? '') . ' ' . ($record->street_number ?? '')))
                     ->searchable(),
                 TextColumn::make('city')
                     ->label('Città')
@@ -91,7 +93,7 @@ class BranchesRelationManager extends RelationManager
                     ->label('Provincia'),
                 TextColumn::make('manager_last_name')
                     ->label('Responsabile')
-                    ->formatStateUsing(fn ($record) => trim(($record->manager_last_name ?? '').' '.($record->manager_first_name ?? '')))
+                    ->formatStateUsing(fn($record) => trim(($record->manager_last_name ?? '') . ' ' . ($record->manager_first_name ?? '')))
                     ->searchable(),
                 TextColumn::make('founded_at')
                     ->label('Data apertura')
@@ -124,7 +126,7 @@ class BranchesRelationManager extends RelationManager
                     RestoreBulkAction::make(),
                 ]),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query
+            ->modifyQueryUsing(fn(Builder $query) => $query
                 ->withoutGlobalScopes([
                     SoftDeletingScope::class,
                 ]));

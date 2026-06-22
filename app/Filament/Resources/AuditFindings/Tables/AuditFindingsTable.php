@@ -21,11 +21,8 @@ class AuditFindingsTable
                 TextColumn::make('audit.title')
                     ->label('Audit')
                     ->searchable(),
-                TextColumn::make('company.name')
-                    ->label('Azienda')
-                    ->searchable(),
                 TextColumn::make('title')
-                    ->label('Titolo rilievo')
+                    ->label('Rilievo')
                     ->searchable(),
                 TextColumn::make('severity')
                     ->label('Gravità')

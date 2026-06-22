@@ -22,6 +22,8 @@ class DocumentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    //      protected static UnitEnum|string|null $navigationGroup = 'Conformità';
+
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static bool $shouldRegisterNavigation = false;

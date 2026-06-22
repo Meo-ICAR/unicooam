@@ -58,14 +58,6 @@ class ClientiForm
                                         ->maxLength(255)
                                         ->label('Email principale'),
                                 ]),
-                                Grid::make(2)->schema([
-                                    TextInput::make('citta')
-                                        ->maxLength(255)
-                                        ->label('Città'),
-                                    TextInput::make('regione')
-                                        ->maxLength(255)
-                                        ->label('Regione'),
-                                ]),
                                 Section::make('Stato Operativo')
                                     ->compact()
                                     ->schema([
