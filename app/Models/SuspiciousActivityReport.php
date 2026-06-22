@@ -12,6 +12,7 @@ class SuspiciousActivityReport extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $connection = 'mysql';
     protected $table = 'suspicious_activity_reports';
 
     protected $fillable = [

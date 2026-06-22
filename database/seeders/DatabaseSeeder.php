@@ -56,10 +56,9 @@ class DatabaseSeeder extends Seeder
             EmailTemplateSeeder::class,
             OamCodeSeeder::class,
             RemediationSeeder::class,
-            SuspiciousActivityReportSeeder::class,
             TaskSeeder::class,
             TrainingRecordSeeder::class,
-            WebsiteSeeder::class,
+            SuspiciousActivityReportSeeder::class,
         ]);
     }
 }

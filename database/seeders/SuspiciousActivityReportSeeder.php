@@ -69,7 +69,7 @@ class SuspiciousActivityReportSeeder extends Seeder
         ];
 
         foreach ($reports as $report) {
-            DB::connection('mysql_compliance')->table('suspicious_activity_reports')->insert(array_merge($report, [
+            DB::table('suspicious_activity_reports')->insert(array_merge($report, [
                 'created_at' => now(),
                 'updated_at' => now(),
             ]));
