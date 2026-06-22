@@ -38,6 +38,32 @@ return new class extends Migration {
             $table->timestamp('founded_at')->nullable()->comment('Data e ora di apertura/fondazione della filiale');
             $table->timestamp('dismissed_at')->nullable()->comment('Data e ora di chiusura/dismissione della filiale');
 
+            $table
+                ->string('address', 255)
+                ->nullable()
+                ->comment('Via/Piazza della sede');
+            $table
+                ->string('street_number', 20)
+                ->nullable()
+                ->comment('Numero civico');
+            $table
+                ->string('city', 100)
+                ->nullable()
+                ->comment('Città della sede');
+            $table
+                ->string('zip_code', 10)
+                ->nullable()
+                ->comment('CAP della sede');
+            $table
+                ->string('province', 100)
+                ->nullable()
+                ->comment('Provincia della sede (nome esteso)');
+            $table
+                ->string('region', 100)
+                ->nullable()
+                ->after('province')
+                ->comment('Regione della sede');
+
             // Timestamps e SoftDeletes di Laravel
             $table->timestamps();
             $table->softDeletes()->comment('Data e ora di Referenza per eliminazione logica');

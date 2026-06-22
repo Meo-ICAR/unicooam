@@ -24,8 +24,8 @@ return new class extends Migration {
                 'gdpr', 'oam', 'ivass', 'sicurezza_lavoro', 'antiriciclaggio', 'mifid', 'other'
             ]);
 
-            $table->string('course_title');
-            $table->text('course_description')->nullable();
+            $table->string('name')->nullable();
+            $table->text('description')->nullable();
             $table->string('provider')->nullable();
             $table->string('trainer')->nullable();
 
@@ -34,7 +34,7 @@ return new class extends Migration {
                 'in_person', 'online', 'blended', 'on_the_job', 'webinar'
             ])->default('in_person');
 
-            $table->date('training_date');
+            $table->date('training_date')->nullable();
             $table->date('expiry_date')->nullable();
             $table->decimal('hours', 5, 1)->default(0.0);
 

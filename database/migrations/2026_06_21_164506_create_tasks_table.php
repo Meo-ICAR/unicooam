@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name')->unique();  // OnBoarding, Renew, Audit
             $table->text('description')->nullable();
-            $table->string('taskable')->nullable;  // Modello
+            $table->string('taskable')->nullable();  // Modello
             $table->timestamps();
         });
     }
