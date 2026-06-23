@@ -37,6 +37,8 @@ return new class extends Migration {
             // Gestione e Validità
             $table->boolean('is_signed')->default(false)->comment('Deve essere firmato');
             $table->boolean('is_monitored')->default(false)->comment('Scadenza monitorata nel tempo');
+            $table->integer('training_hours')->nullable()->comment('Ore di formazione richieste');
+            $table->enum('training_organization', ['interna', 'OAM', 'ISVASS', 'PRIVACY'])->nullable()->comment('Formazione per organizzazione');
             $table->integer('duration')->nullable()->comment('Validità dal rilascio in giorni');
             $table->string('emitted_by')->nullable()->comment('Ente di rilascio predefinito');
             $table->boolean('is_sensible')->default(false)->comment('Contiene dati sensibili');

@@ -32,6 +32,8 @@ return new class extends Migration {
 
             // Dati Logici
             $table->string('name')->nullable()->comment('Titolo logico o nome file del documento');
+            $table->integer('training_hours')->nullable()->comment('Ore di formazione richieste');
+            $table->enum('training_organization', ['interna', 'OAM', 'ISVASS', 'PRIVACY'])->nullable()->comment('Formazione per organizzazione');
             $table->string('docnumber')->nullable()->comment('Numero protocollo o identificativo del documento');
             $table->string('spatie_collection', 100)->default('default')->comment('Nome della collection per Spatie Media Library');
             $table->string('document_url')->default('default')->comment('URL pubblico o percorso del documento sul web/storage');

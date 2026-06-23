@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
 {
@@ -60,9 +60,10 @@ class Company extends Model
         return $this->morphMany(Website::class, 'websiteable');
     }
 
-    public function inspections(): HasMany
+    public function companyRoles(): HasMany
     {
-        return $this->hasMany(CompanyInspection::class, 'company_id');
+        // Collega l'azienda a molti CompanyRole
+        return $this->hasMany(CompanyRole::class);
     }
 
     public function mailAccount(): MorphOne
