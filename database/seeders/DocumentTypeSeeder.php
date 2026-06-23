@@ -12,11 +12,9 @@ class DocumentTypeSeeder extends Seeder
      */
     public function run(): void
     {
-        $id = 0;
         $documentTypes = [
             // Documenti personali
             [
-                'id' => $id++,
                 'name' => 'Casellario Giudiziale',
                 'slug' => 'casellario-giudiziale',
                 'priority' => 1,
@@ -28,7 +26,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Carichi Pendenti',
                 'slug' => 'carichi-pendenti',
                 'priority' => 1,
@@ -40,7 +37,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Dichiarazione sostitutiva certificato onorabilità',
                 'slug' => 'dichiarazione-sostitutiva-certificato-onorabilita',
                 'priority' => 1,
@@ -52,7 +48,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Relazione requisiti organizzativi',
                 'slug' => 'requisiti-organizzativi',
                 'priority' => 1,
@@ -64,7 +59,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Prova Valutativa OAM',
                 'description' => 'Evidenza superamento prova valutativa OAM',
                 'slug' => 'prova-valutativa-oam',
@@ -78,7 +72,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Attestato OAM',
                 'slug' => 'attestato-professionale',
                 'priority' => 1,
@@ -92,7 +85,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Formazione 15h aggiornamento OAM',
                 'slug' => 'formazione-15h-aggiornamento-oam',
                 'priority' => 1,
@@ -108,7 +100,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Formazione 30h aggiornamento OAM',
                 'slug' => 'formazione-30h-aggiornamento-oam',
                 'training_hours' => 30,
@@ -124,7 +115,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Attestato IVASS',
                 'slug' => 'attestato-ivass',
                 'priority' => 1,
@@ -138,7 +128,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Formazione 30h aggiornamento ISVASS',
                 'slug' => 'formazione-30h-aggiornamento-isvass',
                 'training_hours' => 30,
@@ -154,7 +143,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Titolo di Studio',
                 'description' => 'Copia del titolo di studio o autocertificazione di possesso',
                 'slug' => 'titolo-di-studio',
@@ -168,7 +156,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Polizza RC Professionale',
                 'slug' => 'polizza-rc',
                 'priority' => 1,
@@ -182,7 +169,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'id' => $id++,
                 'name' => 'Codice Etico',
                 'slug' => 'codice-etico',
                 'priority' => 1,
@@ -195,7 +181,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Regolamento di Trasparenza',
                 'slug' => 'trasparenza-avviso',
                 'priority' => 1,
@@ -208,7 +193,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Foglio informativo',
                 'code' => 'TRASPARENZA',
                 'slug' => 'foglio-informativo',
@@ -222,7 +206,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Trasparenza Sito Web',
                 'code' => 'TRASPARENZA',
                 'slug' => 'trasparenza-web',
@@ -236,7 +219,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Privacy Sito Web',
                 'slug' => 'privacy-web',
                 'priority' => 1,
@@ -249,7 +231,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Modulo AML',
                 'slug' => 'modulo-aml',
                 'priority' => 1,
@@ -261,7 +242,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Modulo Privacy',
                 'slug' => 'privacy-informativa',
                 'priority' => 1,
@@ -273,7 +253,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:57',
             ],
             [
-                'id' => $id++,
                 'name' => 'Nomina Incaricato',
                 'slug' => 'nomina-incaricato',
                 'priority' => 1,
@@ -285,7 +264,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:57',
             ],
             [
-                'id' => $id++,
                 'name' => 'Nomina Responsabile',
                 'slug' => 'nomina-responsabile',
                 'priority' => 1,
@@ -297,7 +275,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:57',
             ],
             [
-                'id' => $id++,
                 'name' => 'Nomina Amministratore di Sistema',
                 'slug' => 'nomina-amministratore',
                 'priority' => 1,
@@ -309,7 +286,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:57',
             ],
             [
-                'id' => $id++,
                 'name' => 'Procedura Compliance & Risk',
                 'slug' => 'proc-compliance-risk',
                 'priority' => 1,
@@ -321,7 +297,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Procedura Gestione Reclami',
                 'slug' => 'proc-reclami-ricezione',
                 'priority' => 1,
@@ -333,7 +308,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Informativa Reclami',
                 'slug' => 'proc-reclami-info',
                 'priority' => 1,
@@ -345,9 +319,8 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => 13,
                 'name' => 'Contrato di Mediazione',
-                'code' => 'INCARICO',
+                'code' => 'INCARICO-MED',
                 'slug' => 'incarico-mediazione',
                 'priority' => 1,
                 'is_person' => 0,
@@ -359,7 +332,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:57',
             ],
             [
-                'id' => $id++,
                 'name' => 'Carta di Identità',
                 'slug' => 'carta-identita',
                 'priority' => 1,
@@ -371,7 +343,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:57',
             ],
             [
-                'id' => $id++,
                 'name' => 'Patente di Guida',
                 'slug' => 'patente',
                 'priority' => 1,
@@ -383,7 +354,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:57',
             ],
             [
-                'id' => $id++,
                 'name' => 'Procedura Internal Audit',
                 'slug' => 'proc-internal-audit',
                 'priority' => 1,
@@ -395,7 +365,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Procedura AML Verifica',
                 'slug' => 'proc-aml-verifica',
                 'priority' => 1,
@@ -407,7 +376,6 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'id' => $id++,
                 'name' => 'Trasparenza TEGM su Web',
                 'code' => 'TRASPARENZA',
                 'slug' => 'transparency-doc',
@@ -1201,9 +1169,13 @@ class DocumentTypeSeeder extends Seeder
              * ]
              */
         ];
-
-        foreach ($documentTypes as $documentType) {
-            DocumentType::updateOrCreate(['id' => $documentType['name']], $documentType);
+        $id = 0;
+        // Loop through each document type configuration and store/update inside DB
+        foreach ($documentTypes as $type) {
+            DocumentType::updateOrCreate(
+                ['slug' => $type['slug']],
+                $type
+            );
         }
     }
 }

@@ -51,13 +51,13 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             EmployeeSeeder::class,
             MailAccountSeeder::class,
-            DocumentTypeSeeder::class,
-            DocumentSeeder::class,
             EmailTemplateSeeder::class,
             OamCodeSeeder::class,
             RemediationSeeder::class,
             TaskSeeder::class,
             SuspiciousActivityReportSeeder::class,
+            DocumentTypeSeeder::class,
+            DocumentSeeder::class,
             TrainingRecordSeeder::class,
         ]);
     }
