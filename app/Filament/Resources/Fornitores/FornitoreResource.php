@@ -7,6 +7,9 @@ use App\Filament\Resources\Fornitores\Pages\EditFornitore;
 use App\Filament\Resources\Fornitores\Pages\ListFornitores;
 use App\Filament\Resources\Fornitores\Schemas\FornitoreForm;
 use App\Filament\Resources\Fornitores\Tables\FornitoresTable;
+use App\Filament\Resources\RelationManagers\BranchesRelationManager;
+use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
+use App\Filament\Resources\RelationManagers\WebsitesRelationManager;
 use App\Models\PROFORMA\Fornitore;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -45,7 +48,7 @@ class FornitoreResource extends Resource
     {
         return [
             DocumentsRelationManager::class,
-            InspectionsRelationManager::class,
+            //   InspectionsRelationManager::class,
             WebsitesRelationManager::class,
             //  BranchesRelationManager::class,
         ];

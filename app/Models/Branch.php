@@ -47,8 +47,8 @@ class Branch extends Model
      */
     protected $casts = [
         'is_main_office' => 'boolean',
-        'founded_at' => 'datetime',
-        'dismissed_at' => 'datetime',
+        'founded_at' => 'date',
+        'dismissed_at' => 'date',
     ];
 
     /**

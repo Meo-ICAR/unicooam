@@ -37,55 +37,56 @@ class WebsitesRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                Select::make('company_id')
-                    ->label('Azienda')
-                    ->relationship('company', 'name'),
                 TextInput::make('name')
                     ->label('Nome sito')
                     ->required(),
-                TextInput::make('type')
-                    ->label('Tipologia')
-                    ->placeholder('es. vetrina, e-commerce, landing'),
-                TextInput::make('clienti_id')
-                    ->label('ID mandante')
-                    ->numeric(),
                 Toggle::make('is_active')
                     ->label('Attivo')
                     ->required(),
                 TextInput::make('domain')
                     ->label('Dominio')
                     ->required(),
-                Toggle::make('is_typical')
-                    ->label('Attività tipica')
-                    ->required(),
-                DatePicker::make('privacy_date')
-                    ->label('Data privacy policy')
-                    ->native(false)
-                    ->displayFormat('d/m/Y'),
+                TextInput::make('url_transparency')
+                    ->label('URL trasparenza')
+                    ->url(),
                 DatePicker::make('transparency_date')
                     ->label('Data trasparenza')
                     ->native(false)
                     ->displayFormat('d/m/Y'),
-                DatePicker::make('privacy_prior_date')
-                    ->label('Data precedente privacy')
-                    ->native(false)
-                    ->displayFormat('d/m/Y'),
-                DatePicker::make('transparency_prior_date')
-                    ->label('Data precedente trasparenza')
-                    ->native(false)
-                    ->displayFormat('d/m/Y'),
-                TextInput::make('url_privacy')
-                    ->label('URL privacy policy')
-                    ->url(),
-                TextInput::make('url_cookies')
-                    ->label('URL cookie policy')
-                    ->url(),
-                Toggle::make('is_footercompilant')
-                    ->label('Footer conforme')
-                    ->required(),
-                TextInput::make('url_transparency')
-                    ->label('URL trasparenza')
-                    ->url(),
+                TextInput::make('type')
+                    ->label('Tipologia')
+                    ->placeholder('es. vetrina, e-commerce, landing'),
+                TextInput::make('clienti_id')
+                    ->label('ID mandante')
+                    ->numeric(),
+
+                /*
+                 * Toggle::make('is_typical')
+                 *     ->label('Attività tipica')
+                 *     ->required(),
+                 * DatePicker::make('privacy_date')
+                 *     ->label('Data privacy policy')
+                 *     ->native(false)
+                 *     ->displayFormat('d/m/Y'),
+                 * DatePicker::make('privacy_prior_date')
+                 *     ->label('Data precedente privacy')
+                 *     ->native(false)
+                 *     ->displayFormat('d/m/Y'),
+                 * DatePicker::make('transparency_prior_date')
+                 *     ->label('Data precedente trasparenza')
+                 *     ->native(false)
+                 *     ->displayFormat('d/m/Y'),
+                 *
+                 * TextInput::make('url_privacy')
+                 *     ->label('URL privacy policy')
+                 *     ->url(),
+                 * TextInput::make('url_cookies')
+                 *     ->label('URL cookie policy')
+                 *     ->url(),
+                 * Toggle::make('is_footercompilant')
+                 *     ->label('Footer conforme')
+                 *     ->required(),
+                 */
                 Toggle::make('is_iso27001_certified')
                     ->label('Certificato ISO 27001')
                     ->required(),
@@ -196,7 +197,7 @@ class WebsitesRelationManager extends RelationManager
                     RestoreBulkAction::make(),
                 ]),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query
+            ->modifyQueryUsing(fn(Builder $query) => $query
                 ->withoutGlobalScopes([
                     SoftDeletingScope::class,
                 ]));

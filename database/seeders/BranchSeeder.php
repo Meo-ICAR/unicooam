@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\PROFORMA\Fornitore;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,9 @@ class BranchSeeder extends Seeder
         $branches = [
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'founded_at' => '2025-01-01',
                 'name' => 'Sede di Napoli',
                 'address' => 'Via Ferrante Imparato',
                 'street_number' => '190',
@@ -33,6 +37,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Taranto',
                 'address' => "Via Ettore D'Amore",
                 'street_number' => '43/45',
@@ -48,6 +54,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Andria',
                 'address' => 'Viale Venezia Giulia',
                 'street_number' => '36/36A',
@@ -63,6 +71,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Melicucco',
                 'address' => 'Via Don Luigi Sturzo',
                 'street_number' => '24',
@@ -78,6 +88,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Foggia',
                 'address' => 'Viale Giuseppe La Torre',
                 'street_number' => '73',
@@ -93,6 +105,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Napoli',
                 'address' => 'Via Diocleziano',
                 'street_number' => '105',
@@ -108,6 +122,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Cesena',
                 'address' => 'Via Casadei Secondo',
                 'street_number' => '62',
@@ -123,6 +139,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Vibo Valentia',
                 'address' => 'Via Piero Gobetti',
                 'street_number' => '3',
@@ -138,6 +156,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Foggia',
                 'address' => 'Via Giuseppe Di Vittorio',
                 'street_number' => '64',
@@ -153,6 +173,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Napoli 2',
                 'address' => 'Via Casanova',
                 'street_number' => '82',
@@ -168,6 +190,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Pescara ',
                 'address' => 'Via Tirino',
                 'street_number' => '25',
@@ -183,6 +207,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Napoli 3',
                 'address' => 'Via L. Libroia',
                 'street_number' => '8',
@@ -198,6 +224,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Foggia',
                 'address' => 'Viale Giuseppe Di Vittorio',
                 'street_number' => '205',
@@ -213,6 +241,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Roma',
                 'address' => 'Via Dino Penazzato',
                 'street_number' => '105',
@@ -228,6 +258,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Roma 2',
                 'address' => 'Via Cavati',
                 'street_number' => '29',
@@ -243,6 +275,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Roma 3',
                 'address' => 'Via Federico Filippini',
                 'street_number' => '283',
@@ -258,6 +292,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Milano',
                 'address' => 'Via Pergolesi  Giovanni Battista',
                 'street_number' => '9',
@@ -273,6 +309,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Latina',
                 'address' => 'Piazzale Granato',
                 'street_number' => '25',
@@ -288,6 +326,8 @@ class BranchSeeder extends Seeder
             ],
             [
                 'company_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
+                'branchable_type' => 'company',
+                'branchable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
                 'name' => 'Sede di Grottaminarda',
                 'address' => 'Piazza Vittoria',
                 'street_number' => '6',
@@ -304,8 +344,14 @@ class BranchSeeder extends Seeder
         ];
 
         // Chunking per evitare problemi di memoria con troppi record inseriti assieme
-        foreach (array_chunk($branches, 100) as $chunk) {
-            DB::table('branches')->insert($chunk);
+        foreach ($branches as $branch) {
+            $nome = $branch['manager_last_name'] . ' ' . $branch['manager_first_name'];
+            $fornitore = Fornitore::where('name', $nome)->first();
+            if ($fornitore) {
+                $branch['branchable_type'] = 'fornitore';
+                $branch['branchable_id'] = $fornitore->id;
+            }
+            DB::table('branches')->insert($branch);
         }
     }
 }

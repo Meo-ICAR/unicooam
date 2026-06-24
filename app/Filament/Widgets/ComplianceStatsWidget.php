@@ -3,10 +3,10 @@
 namespace App\Filament\Widgets;
 
 use App\Models\AuditFinding;
-use App\Models\CompanyInspection;
+// use App\Models\CompanyInspection;
 use App\Models\ComplaintRegistry;
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class ComplianceStatsWidget extends BaseWidget
 {
@@ -21,10 +21,13 @@ class ComplianceStatsWidget extends BaseWidget
                 ->description('Richiedono azione correttiva')
                 ->descriptionIcon('heroicon-m-clipboard-document-check')
                 ->color('danger'),
-            Stat::make('Ispezioni nel Semestre', CompanyInspection::count())
-                ->description('Programmate o completate')
-                ->descriptionIcon('heroicon-m-shield-check')
-                ->color('success'),
+
+            /*
+             * Stat::make('Ispezioni nel Semestre', CompanyInspection::count())
+             *     ->description('Programmate o completate')
+             *     ->descriptionIcon('heroicon-m-shield-check')
+             *     ->color('success'),
+             */
         ];
     }
 }

@@ -38,9 +38,8 @@ return new class extends Migration {
             $table->string('url_transparency')->nullable()->comment('URL completo alla pagina di trasparenza / dati societari');
             $table->boolean('is_iso27001_certified')->default(false)->comment('Indica se il sito risiede su infrastruttura certificata ISO 27001');
 
-            // Campi Polimorfici (UUID)
-            $table->string('websiteable_type')->nullable()->comment('Classe del modello polimorfico associato');
-            $table->uuid('websiteable_id')->nullable()->comment('ID UUID del record del modello polimorfico associato');
+            // FIX: Usiamo uuidMorphs perché i soggetti (es. Company o Clienti) usano chiavi UUID
+            $table->uuidMorphs('websiteable');
 
             // Timestamps e SoftDeletes
             $table->timestamps();
@@ -49,7 +48,6 @@ return new class extends Migration {
             // Indici espliciti richiesti
             $table->index('is_active', 'websites_is_active_index');
             $table->index('domain', 'websites_domain_index');
-            $table->index(['websiteable_type', 'websiteable_id'], 'websites_websiteable_type_websiteable_id_index');
 
             // Vincolo Chiave Esterna
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('set null');

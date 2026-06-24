@@ -44,6 +44,10 @@ class BranchesRelationManager extends RelationManager
                 Toggle::make('is_main_office')
                     ->label('Indica se è la Sede Legale/Operativa principale (1 = Sì, 0 = No)')
                     ->required(),
+                DateTimePicker::make('founded_at')
+                    ->label('Data di apertura della filiale'),
+                DateTimePicker::make('dismissed_at')
+                    ->label('Data dismissione della filiale'),
                 TextInput::make('address')
                     ->label('Via / Piazza'),
                 TextInput::make('street_number')
@@ -64,10 +68,6 @@ class BranchesRelationManager extends RelationManager
                     ->label('Cognome del responsabile della filiale'),
                 TextInput::make('manager_tax_code')
                     ->label('Codice Fiscale del responsabile della filiale'),
-                DateTimePicker::make('founded_at')
-                    ->label('Data e ora di apertura/fondazione della filiale'),
-                DateTimePicker::make('dismissed_at')
-                    ->label('Data e ora di chiusura/dismissione della filiale'),
             ]);
     }
 

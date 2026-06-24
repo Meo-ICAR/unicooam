@@ -3,6 +3,7 @@
 namespace App\Models\PROFORMA;
 
 use App\Models\PROFORMA\Provvigione;
+use App\Models\Branch;
 use App\Models\ComplaintRegistry;
 use App\Models\TrainingRecord;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -99,5 +100,10 @@ class Fornitore extends Model
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function branches()
+    {
+        return $this->morphMany(Branch::class, 'branchable');
     }
 }

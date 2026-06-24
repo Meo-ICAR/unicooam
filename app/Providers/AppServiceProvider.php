@@ -21,16 +21,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::morphMap([
-            'fornitore' => \App\Models\PROFORMA\Fornitore::class,
-            'cliente' => \App\Models\PROFORMA\Clienti::class,
-            'employee' => \App\Models\Employee::class,
-            'company' => \App\Models\Company::class,
             'audit' => \App\Models\Audit::class,
+            'branch' => \App\Models\Branch::class,
+            'company' => \App\Models\Company::class,
+            'cliente' => \App\Models\PROFORMA\Clienti::class,
             'complaint' => \App\Models\ComplaintRegistry::class,
             'document' => \App\Models\Document::class,
+            'employee' => \App\Models\Employee::class,
+            'fornitore' => \App\Models\PROFORMA\Fornitore::class,
             'website' => \App\Models\Website::class,
-            //     'fornitore' => \App\Models\PROFORMA\Fornitore::class,
-            //    'cliente'   => \App\Models\PROFORMA\Clienti::class,
         ]);
     }
 }

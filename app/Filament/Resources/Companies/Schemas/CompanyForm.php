@@ -17,10 +17,24 @@ class CompanyForm
                 TextInput::make('name')
                     ->label('Ragione sociale')
                     ->required(),
+                Select::make('company_type')
+                    ->label('Tipo società')
+                    ->options([
+                        'mediatore' => 'Mediatore',
+                        'call center' => 'Call center',
+                        'hotel' => 'Hotel',
+                        'sw house' => 'Software house',
+                    ]),
                 TextInput::make('vat_number')
                     ->label('Partita IVA / Codice fiscale'),
-                TextInput::make('vat_name')
-                    ->label('Denominazione fiscale'),
+
+                /*
+                 * TextInput::make('vat_name')
+                 *
+                 *     ->label('Denominazione su fatture'),
+                 */
+                TextInput::make('sponsor')
+                    ->label('Gruppo Societario'),
                 TextInput::make('oam')
                     ->label('Numero iscrizione OAM'),
                 DatePicker::make('oam_at')
@@ -28,7 +42,7 @@ class CompanyForm
                     ->native(false)
                     ->displayFormat('d/m/Y'),
                 TextInput::make('oam_name')
-                    ->label('Nome OAM'),
+                    ->label('Denominazione OAM'),
                 TextInput::make('numero_iscrizione_rui')
                     ->label('Numero iscrizione RUI'),
                 TextInput::make('ivass')
@@ -42,22 +56,15 @@ class CompanyForm
                 Select::make('ivass_section')
                     ->label('Sezione IVASS')
                     ->options(['A' => 'A', 'B' => 'B', 'C' => 'C', 'D' => 'D', 'E' => 'E']),
-                TextInput::make('sponsor')
-                    ->label('Sponsor'),
-                Select::make('company_type')
-                    ->label('Tipo società')
-                    ->options([
-                        'mediatore' => 'Mediatore',
-                        'call center' => 'Call center',
-                        'hotel' => 'Hotel',
-                        'sw house' => 'Software house',
-                    ]),
-                Textarea::make('page_header')
-                    ->label('Intestazione report')
-                    ->columnSpanFull(),
-                Textarea::make('page_footer')
-                    ->label('Piè di pagina report')
-                    ->columnSpanFull(),
+
+                /*
+                 * Textarea::make('page_header')
+                 *     ->label('Intestazione report')
+                 *     ->columnSpanFull(),
+                 * Textarea::make('page_footer')
+                 *     ->label('Piè di pagina report')
+                 *     ->columnSpanFull(),
+                 */
             ]);
     }
 }

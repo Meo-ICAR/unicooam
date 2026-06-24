@@ -19,9 +19,8 @@ return new class extends Migration {
             // Relazioni Principali
             $table->uuid('company_id')->nullable()->comment('ID Tenant proprietario');
 
-            // Relazione Polimorfica (con UUID)
-            $table->string('documentable_type')->comment('Classe del modello polimorfico associato');
-            $table->uuid('documentable_id')->comment('UUID del record polimorfico associato');
+            // FIX: Usiamo uuidMorphs perché i soggetti (es. Company o Clienti) usano chiavi UUID
+            $table->uuidMorphs('documentable');
 
             $table
                 ->foreignId('document_type_id')

@@ -31,9 +31,8 @@ return new class extends Migration {
             $table->string('province', 100)->nullable()->comment('Provincia della sede (nome esteso)');
             $table->string('region', 100)->nullable()->comment('Regione della sede');
 
-            // Campi per Relazione Polimorfica (Manuali poiché l'ID deve supportare stringhe/UUID)
-            $table->string('branchable_type')->nullable()->comment('Nome della classe del modello associato (Relazione Polimorfica)');
-            $table->string('branchable_id')->nullable()->comment('ID del record del modello associato (Relazione Polimorfica)');
+            // FIX: Usiamo uuidMorphs perché i soggetti (es. Company o Clienti) usano chiavi UUID
+            $table->uuidMorphs('branchable');
 
             $table->boolean('is_main_office')->default(false)->comment('Indica se è la Sede Legale/Operativa principale (1 = Sì, 0 = No)');
 
@@ -43,12 +42,12 @@ return new class extends Migration {
             $table->string('manager_tax_code', 16)->nullable()->comment('Codice Fiscale del responsabile della filiale');
 
             // Date specifiche della filiale
-            $table->timestamp('founded_at')->nullable()->comment('Data e ora di apertura/fondazione della filiale');
-            $table->timestamp('dismissed_at')->nullable()->comment('Data e ora di chiusura/dismissione della filiale');
+            $table->date('founded_at')->nullable()->comment('Data apertura della filiale');
+            $table->date('dismissed_at')->nullable()->comment('Data chiusura della filiale');
 
             // Timestamps e SoftDeletes di Laravel
             $table->timestamps();
-            $table->softDeletes()->comment('Data e ora di Referenza per eliminazione logica');
+            $table->softDeletes()->comment('Data di Referenza per eliminazione logica');
 
             // Indici e Vincoli
             $table->index(['branchable_type', 'branchable_id'], 'branches_branchable_index');
