@@ -43,14 +43,8 @@ class DatabaseSeeder extends Seeder
         }
         $this->call([
             CompanySeeder::class,
-          x
-            // CompanyUserSeeder::class,
-            // BusinessFunctionSeeder::class,
-            // CompanyBranchSeeder::class,
-            //
             WebsiteSeeder::class,
             BranchSeeder::class,
-            CompanyRoleSeeder::class,
             MailAccountSeeder::class,
             EmployeeSeeder::class,
             EmailTemplateSeeder::class,
@@ -61,6 +55,7 @@ class DatabaseSeeder extends Seeder
             DocumentTypeSeeder::class,
             DocumentSeeder::class,
             TrainingRecordSeeder::class,
+            CompanyRoleSeeder::class,
         ]);
     }
 }

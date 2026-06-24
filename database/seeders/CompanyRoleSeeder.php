@@ -19,7 +19,7 @@ class CompanyRoleSeeder extends Seeder
             [
                 'company_id' => $company_id,
                 'name' => 'Controllo Semestrale',
-                'funzione' => 'COMPLIANCE',
+                'funzione' => 'compliance',
                 'is_external' => true,
                 'dal' => '2026-01-01',
                 'al' => '2026-06-30',
@@ -30,7 +30,7 @@ class CompanyRoleSeeder extends Seeder
             [
                 'company_id' => $company_id,
                 'name' => 'Controllo Semestrale',
-                'funzione' => 'COMPLIANCE',
+                'funzione' => 'compliance',
                 'is_external' => true,
                 'dal' => '2026-01-01',
                 'al' => '2026-06-30',
@@ -41,7 +41,7 @@ class CompanyRoleSeeder extends Seeder
             [
                 'company_id' => $company_id,  // Sostituisci con un UUID valido da 'companies'
                 'name' => 'Audit Esterno',
-                'funzione' => 'INTERNAL AUDIT',
+                'funzione' => 'internal audit',
                 'is_external' => true,
                 'dal' => '2026-07-01',
                 'al' => '2026-07-15',
@@ -52,11 +52,11 @@ class CompanyRoleSeeder extends Seeder
             [
                 'company_id' => $company_id,  // Sostituisci con un UUID valido da 'companies'
                 'name' => 'Verifica Antiriciclaggio',
-                'funzione' => 'AML',
+                'funzione' => 'aml',
                 'is_external' => false,
                 'dal' => null,
                 'al' => null,
-                'execution_method' => '',  // Accetta stringa vuota come da SQL
+                'execution_method' => '?',  // Accetta stringa vuota come da SQL
                 'expertName' => 'Luca Verdi',
                 'n' => 3,
             ]
