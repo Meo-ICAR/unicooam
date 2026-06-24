@@ -12,6 +12,7 @@ class TrainingRecord extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $connection = 'mysql';
     protected $orderBy = 'expiry_date';
     protected $orderDirection = 'asc';
 

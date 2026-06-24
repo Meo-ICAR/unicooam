@@ -39,7 +39,7 @@ class CompanyRoleSeeder extends Seeder
                 'n' => 0,
             ],
             [
-                'company_id' => $company_id,,  // Sostituisci con un UUID valido da 'companies'
+                'company_id' => $company_id,  // Sostituisci con un UUID valido da 'companies'
                 'name' => 'Audit Esterno',
                 'funzione' => 'INTERNAL AUDIT',
                 'is_external' => true,
@@ -50,7 +50,7 @@ class CompanyRoleSeeder extends Seeder
                 'n' => 2,
             ],
             [
-                'company_id' => $company_id,,  // Sostituisci con un UUID valido da 'companies'
+                'company_id' => $company_id,  // Sostituisci con un UUID valido da 'companies'
                 'name' => 'Verifica Antiriciclaggio',
                 'funzione' => 'AML',
                 'is_external' => false,

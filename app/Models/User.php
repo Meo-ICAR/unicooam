@@ -19,8 +19,8 @@ class User extends Authenticatable implements FilamentUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $connection = 'mysql';
     protected $orderBy = 'name';
-
     protected $orderDirection = 'asc';
 
     /**

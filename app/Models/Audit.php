@@ -4,11 +4,11 @@ namespace App\Models;
 
 use App\Enums\AuditStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Audit extends Model
@@ -20,6 +20,8 @@ class Audit extends Model
      *
      * @var array<int, string>
      */
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'company_id',
         'auditable_type',
@@ -95,7 +97,7 @@ class Audit extends Model
             return $this->executed_at->isAfter($this->scheduled_at);
         }
 
-        return $this->scheduled_at->isPast() && ! $this->executed_at;
+        return $this->scheduled_at->isPast() && !$this->executed_at;
     }
 
     public function findings(): HasMany

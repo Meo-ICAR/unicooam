@@ -29,7 +29,7 @@ class MailAccountSeeder extends Seeder
             'smtp_encryption' => 'ssl',
             'is_active' => 1,
             // Associazione polimorfica usando l'UUID stringa della Company
-            'mailable_type' => 'App\Models\Company',
+            'mailable_type' => 'company',
             'mailable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
         ]);
 
@@ -50,7 +50,7 @@ class MailAccountSeeder extends Seeder
             'smtp_encryption' => 'ssl',
             'is_active' => 1,
             // Associazione polimorfica usando l'UUID stringa della Company
-            'mailable_type' => 'App\Models\Company',
+            'mailable_type' => 'company',
             'mailable_id' => '45d36df8-369f-40ce-b4fd-b5907c342fe9',
         ]);
     }

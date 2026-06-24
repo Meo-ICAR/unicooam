@@ -50,7 +50,7 @@ class FornitoreResource extends Resource
             DocumentsRelationManager::class,
             //   InspectionsRelationManager::class,
             WebsitesRelationManager::class,
-            //  BranchesRelationManager::class,
+            BranchesRelationManager::class,
         ];
     }
 

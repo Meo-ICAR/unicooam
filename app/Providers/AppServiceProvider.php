@@ -23,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'audit' => \App\Models\Audit::class,
             'branch' => \App\Models\Branch::class,
-            'company' => \App\Models\Company::class,
             'cliente' => \App\Models\PROFORMA\Clienti::class,
+            'company' => \App\Models\Company::class,
             'complaint' => \App\Models\ComplaintRegistry::class,
             'document' => \App\Models\Document::class,
             'employee' => \App\Models\Employee::class,

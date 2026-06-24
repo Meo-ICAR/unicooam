@@ -11,6 +11,7 @@ class OamSemestrale extends Model
     use HasFactory;
 
     // Forziamo il nome esatto della tabella in italiano
+    protected $connection = 'mysql';
     protected $table = 'oam_semestrales';
 
     public $timestamps = false;

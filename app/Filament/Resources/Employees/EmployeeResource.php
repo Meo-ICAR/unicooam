@@ -8,6 +8,7 @@ use App\Filament\Resources\Employees\Pages\ListEmployees;
 use App\Filament\Resources\Employees\Schemas\EmployeeForm;
 use App\Filament\Resources\Employees\Tables\EmployeesTable;
 use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
+use App\Models\Documenti;
 use App\Models\Employee;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;

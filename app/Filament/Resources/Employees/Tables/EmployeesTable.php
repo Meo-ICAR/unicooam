@@ -45,8 +45,16 @@ class EmployeesTable
                     ->label('Nominativo')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('employee_types')
+                    ->label('Ruolo')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('hiring_date')
                     ->label('Data assunzione')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                TextColumn::make('termination_date')
+                    ->label('Data cessazione')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('numero_iscrizione_rui')
@@ -55,17 +63,10 @@ class EmployeesTable
                 TextColumn::make('email')
                     ->label('Indirizzo email')
                     ->searchable(),
-                TextColumn::make('phone')
-                    ->label('Telefono')
-                    ->searchable(),
-                TextColumn::make('coordinatedBy.name')
+                TextColumn::make('coordinator.name')
                     ->label('Coordinato da')
                     ->searchable()
                     ->placeholder('Nessun coordinatore'),
-                TextColumn::make('termination_date')
-                    ->label('Data cessazione')
-                    ->date('d/m/Y')
-                    ->sortable(),
             ])
             ->filters([
                 //

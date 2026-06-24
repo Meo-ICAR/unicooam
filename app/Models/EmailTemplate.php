@@ -14,6 +14,8 @@ class EmailTemplate extends Model
      *
      * @var string
      */
+    protected $connection = 'mysql';
+
     protected $table = 'email_templates';
 
     /**

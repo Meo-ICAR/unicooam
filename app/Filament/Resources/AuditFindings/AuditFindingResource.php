@@ -22,6 +22,8 @@ class AuditFindingResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $recordTitleAttribute = 'title';
 
     protected static ?string $navigationLabel = 'Rilievi audit';

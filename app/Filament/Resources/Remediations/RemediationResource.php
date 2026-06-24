@@ -12,27 +12,20 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use BackedEnum;
+use UnitEnum;
 
 class RemediationResource extends Resource
 {
     protected static ?string $model = Remediation::class;
 
-    protected static bool $isScopedToTenant = false;
-
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';  // Heroicon::OutlinedWrenchScrewdriver;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $navigationLabel = 'Azioni correttive';
-
-    protected static ?string $modelLabel = 'Azione correttiva';
-
-    protected static ?string $pluralModelLabel = 'Azioni correttive';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Impostazioni';
-
-    protected static ?int $navigationSort = 95;
+    protected static UnitEnum|string|null $navigationGroup = 'Impostazioni';
 
     public static function form(Schema $schema): Schema
     {
@@ -58,5 +51,13 @@ class RemediationResource extends Resource
             'create' => CreateRemediation::route('/create'),
             'edit' => EditRemediation::route('/{record}/edit'),
         ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

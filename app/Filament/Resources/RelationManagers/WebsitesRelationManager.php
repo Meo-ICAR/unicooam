@@ -56,11 +56,11 @@ class WebsitesRelationManager extends RelationManager
                 TextInput::make('type')
                     ->label('Tipologia')
                     ->placeholder('es. vetrina, e-commerce, landing'),
-                TextInput::make('clienti_id')
-                    ->label('ID mandante')
-                    ->numeric(),
 
                 /*
+                 * TextInput::make('clienti_id')
+                 * ->label('ID mandante')
+                 * ->numeric(),
                  * Toggle::make('is_typical')
                  *     ->label('Attività tipica')
                  *     ->required(),
@@ -98,18 +98,15 @@ class WebsitesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('domain')
             ->columns([
-                TextColumn::make('company.name')
-                    ->label('Azienda')
-                    ->searchable(),
                 TextColumn::make('name')
                     ->label('Nome')
                     ->searchable(),
                 TextColumn::make('type')
                     ->label('Tipologia')
                     ->searchable(),
-                TextColumn::make('clienti_id')
-                    ->label('ID mandante')
-                    ->numeric()
+                TextColumn::make('transparency_date')
+                    ->label('Trasparenza')
+                    ->date('d/m/Y')
                     ->sortable(),
                 IconColumn::make('is_active')
                     ->label('Attivo')
@@ -117,62 +114,46 @@ class WebsitesRelationManager extends RelationManager
                 TextColumn::make('domain')
                     ->label('Dominio')
                     ->searchable(),
-                IconColumn::make('is_typical')
-                    ->label('Attività tipica')
-                    ->boolean(),
-                TextColumn::make('privacy_date')
-                    ->label('Privacy')
-                    ->date('d/m/Y')
-                    ->sortable(),
-                TextColumn::make('transparency_date')
-                    ->label('Trasparenza')
-                    ->date('d/m/Y')
-                    ->sortable(),
-                TextColumn::make('privacy_prior_date')
-                    ->label('Privacy precedente')
-                    ->date('d/m/Y')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('transparency_prior_date')
-                    ->label('Trasparenza precedente')
-                    ->date('d/m/Y')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('url_privacy')
-                    ->label('URL privacy')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('url_cookies')
-                    ->label('URL cookie')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_footercompilant')
-                    ->label('Footer conforme')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('url_transparency')
                     ->label('URL trasparenza')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_iso27001_certified')
-                    ->label('ISO 27001')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Creato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->label('Aggiornato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->label('Eliminato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
+                /*
+                 * TextColumn::make('client.name')
+                 *  ->label('Mandante')
+                 *  ->searchable(),
+                 * TextColumn::make('privacy_date')
+                 *     ->label('Privacy')
+                 *     ->date('d/m/Y')
+                 *     ->sortable(),
+                 * TextColumn::make('privacy_prior_date')
+                 *     ->label('Privacy precedente')
+                 *     ->date('d/m/Y')
+                 *     ->sortable()
+                 *     ->toggleable(isToggledHiddenByDefault: true),
+                 * TextColumn::make('transparency_prior_date')
+                 *     ->label('Trasparenza precedente')
+                 *     ->date('d/m/Y')
+                 *     ->sortable()
+                 *     ->toggleable(isToggledHiddenByDefault: true),
+                 * TextColumn::make('url_privacy')
+                 *     ->label('URL privacy')
+                 *     ->searchable()
+                 *     ->toggleable(isToggledHiddenByDefault: true),
+                 * TextColumn::make('url_cookies')
+                 *     ->label('URL cookie')
+                 *     ->searchable()
+                 *     ->toggleable(isToggledHiddenByDefault: true),
+                 * IconColumn::make('is_footercompilant')
+                 *     ->label('Footer conforme')
+                 *     ->boolean()
+                 *     ->toggleable(isToggledHiddenByDefault: true),
+                 *     IconColumn::make('is_iso27001_certified')
+                 *  ->label('ISO 27001')
+                 *  ->boolean()
+                 *  ->toggleable(isToggledHiddenByDefault: true),
+                 */
             ])
             ->filters([
                 TrashedFilter::make()

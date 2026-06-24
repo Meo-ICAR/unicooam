@@ -17,13 +17,13 @@ return new class extends Migration {
             $table->uuid('company_id')->comment('ID di collegamento alla tabella companies (formato UUID/Char)');
 
             $table->string('name')->nullable()->comment("Nome o descrizione descrittiva dell'ispezione");
-            $table->enum('funzione', ['INTERNAL AUDIT', 'COMPLIANCE', 'AML', 'ALTRO'])->nullable()->comment('Funzione aziendale');
+            $table->enum('funzione', ['internal audit', 'compliance', 'aml', 'altro'])->nullable()->comment('Funzione aziendale');
             $table->boolean('is_external')->default(0)->comment('Figura esterna');
             $table->date('dal')->nullable()->comment('Data di inizio del periodo di ispezione');
             $table->date('al')->nullable()->comment('Data di fine del periodo di ispezione');
 
             // Enum con stringa vuota come default, seguendo il tuo SQL
-            $table->enum('execution_method', ['documentale', '', 'onsite'])->default('')->comment('Metodo di esecuzione: tramite documenti, non specificato o sul posto');
+            $table->enum('execution_method', ['documentale', '?', 'onsite'])->nullable()->comment('Metodo di esecuzione: tramite documenti, non specificato o sul posto');
 
             $table->string('expertName')->nullable()->comment("Nome e cognome dell'incaricato che esegue il controllo");
             $table->integer('n')->nullable()->comment('Numero identificativo interno o contatore progressivo');

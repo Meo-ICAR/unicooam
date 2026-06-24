@@ -11,6 +11,7 @@ class CompanyRole extends Model
     use HasFactory;
 
     // Definisce esplicitamente la tabella
+    protected $connection = 'mysql';
     protected $table = 'company_roles';
 
     // Campi compilabili tramite assegnazione di massa

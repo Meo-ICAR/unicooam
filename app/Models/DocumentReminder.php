@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
 
 class DocumentReminder extends Model
 {
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'document_id',
         'days_before',

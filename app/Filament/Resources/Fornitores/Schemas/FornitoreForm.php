@@ -21,20 +21,26 @@ class FornitoreForm
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
-                                ->label('Ragione Sociale / Nome Azienda')
+                                ->label('Denominazione')
                                 ->maxLength(255),
                             TextInput::make('nome')
-                                ->label('Nome del Referente')
+                                ->label('Ragione Sociale')
                                 ->maxLength(255),
+                            DatePicker::make('stipulated_at')
+                                ->label('Data Stipula')
+                                ->displayFormat('d/m/Y'),
+                            DatePicker::make('dismissed_at')
+                                ->label('Data Cessazione')
+                                ->displayFormat('d/m/Y'),
+                            DatePicker::make('available_at')
+                                ->label('Data Disponibilità')
+                                ->displayFormat('d/m/Y'),
                             TextInput::make('piva')
                                 ->label('Partita IVA')
                                 ->maxLength(20),
                             TextInput::make('cf')
                                 ->label('Codice Fiscale')
                                 ->maxLength(16),
-                            DatePicker::make('natoil')
-                                ->label('Data di Nascita')
-                                ->displayFormat('d/m/Y'),
                             TextInput::make('tel')
                                 ->label('Telefono')
                                 ->tel()
@@ -47,30 +53,9 @@ class FornitoreForm
                                 ->label('PEC (Posta Elettronica Certificata)')
                                 ->email()
                                 ->maxLength(255),
-                            TextInput::make('dpo_email')
+                            TextInput::make('email_private')
                                 ->label('Indirizzo email privata')
                                 ->email()
-                                ->maxLength(255),
-                        ]),
-                        Grid::make(3)->schema([
-                            TextInput::make('indirizzo')
-                                ->label('Indirizzo')
-                                ->maxLength(255)
-                                ->columnSpan(3),
-                            TextInput::make('comune')
-                                ->label('Comune')
-                                ->maxLength(255),
-                            TextInput::make('cap')
-                                ->label('CAP')
-                                ->maxLength(255),
-                            TextInput::make('prov')
-                                ->label('Provincia')
-                                ->maxLength(255),
-                            TextInput::make('regione')
-                                ->label('Regione')
-                                ->maxLength(255),
-                            TextInput::make('citta')
-                                ->label('Città')
                                 ->maxLength(255),
                         ]),
                     ])
@@ -168,15 +153,6 @@ class FornitoreForm
                             TextInput::make('coordinatore')
                                 ->label('Nome Coordinatore')
                                 ->maxLength(255),
-                            DatePicker::make('stipulated_at')
-                                ->label('Data Stipula Contratto')
-                                ->displayFormat('d/m/Y'),
-                            DatePicker::make('dismissed_at')
-                                ->label('Data Cessazione Rapporto')
-                                ->displayFormat('d/m/Y'),
-                            DatePicker::make('available_at')
-                                ->label('Data Disponibilità')
-                                ->displayFormat('d/m/Y'),
                             TextInput::make('campagna')
                                 ->label('Codice Campagna')
                                 ->maxLength(255),
@@ -240,36 +216,6 @@ class FornitoreForm
                     ])
                     ->collapsed(),
                 // 5. RELAZIONI E ID DI SISTEMA
-                Section::make('Sistema e Relazioni')
-                    ->schema([
-                        Grid::make(3)->schema([
-                            // Se hai relazioni Eloquent definite, puoi sostituire questi TextInput con dei Select::make()->relationship(...)
-                            TextInput::make('company_id')
-                                ->label('ID Company')
-                                ->default('5c044917-15b3-4471-90c9-38061fcca754')
-                                ->maxLength(36),
-                            TextInput::make('company_branch_id')
-                                ->label('ID Filiale')
-                                ->numeric(),
-                            TextInput::make('user_id')
-                                ->label('ID Utente Collegato')
-                                ->numeric(),
-                            TextInput::make('coordinated_id')
-                                ->label('ID Agente Coordinatore')
-                                ->numeric(),
-                            TextInput::make('coordinated_type')
-                                ->label('ID Dipendente Coordinatore')
-                                ->numeric(),
-                            TextInput::make('operatore')
-                                ->label('Operatore')
-                                ->maxLength(255),
-                            TextInput::make('description')
-                                ->label('Note / Descrizione Aggiuntiva')
-                                ->maxLength(255)
-                                ->columnSpanFull(),
-                        ]),
-                    ])
-                    ->collapsed(),
             ]);
     }
 }

@@ -18,6 +18,8 @@ class Company extends Model
      *
      * @var array<int, string>
      */
+    protected $connection = 'mysql';
+
     protected $orderBy = 'name';
 
     protected $orderDirection = 'asc';

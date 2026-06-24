@@ -10,6 +10,7 @@ class Task extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
     protected $orderBy = 'name';
     protected $orderDirection = 'asc';
     protected $fillable = ['name', 'description'];

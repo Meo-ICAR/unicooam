@@ -18,7 +18,7 @@ return new class extends Migration {
             // Relazioni Esterne
             $table->uuid('company_id')->nullable()->comment('ID Tenant proprietario (FK su companies)');
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete()->comment('ID account utente collegato (FK su users)');
-            $table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete()->comment('Sede o filiale di assegnazione (FK su branches)');
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete()->comment('Sede');
 
             // Dati Anagrafici e Contatto
             $table->string('name')->nullable()->comment('Nome e Cognome del dipendente');

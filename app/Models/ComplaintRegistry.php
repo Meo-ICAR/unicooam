@@ -19,6 +19,7 @@ class ComplaintRegistry extends Model
     use SoftDeletes;
 
     // Specifica il nome corretto della tabella se diverso dal plurale standard di Laravel
+    protected $connection = 'mysql';
     protected $table = 'complaint_registry';
 
     protected $fillable = [

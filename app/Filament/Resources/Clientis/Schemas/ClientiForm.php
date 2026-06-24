@@ -36,7 +36,7 @@ class ClientiForm
                                             'captive' => 'Broker Captive',
                                             'assicurazione' => 'Assicurazione',
                                         ])
-                                        ->label('Tipo Cliente'),
+                                        ->label('Tipo Convenzionato'),
                                     TextInput::make('piva')
                                         ->maxLength(16)
                                         ->label('Partita IVA'),
@@ -66,7 +66,7 @@ class ClientiForm
                                             ->label('Prodotti')
                                             ->relationship(
                                                 name: 'oamCodes',
-                                                titleAttribute: 'name'
+                                                titleAttribute: 'tipo_prodotto'
                                             )
                                             ->searchable()
                                             ->bulkToggleable()

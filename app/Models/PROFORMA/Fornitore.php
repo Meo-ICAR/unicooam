@@ -5,7 +5,9 @@ namespace App\Models\PROFORMA;
 use App\Models\PROFORMA\Provvigione;
 use App\Models\Branch;
 use App\Models\ComplaintRegistry;
+use App\Models\Document;
 use App\Models\TrainingRecord;
+use App\Models\Website;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +30,7 @@ class Fornitore extends Model
         'codice',
         'coge',
         'name',
+        'email',
         'pec',
         'email_private',
         'nome',
@@ -42,7 +45,6 @@ class Fornitore extends Model
         'cf',
         'nomecoge',
         'nomefattura',
-        'email',
         'anticipo',
         'enasarco',
         'anticipo_residuo',
@@ -90,6 +92,11 @@ class Fornitore extends Model
         $nome = $cliente->nome;
 
         return $nome;
+    }
+
+    public function websites()
+    {
+        return $this->morphMany(Website::class, 'websiteable');
     }
 
     public function complaints(): MorphMany

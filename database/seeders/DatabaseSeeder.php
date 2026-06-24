@@ -43,14 +43,16 @@ class DatabaseSeeder extends Seeder
         }
         $this->call([
             CompanySeeder::class,
+          x
             // CompanyUserSeeder::class,
             // BusinessFunctionSeeder::class,
             // CompanyBranchSeeder::class,
             //
             WebsiteSeeder::class,
             BranchSeeder::class,
-            EmployeeSeeder::class,
+            CompanyRoleSeeder::class,
             MailAccountSeeder::class,
+            EmployeeSeeder::class,
             EmailTemplateSeeder::class,
             OamCodeSeeder::class,
             RemediationSeeder::class,
