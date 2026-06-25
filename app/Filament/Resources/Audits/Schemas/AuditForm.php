@@ -19,6 +19,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class AuditForm
 {
@@ -48,6 +49,7 @@ class AuditForm
                                         ->label('Cliente'),
                                     Type::make(Fornitore::class)
                                         ->titleAttribute('name')
+                                        //     ->modifyOptionsQueryUsing(fn(Builder $query) => $query->whereNull($this->dismissed_at))
                                         ->label('Produttore'),
                                     Type::make(Company::class)
                                         ->titleAttribute('name')

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
+use Illuminate\Database\Seeder,
 use Illuminate\Support\Facades\DB;
 
 class OamCodeSeeder extends Seeder
@@ -32,12 +32,14 @@ class OamCodeSeeder extends Seeder
             ['id' => 17, 'code' => 'A.16', 'name' => 'Ristrutturazione dei crediti (art. 128-quater decies, del TUB)', 'description' => 'A.16 Ristrutturazione dei crediti (art. 128-quater decies, del TUB)', 'tipo_prodotto' => 'Ristrutturazione', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 18, 'code' => 'Consulenza', 'name' => ' ', 'description' => 'Consulenza  ', 'tipo_prodotto' => 'Consulenza', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 19, 'code' => 'Segnalazione mutuo', 'name' => ' ', 'description' => 'Segnalazione mutuo  ', 'tipo_prodotto' => 'Segnalazione', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
-            ['id' => 21, 'code' => 'A.2', 'name' => 'Cessioni del V dello stipendio/pensione e delegazioni di pagamento', 'description' => 'A.2 Cessioni del V dello stipendio/pensione e delegazioni di pagamento', 'tipo_prodotto' => 'Delega', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
-            ['id' => 22, 'code' => 'A.4bis', 'name' => 'TFS', 'description' => 'A.4bis TFS', 'tipo_prodotto' => 'TFS', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
-            ['id' => 23, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Aziendale', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
-            ['id' => 24, 'code' => 'A.11', 'name' => 'Credito finalizzato', 'description' => 'A.11 Credito finalizzato', 'tipo_prodotto' => 'Finalizzato', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
-            ['id' => 25, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Chirografario', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
-            ['id' => 26, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Microcredito', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+              ['id' => 21, 'code' => 'A.4bis', 'name' => 'TFS', 'description' => 'A.4bis TFS', 'tipo_prodotto' => 'TFS', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+                   ['id' => 22, 'code' => 'A.11', 'name' => 'Credito finalizzato', 'description' => 'A.11 Credito finalizzato', 'tipo_prodotto' => 'Finalizzato', 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+            ['id' => 23, 'code' => 'A.2', 'name' => 'Cessioni del V dello stipendio/pensione e delegazioni di pagamento', 'description' => 'A.2 Cessioni del V dello stipendio/pensione e delegazioni di pagamento', 'tipo_prodotto' => 'Delega', 'is_dummy' => true,'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+
+            ['id' => 24, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Aziendale', 'is_dummy' => true, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+
+            ['id' => 25, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Chirografario', 'is_dummy' => true,'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+            ['id' => 26, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Microcredito', 'is_dummy' => true, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
         ];
 
         // Se la tabella potrebbe contenere già questi ID, 'upsert' previene errori di chiave duplicata.

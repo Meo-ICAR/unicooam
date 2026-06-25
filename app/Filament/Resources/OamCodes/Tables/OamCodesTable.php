@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OamCodes\Tables;
 
+use App\Models\OamCode;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -13,6 +14,9 @@ class OamCodesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->query(function () {
+                return OamCode::query()->where('is_dummy', false);
+            })
             ->columns([
                 TextColumn::make('tipo_prodotto')
                     ->label('Tipo prodotto')
@@ -22,14 +26,10 @@ class OamCodesTable
                     ->label('Descrizione')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('code')
-                    ->label('Codice OAM')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('name')
-                    ->label('Nome')
-                    ->sortable()
-                    ->searchable(),
+                TextColumn::make('clienti_count')
+                    ->counts('clienti')
+                    ->label('N. Convenzioni')
+                    ->sortable(),
             ])
             ->filters([
                 //

@@ -25,14 +25,24 @@ class TaskDocumentTypeSeeder extends Seeder
                 'incarico-mediazione',
                 'modulo-aml',
                 'privacy-informativa',
-                'polizza-rc',
-                'dichiarazione-sostitutiva-certificato-onorabilita',
-            ],
-            'oam-agenti' => [
                 'prova-valutativa-oam',
                 'attestato-professionale',
                 'formazione-15h-aggiornamento-oam',
+                'polizza-rc',
+            ],
+            'oam-agenti' => [
+                'casellario-giudiziale',
+                'carichi-pendenti',
+                'dichiarazione-sostitutiva-certificato-onorabilita',
                 'formazione-30h-aggiornamento-oam',
+                'polizza-rc',  // Spesso richiesta per il rinnovo
+            ],
+            'isvass-agenti' => [
+                'casellario-giudiziale',
+                'carichi-pendenti',
+                'dichiarazione-sostitutiva-certificato-onorabilita',
+                'formazione-15h-aggiornamento-oam',
+                'formazione-30h-aggiornamento-isvass',
                 'polizza-rc',  // Spesso richiesta per il rinnovo
             ],
             'oam-semestrale' => [

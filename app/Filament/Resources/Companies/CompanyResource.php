@@ -51,7 +51,7 @@ class CompanyResource extends Resource
             CompanyRolesRelationManager::class,
             BranchesRelationManager::class,
             WebsitesRelationManager::class,
-            MailAccountRelationManager::class,
+            //  MailAccountRelationManager::class,
         ];
     }
 

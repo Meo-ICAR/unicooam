@@ -6,6 +6,7 @@ use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class OamCodeForm
 {
@@ -28,7 +29,10 @@ class OamCodeForm
                             ->label('Mandanti')
                             ->relationship(
                                 name: 'clienti',
-                                titleAttribute: 'name'
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn(Builder $query) => $query
+                                    ->whereNull('dismissed_at')
+                                    ->where('principal_type', 'banca'),
                             )
                             ->searchable()
                             ->bulkToggleable()

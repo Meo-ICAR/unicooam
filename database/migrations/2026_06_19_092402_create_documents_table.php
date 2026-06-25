@@ -73,6 +73,7 @@ return new class extends Migration {
 
             // Audit Trails (Utenti)
             $table->unsignedBigInteger('user_id')->nullable()->comment('FK Utente o Cliente intestatario');
+            $table->uuid('renewed_by')->nullable()->comment('FK Utente che ha aggiornato il documento');
             $table->unsignedBigInteger('uploaded_by')->nullable()->comment("FK Utente che ha eseguito l'upload");
             $table->unsignedBigInteger('verified_by')->nullable()->comment('FK Admin che ha verificato e approvato');
             $table->timestamp('verified_at')->nullable()->comment('Data e ora di verifica');

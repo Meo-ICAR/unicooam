@@ -21,6 +21,7 @@ class OamCode extends Model
         'name',
         'description',
         'tipo_prodotto',
+        'is_dummy'
     ];
 
     public function clienti(): BelongsToMany

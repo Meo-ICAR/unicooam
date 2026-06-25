@@ -14,11 +14,23 @@ class TaskSeeder extends Seeder
                 'name' => 'OnBoarding',
                 'description' => 'Attività e documenti richiesti per il caricamento di una nuovo produttore.',
                 'taskable' => 'fornitore',
+                'trigger_field' => 'oam_at',
+                'trigger_state' => 'empty',
             ],
             [
                 'name' => 'OAM-Agenti',
                 'description' => 'Attività e controlli per il rinnovo periodico OAM',
                 'taskable' => 'fornitore',
+                'trigger_field' => 'oam_at',
+                'trigger_state' => 'filled',
+            ],
+            [
+                'name' => 'ISVASS-Agenti',
+                'description' => 'Attività e controlli per il rinnovo periodico ISVASS',
+                'taskable' => 'fornitore',
+                'trigger_field' => 'ivass_section',
+                'trigger_state' => 'equals',
+                'trigger_value' => 'E',
             ],
             [
                 'name' => 'OAM-Semestrale',
@@ -42,6 +54,8 @@ class TaskSeeder extends Seeder
                 'name' => 'OffBoarding',
                 'description' => 'Attività e documenti richiesti per la chiusura di una anagrafica.',
                 'taskable' => 'fornitore',
+                'trigger_field' => 'dismissed_at',
+                'trigger_state' => 'filled',
             ],
         ];
 

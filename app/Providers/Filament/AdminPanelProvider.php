@@ -24,6 +24,17 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->navigationGroups([
+                //  NavigationGroup::make()->label('Pratiche'),
+                //  NavigationGroup::make()->label('Contabilita'),
+                NavigationGroup::make()->label('Anagrafiche'),  // ->collapsed(),
+                NavigationGroup::make()->label('Impostazioni')->collapsed(),
+            ])
+            //     ->brandLogo(asset('images/unicofinance_logo.png'))
+            // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
+            //   ->brandLogoHeight('3rem')
+            // Imposta l'icona del browser (favicon)
+            //  ->favicon(asset('images/unicofinance_icona.png'))
             ->default()
             ->id('admin')
             ->path('admin')

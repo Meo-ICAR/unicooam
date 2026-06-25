@@ -11,6 +11,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class ComplaintRegistryForm
 {
@@ -24,42 +25,20 @@ class ComplaintRegistryForm
                     ->collapsible()
                     ->schema([
                         Grid::make(3)->schema([
-                            TextInput::make('protocol_number')
-                                ->label('Numero Protocollo')
-                                ->placeholder('Es. REC-2026-001')
-                                ->required(),
-                            //  ->unique(ignoringRecord: true),
                             DatePicker::make('received_at')
                                 ->label('Data Ricezione')
                                 ->default(now())
                                 ->required(),
-                            Select::make('reception_channel')
-                                ->label('Canale di Ricezione')
-                                ->options([
-                                    'pec' => 'Posta Elettronica Certificata (PEC)',
-                                    'raccomandata' => 'Raccomandata A/R',
-                                    'email' => 'Email Ordinaria',
-                                    'brevi_manu' => 'Consegna a Mano (Brevi Manu)',
-                                ])
-                                ->default('email')
-                                ->required(),
-                        ]),
-                        Grid::make(2)->schema([
-                            TextInput::make('receiving_email')
-                                ->label('Email Aziendale Ricevente')
-                                ->email()
-                                ->placeholder('es. compliance@azienda.it')
-                                ->maxLength(255),
                             TextInput::make('complainant_name')
                                 ->label('Nome/Ragione Sociale Reclamante')
                                 ->placeholder('Es. Mario Rossi o Rossi S.r.l.')
                                 ->default('?')
                                 ->required(),
+                            TextInput::make('complainant_email')
+                                ->label('Email / Recapito del Reclamante')
+                                ->email()
+                                ->placeholder('es. cliente@email.com'),
                         ]),
-                        TextInput::make('complainant_email')
-                            ->label('Email del Reclamante')
-                            ->email()
-                            ->placeholder('es. cliente@email.com'),
                     ])
                     ->columnSpanFull(),
                 // SEZIONE 2: NATURA DEL RECLAMO E OGGETTI COINVOLTI
@@ -68,6 +47,13 @@ class ComplaintRegistryForm
                     ->collapsible()
                     ->schema([
                         Grid::make(2)->schema([
+                            Textarea::make('description')
+                                ->label('Descrizione Dettagliata del Reclamo')
+                                ->placeholder('Inserire qui i motivi della contestazione del cliente...')
+                                ->required()
+                                ->default('Anomalia')
+                                ->rows(5)
+                                ->columnSpanFull(),
                             Select::make('macro_category')
                                 ->label('Macro Ambito')
                                 ->options([
@@ -106,13 +92,6 @@ class ComplaintRegistryForm
                                 ->preload()
                                 ->nullable(),
                         ]),
-                        Textarea::make('description')
-                            ->label('Descrizione Dettagliata del Reclamo')
-                            ->placeholder('Inserire qui i motivi della contestazione del cliente...')
-                            ->required()
-                            ->default('Anomalia')
-                            ->rows(5)
-                            ->columnSpanFull(),
                         TextInput::make('financial_impact')
                             ->label('Impatto Economico Presunto (€)')
                             ->numeric()
