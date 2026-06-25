@@ -30,9 +30,9 @@ class ScadenziarioDocumenti extends Page implements HasTable
 
     protected static ?string $title = 'Scadenziario documenti';
 
-    // protected static UnitEnum|string|null $navigationGroup = 'Conformità';
+    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
-    protected static ?int $navigationSort = 12;
+    protected static ?int $navigationSort = 30;
 
     protected string $view = 'filament.pages.scadenziario-documenti';
 
@@ -43,19 +43,34 @@ class ScadenziarioDocumenti extends Page implements HasTable
 
         return $table
             ->query(
-                $reminderService
+                fn() => $reminderService
                     ->scheduleQuery()
-                    ->selectRaw("documents.*, CONCAT(documentable_type, '|', documentable_id) as documentable_group_key")
+                    ->select('*')  // Mantiene intatte le colonne reali
+                    ->selectRaw("CONCAT(documentable_type, '|', documentable_id) as documentable_group_key")
             )
             ->defaultSort('expires_at')
             ->groups([
+                // Passando l'alias qui dentro, Filament sa già cosa usare
                 Group::make('documentable_group_key')
                     ->label('Entità')
                     ->titlePrefixedWithLabel(false)
                     ->getTitleFromRecordUsing(fn(Document $record): string => $recipientResolver->groupLabel($record))
                     ->collapsible(),
             ])
+            ->defaultGroup('documentable_group_key')
             ->columns([
+                TextColumn::make('documentable.name')
+                    ->label('Soggetto / Entità')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHasMorph(
+                            'documentable',
+                            ['employee', 'company', 'audit', 'complaint', 'cliente', 'fornitore', 'branch', 'website'],
+                            function (Builder $query) use ($search) {
+                                $query->where('name', 'like', "%{$search}%");
+                            }
+                        );
+                    })
+                    ->sortable(),
                 TextColumn::make('name')
                     ->label('Documento')
                     ->searchable()
@@ -98,12 +113,16 @@ class ScadenziarioDocumenti extends Page implements HasTable
                 SelectFilter::make('documentable_type')
                     ->label('Modello')
                     ->options([
-                        'App\Models\Employee' => 'Dipendente',
-                        'App\Models\Company' => 'Azienda',
-                        'App\Models\Audit' => 'Audit',
-                        'App\Models\ComplaintRegistry' => 'Reclamo',
-                        'App\Models\PROFORMA\Clienti' => 'Istituto',
-                        'App\Models\PROFORMA\Fornitore' => 'Produttore',
+                        'employee' => 'Dipendente',
+                        'company' => 'Azienda',
+                        'audit' => 'Audit',
+                        'complaint' => 'Reclamo',
+                        'cliente' => 'Istituto',
+                        'fornitore' => 'Produttore',
+                        // Opzionali (visto che sono nel tuo morphMap, potresti voler filtrare anche questi):
+                        'branch' => 'Filiale / Agenzia',
+                        'website' => 'Sito Web',
+                        'document' => 'Documento (Sub-documento)',
                     ]),
             ])
             ->recordActions([

@@ -19,7 +19,7 @@ return new class extends Migration {
             // -----------------------------------------------------------------
             // Filament isolerà i record in base alla Company attiva. Indispensabile l'indice.
             $table->foreignUuid('company_id')->nullable()->index()->constrained('companies')->cascadeOnDelete();
-
+            $table->text('name')->nullable()->comment('Nome audit');
             // -----------------------------------------------------------------
             // 1. SU CHI? (Polimorfismo con UUID)
             // -----------------------------------------------------------------

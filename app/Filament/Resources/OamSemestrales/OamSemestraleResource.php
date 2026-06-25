@@ -20,7 +20,9 @@ class OamSemestraleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
 
-    protected static ?string $navigationLabel = 'Profilo Economico OAM';
+    protected static ?string $navigationLabel = 'Prof. Economico OAM';
+
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {

@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
             WebsiteSeeder::class,
             BranchSeeder::class,
             MailAccountSeeder::class,
+            CompanyRoleSeeder::class,
             EmployeeSeeder::class,
             EmailTemplateSeeder::class,
             OamCodeSeeder::class,
@@ -57,7 +58,6 @@ class DatabaseSeeder extends Seeder
             SuspiciousActivityReportSeeder::class,
             DocumentSeeder::class,
             TrainingRecordSeeder::class,
-            CompanyRoleSeeder::class,
         ]);
     }
 }

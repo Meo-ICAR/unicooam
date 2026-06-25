@@ -34,23 +34,69 @@ class Task extends Model
      *
      * @param int $companyId ID dell'azienda principale
      * @param int $documentableId ID del record di destinazione (ID Azienda o ID Fornitore)
+     * @param bool $is_debug Abilita il debug
      * @return int Numero di documenti creati
      */
-    public function createDocumentation(int $companyId, int $documentableId): int
+    public function createDocumentation(string $companyId, string $documentableId, bool $is_debug = false): int
     {
         $createdCount = 0;
 
         // Clicliamo sui documentTypes già caricati in memoria
         foreach ($this->documentTypes as $documentType) {
-            // 1. Prendi tutti i campi dal template ESCLUDENDO ID e Timestamps
-            $templateData = $documentType->except(['id', 'created_at', 'updated_at', 'deleted_at']);
+            // 1. Converte il modello in array ed esclude chiavi primarie, globali ed identificativi univoci
+            foreach ($this->documentTypes as $documentType) {
+                // 1. Estraiamo SOLO i campi del template che la tabella 'documents' è in grado di accogliere
+                $templateData = collect($documentType->toArray())
+                    ->only([
+                        'name',
+                        'description',
+                        'training_hours',
+                        'training_organization',
+                        'emitted_by',
+                        'is_template',
+                        'is_signed',
+                    ])
+                    ->toArray();
 
-            // 2. Aggiungi/Sovrascrivi i campi specifici per la creazione
+                // 2. Gestiamo la colonna della fine mese (is_endmonth -> is_endMonth)
+                if (isset($documentType->is_endmonth)) {
+                    $templateData['is_endMonth'] = (bool) $documentType->is_endmonth;
+                }
+
+                if ($is_debug && isset($documentType->is_monitored)) {
+                    //   $templateData['is_monitored'] = (bool) $documentType->is_monitored;
+                    $templateData['expires_at'] = now()->addDays(rand(1, 70));
+                }
+
+                // 3. Uniamo lo stato iniziale richiesto
+                $creationData = array_merge($templateData, [
+                    'status' => 'pending',
+                ]);
+
+                // 4. Eseguiamo il firstOrCreate in sicurezza
+                $document = Document::firstOrCreate(
+                    [
+                        'company_id' => $companyId,
+                        'documentable_type' => $this->taskable,
+                        'documentable_id' => $documentableId,
+                        'document_type_id' => $documentType->id,
+                    ],
+                    $creationData
+                );
+            }
+
+            // 2. Correzione per il mapping di is_endmonth (da snake_case della sorgente a camelCase della destinazione)
+            if (array_key_exists('is_endmonth', $templateData)) {
+                $templateData['is_endMonth'] = $templateData['is_endmonth'];
+                unset($templateData['is_endmonth']);
+            }
+
+            // 3. Unisce i dati estratti con i valori di stato predefiniti
             $creationData = array_merge($templateData, [
                 'status' => 'pending',
             ]);
 
-            // 3. Esegui il firstOrCreate
+            // 4. Esegue il firstOrCreate usando le chiavi polimorfiche corrette
             $document = Document::firstOrCreate(
                 [
                     'company_id' => $companyId,
