@@ -114,4 +114,35 @@ class Task extends Model
 
         return $createdCount;
     }
+
+    public static function getAvailableFor($record)
+    {
+        // Trova il tipo (es. "App\Models\Fornitore" diventa "fornitore")
+        $taskableType = strtolower(class_basename($record));
+
+        // 1. Prendi tutti i task legati a quel tipo di modello
+        $tasks = self::where('taskable', $taskableType)->get();
+
+        // 2. Filtra i task in base allo stato dei campi del record
+        return $tasks->filter(function ($task) use ($record) {
+            // Se il task non ha condizioni particolari, è sempre valido
+            if (empty($task->trigger_field)) {
+                return true;
+            }
+
+            $fieldValue = $record->{$task->trigger_field};
+
+            // Condizione: il campo deve essere valorizzato (NOT NULL)
+            if ($task->trigger_state === 'filled') {
+                return !empty($fieldValue);
+            }
+
+            // Condizione: il campo deve essere vuoto (NULL)
+            if ($task->trigger_state === 'empty') {
+                return empty($fieldValue);
+            }
+
+            return true;
+        });
+    }
 }

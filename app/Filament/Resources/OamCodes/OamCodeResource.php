@@ -25,7 +25,7 @@ class OamCodeResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Impostazioni';
 
-    protected static ?string $navigationLabel = 'OAM Codici';
+    protected static ?string $navigationLabel = 'Convenzioni';
 
     protected static ?int $navigationSort = 2;
 

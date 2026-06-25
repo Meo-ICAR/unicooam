@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,17 +17,19 @@ return new class extends Migration {
             $table->unsignedBigInteger('client_id')->nullable();
 
             // Polimorfica per il segnalatore (Agent o Employee)
-            $table->string('reporter_type');
-            $table->unsignedBigInteger('reporter_id');
+            // -----------------------------------------------------------------
+            // 1. SU CHI? (Polimorfismo con UUID)
+            // -----------------------------------------------------------------
+            // Genera auditable_type e auditable_id. Perfetto per il componente MorphToSelect di Filament.
+            $table->uuidMorphs('reportable');
+            $table->timestamp('reported_at')->nullable();
 
             $table->json('anomalies_codes')->nullable();
             $table->text('description');
             $table->enum('status', ['pending', 'investigated', 'reported', 'archived'])->default('pending');
-            $table->timestamp('reported_at')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
-
-            $table->index(['reporter_type', 'reporter_id']);
         });
     }
 

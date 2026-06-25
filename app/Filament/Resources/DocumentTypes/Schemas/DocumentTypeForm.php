@@ -2,122 +2,155 @@
 
 namespace App\Filament\Resources\DocumentTypes\Schemas;
 
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
 
-class DocumentTypeForm
+class DocumentTypesTable
 {
-    public static function configure(Schema $schema): Schema
+    public static function configure(Table $table): Table
     {
-        return $schema
-            ->components([
-                TextInput::make('name')
-                    ->label('Nome'),
-                TextInput::make('description')
-                    ->label('Descrizione'),
-                TextInput::make('code')
-                    ->label('Codice'),
-                TextInput::make('codegroup')
-                    ->label('Gruppo codice'),
-                TextInput::make('slug')
-                    ->label('Slug')
-                    ->required(),
-                TextInput::make('regex_pattern')
-                    ->label('Pattern regex'),
-                TextInput::make('priority')
-                    ->label('Priorità')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                TextInput::make('phase')
-                    ->label('Fase'),
-                Toggle::make('is_person')
-                    ->label('Persona fisica')
-                    ->required(),
-                Toggle::make('is_company')
-                    ->label('Azienda')
-                    ->required(),
-                Toggle::make('is_employee')
-                    ->label('Dipendente')
-                    ->required(),
-                Toggle::make('is_agent')
-                    ->label('Agente')
-                    ->required(),
-                Toggle::make('is_principal')
-                    ->label('Mandante')
-                    ->required(),
-                Toggle::make('is_client')
-                    ->label('Cliente')
-                    ->required(),
-                Toggle::make('is_practice')
-                    ->label('Pratica')
-                    ->required(),
-                Toggle::make('is_signed')
-                    ->label('Richiede firma')
-                    ->required(),
-                Toggle::make('is_monitored')
-                    ->label('Monitorato')
-                    ->required(),
-                TextInput::make('duration')
-                    ->label('Durata (giorni)')
-                    ->numeric(),
+        return $table
+            ->columns([
+                // ==========================================
+                // 1. INFORMAZIONI PRIMARIE (Impatto immediato)
+                // ==========================================
+                TextColumn::make('name')
+                    ->label('Nome documento')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+                TextColumn::make('nature')
+                    ->label('Natura Flusso')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'incoming' => 'info',
+                        'template_fillable' => 'warning',
+                        'compliance' => 'success',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'incoming' => 'Da Ricevere',
+                        'template_fillable' => 'Modulo da Compilare / Firmare',
+                        'compliance' => 'Compliance / Regolamento',
+                        default => $state,
+                    })
+                    ->sortable(),
+                TextColumn::make('duration')
+                    ->label('Validità')
+                    ->formatStateUsing(function ($record) {
+                        if (!$record->duration) {
+                            return 'Nessuna scadenza';
+                        }
+
+                        $unit = match ($record->duration_unit) {
+                            'hours' => 'Ore',
+                            'days' => 'Giorni',
+                            'months' => 'Mesi',
+                            'years' => 'Anni',
+                            default => 'Giorni'
+                        };
+
+                        return "{$record->duration} {$unit}";
+                    })
+                    ->placeholder('Senza scadenza'),
+                IconColumn::make('is_monitored')
+                    ->label('Da rinnovare periodicamente')
+                    ->boolean()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Select::make('renewed_by_id')
-                    ->label('Rinnovato da')
+                    ->label('Documento per rinnovo (se differente da attuale)')
                     ->relationship('renewedBy', 'name')
                     ->searchable()
                     ->preload()
                     ->nullable(),
-                // ->helperText('Seleziona un coordinatore della stessa sede'),
-                TextInput::make('emitted_by')
-                    ->label('Emesso da'),
-                Toggle::make('is_sensible')
-                    ->label('Dati sensibili')
-                    ->required(),
-                Toggle::make('is_template')
-                    ->label('Modello')
-                    ->required(),
-                Toggle::make('is_stored')
-                    ->label('Archiviato')
-                    ->required(),
-                TextInput::make('regex')
-                    ->label('Regex validazione'),
-                Toggle::make('is_endmonth')
-                    ->label('Scadenza a fine mese')
-                    ->required(),
-                Toggle::make('is_AiAbstract')
-                    ->label('Riassunto AI')
-                    ->required(),
-                Toggle::make('is_AiCheck')
-                    ->label('Controllo AI')
-                    ->required(),
-                Textarea::make('AiPattern')
-                    ->label('Pattern AI')
-                    ->columnSpanFull(),
-                TextInput::make('min_confidence')
-                    ->label('Affidabilità minima (%)')
-                    ->required()
-                    ->numeric()
-                    ->default(70),
-                Toggle::make('allow_auto_verification')
-                    ->label('Verifica automatica')
-                    ->required(),
-                TextInput::make('notify_days_before')
-                    ->label('Giorni preavviso scadenza'),
-                TextInput::make('retention_years')
-                    ->label('Anni conservazione')
-                    ->numeric(),
-                TextInput::make('created_by')
-                    ->label('Creato da (ID utente)')
-                    ->numeric(),
-                TextInput::make('updated_by')
-                    ->label('Aggiornato da (ID utente)')
-                    ->numeric(),
-                TextInput::make('deleted_by')
-                    ->label('Eliminato da (ID utente)')
-                    ->numeric(),
+                // ==========================================
+                // 2. INFORMAZIONI SPECIFICHE (A chi e dove)
+                // ==========================================
+                TextColumn::make('target')
+                    ->label('Applicabile a')
+                    ->badge()
+                    ->color('gray')
+                    ->state(function ($record): array {
+                        $map = [
+                            'company' => ['flag' => $record->is_company, 'label' => 'Azienda'],
+                            'employee' => ['flag' => $record->is_employee, 'label' => 'Dipendente'],
+                            'cliente' => ['flag' => $record->is_client, 'label' => 'Mandante'],
+                            'fornitore' => ['flag' => $record->is_agent, 'label' => 'Produttore'],
+                            'practice' => ['flag' => $record->is_practice, 'label' => 'Pratica'],
+                            'person' => ['flag' => $record->is_person, 'label' => 'Persona'],
+                        ];
+
+                        $targets = [];
+                        foreach ($map as $key => $config) {
+                            if ($config['flag']) {
+                                $targets[] = $config['label'];
+                            }
+                        }
+                        return $targets;
+                    })
+                    ->placeholder('Nessun target'),
+                TextColumn::make('phase')
+                    ->label('Fase Processo')
+                    ->sortable()
+                    ->toggleable(),
+                // ==========================================
+                // 3. FLAG TECNICI E STATI (In fondo alla riga)
+                // ==========================================
+                IconColumn::make('is_signed')
+                    ->label('Check sia firmato')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-pencil-square')
+                    ->falseIcon('')  // Lascia vuoto se falso per non appesantire la riga
+                    ->toggleable(),
+                TextColumn::make('code')
+                    ->label('Codice')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('slug')
+                    ->label('Slug URL')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                SelectFilter::make('nature')
+                    ->label('Natura Flusso')
+                    ->options([
+                        'incoming' => 'Da Ricevere',
+                        'template_fillable' => 'Moduli da Compilare',
+                        'compliance' => 'Compliance / Regolamenti',
+                    ]),
+                TernaryFilter::make('is_company')
+                    ->label('Target Azienda')
+                    ->placeholder('Tutti'),
+                TernaryFilter::make('is_employee')
+                    ->label('Target Dipendente')
+                    ->placeholder('Tutti'),
+                TernaryFilter::make('is_signed')
+                    ->label('Richiede Firma')
+                    ->placeholder('Tutti'),
+            ])
+            ->actions([
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

@@ -15,9 +15,12 @@ class TaskForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Nome attività'),
+                    ->label('Nome attività')
+                    ->required()
+                    ->maxLength(255),
                 TextInput::make('description')
-                    ->label('Descrizione'),
+                    ->label('Descrizione')
+                    ->maxLength(255),
                 Select::make('taskable')
                     ->label('Entità collegata')
                     ->options([
@@ -27,7 +30,36 @@ class TaskForm
                         'clienti' => 'Mandante',
                         'fornitore' => 'Produttore',
                     ])
-                    ->searchable(),
+                    ->searchable()
+                    ->required(),
+                // ==========================================
+                // NUOVA SEZIONE: FILTRI DI ATTIVAZIONE
+                // ==========================================
+                Section::make('Regole di Attivazione Dinamica')
+                    ->description('Configura le condizioni per cui questo task deve attivarsi in base ai dati del record.')
+                    ->schema([
+                        TextInput::make('trigger_field')
+                            ->label('Nome colonna del Database')
+                            ->placeholder('es. data_dimissione, tipo_fornitore')
+                            ->helperText("Inserisci il nome esatto del campo sulla tabella dell'entità."),
+                        Select::make('trigger_state')
+                            ->label('Condizione del campo')
+                            ->options([
+                                'empty' => 'Deve essere VUOTO (Null / Vuoto)',
+                                'filled' => 'Deve essere COMPILATO (Contiene un valore)',
+                                'equals' => 'Deve essere UGUALE a un valore specifico',
+                            ])
+                            ->live(),  // Rende il campo reattivo per aggiornare la form al cambio
+                        TextInput::make('trigger_value')
+                            ->label('Valore specifico richiesto')
+                            ->placeholder('es. esterno, attivo')
+                            ->visible(fn($get) => $get('trigger_state') === 'equals')  // Visibile solo se selezioni 'equals'
+                            ->required(fn($get) => $get('trigger_state') === 'equals'),  // Obbligatorio solo se visibile
+                    ])
+                    ->columns(3),
+                // ==========================================
+                // SEZIONE DOCUMENTI (Esistente)
+                // ==========================================
                 Section::make('Associazione documenti')
                     ->description("Seleziona i tipi documento da associare all'attività.")
                     ->schema([

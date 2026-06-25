@@ -22,7 +22,7 @@ class SuspiciousActivityReportResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-exclamation-triangle';  // Heroicon::OutlinedFlag;
 
-    protected static ?string $recordTitleAttribute = 'description';
+    //    protected static ?string $recordTitleAttribute = 'description';
 
     protected static ?string $navigationLabel = 'Segnalazioni SOS';
 

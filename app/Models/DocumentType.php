@@ -41,7 +41,7 @@ class DocumentType extends Model
         'is_template',
         'is_stored',
         'regex',
-        'is_endmonth',
+        'is_endMonth',
         'is_AiAbstract',
         'is_AiCheck',
         'AiPattern',

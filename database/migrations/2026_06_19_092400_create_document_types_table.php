@@ -42,13 +42,18 @@ return new class extends Migration {
 
             $table->integer('training_hours')->nullable()->comment('Ore di formazione richieste');
             $table->enum('training_organization', ['interna', 'OAM', 'ISVASS', 'PRIVACY'])->nullable()->comment('Formazione per organizzazione');
-            $table->integer('duration')->nullable()->comment('Validità dal rilascio in giorni');
+            // Modifichiamo il commento di duration per renderlo generico
+            $table->integer('duration')->nullable()->comment('Valore della validità');
+            $table->string('duration_unit')->default('days')->comment('Unità di misura: hours, days, months, years');
+
+            // Nuova colonna per la natura del documento
+            $table->string('nature')->default('incoming')->comment('Natura del flusso: incoming, template_fillable, compliance');
             $table->string('emitted_by')->nullable()->comment('Ente di rilascio predefinito');
             $table->boolean('is_sensible')->default(false)->comment('Contiene dati sensibili');
             $table->boolean('is_template')->default(false)->comment('Forniamo noi il template');
             $table->boolean('is_stored')->default(false)->comment('Richiede conservazione sostitutiva');
             $table->string('regex')->nullable()->comment('Pattern regex per classificazione');
-            $table->boolean('is_endmonth')->default(false)->comment('Approssima data a fine mese');
+            $table->boolean('is_endMonth')->default(false)->comment('Approssima data a fine mese');
 
             // AI e Automazione
             $table->boolean('is_AiAbstract')->default(false)->comment('Ask AI to make abstract');

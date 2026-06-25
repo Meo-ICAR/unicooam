@@ -12,6 +12,9 @@ return new class extends Migration {
             $table->string('name')->unique();  // OnBoarding, Renew, Audit
             $table->text('description')->nullable();
             $table->string('taskable')->nullable();  // Modello
+            $table->string('trigger_field')->nullable()->comment('Campo del modello da controllare');
+            $table->string('trigger_state')->nullable()->comment('filled, empty, equals');
+            $table->string('trigger_value')->nullable()->comment('Il valore specifico da controllare');
             $table->timestamps();
         });
     }

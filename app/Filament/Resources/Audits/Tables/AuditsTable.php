@@ -3,17 +3,22 @@
 namespace App\Filament\Resources\Audits\Tables;
 
 use App\Enums\AuditStatus;
+use App\Filament\Exports\DynamicGroupExport;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextareaColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class AuditsTable
 {
@@ -53,11 +58,11 @@ class AuditsTable
                     ->label('Auditor'),
                 // 5. Date critiche (Formattate in formato italiano)
                 TextColumn::make('scheduled_at')
-                    ->label('Data Pianificata')
+                    ->label('Pianificata')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('executed_at')
-                    ->label('Data Esecuzione')
+                    ->label('Eseguita')
                     ->date('d/m/Y')
                     ->sortable()
                     ->toggleable(),
@@ -77,7 +82,7 @@ class AuditsTable
                     ->sortable()
                     ->placeholder('In attesa di esito'),
                 TextColumn::make('followup_date')
-                    ->label('Data Follow-up')
+                    ->label('Follow-up')
                     ->date('d/m/Y')
                     ->sortable(),
                 //  ->toggleable(isToggledHiddenByDefault: true),
@@ -117,6 +122,47 @@ class AuditsTable
                 // Filtro per record cancellati (Soft Deletes)
                 TrashedFilter::make()
                     ->label('Cestino'),
+                Filter::make('executed_at')
+                    ->form([
+                        DatePicker::make('execution_from')
+                            ->label('Data esecuzione (Dal)'),
+                        DatePicker::make('execution_to')
+                            ->label('Data esecuzione (Al)'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['execution_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('executed_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['execution_to'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('executed_at', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+
+                        if ($data['execution_from'] ?? null) {
+                            $indicators[] = 'Esecuzione dal: ' . \Carbon\Carbon::parse($data['execution_from'])->format('d/m/Y');
+                        }
+
+                        if ($data['execution_to'] ?? null) {
+                            $indicators[] = 'Esecuzione al: ' . \Carbon\Carbon::parse($data['execution_to'])->format('d/m/Y');
+                        }
+
+                        return $indicators;
+                    }),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        DynamicGroupExport::make(),
+                        //    ->groupBy('Produttore')  // Campo per il raggruppamento
+                        //    ->sumColumns(['Provvigione']),  // Campi da sommare
+                    ])
+                    ->label('Esporta Excel')
+                    ->color('success'),
             ])
             ->actions([
                 // È buona pratica in Filament avere sia il View che l'Edit accessibili
