@@ -6,145 +6,129 @@ use App\Enums\AuditStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\TextareaColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Filament\Tables;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 
 class AuditsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            // Ordinamento di default: i più recenti pianificati o eseguiti in alto
+            ->defaultSort('scheduled_at', 'desc')
             ->columns([
-                // 1. CODICE PROTOCOLLO (Cliccabile per copiare al volo)
+                // 2. Soggetto Controllato (Risolve il polimorfismo mostrando il nome reale dell'agente/impiegato)
                 TextColumn::make('auditable')
-                    ->label('Soggetto Interessato')
-                    ->state(function ($record) {
-                        if (!$record->auditable)
-                            return '-';
-
-                        // Riconosce dinamicamente il campo stringa del modello collegato
-                        return $record->auditable->ragione_sociale
-                            ?? $record->auditable->nome_area_o_agente
-                            ?? $record->auditable->denominazione
-                            ?? $record->auditable->nome_organismo
-                            ?? $record->auditable->name;
+                    ->label('Soggetto Controllato')
+                    ->state(fn($record) => $record->auditable?->full_name ?? $record->auditable?->name ?? 'N/D')
+                    ->description(fn($record) => match ($record->auditable_type) {
+                        'App\Models\Agent' => 'Collaboratore / Agente',
+                        'App\Models\Employee' => 'Impiegato Interno',
+                        default => str_replace('App\\Models\\', '', $record->auditable_type),
                     })
-                    // Aggiunge una label secondaria grigia sotto il nome per capire COS'È quel soggetto
-                    ->description(fn($record): string => match ($record->auditable_type) {
-                        'App\Models\Company' => 'Sede Centrale / Azienda',
-                        'App\Models\Fornitore' => 'Produttori',
-                        'App\Models\Clienti' => 'Banca Mandante',
-                        // 'App\Models\OrganismoVigilanza' => 'Autorità di Vigilanza',
-                        default => 'Altro Soggetto',
+                    ->searchable(query: function ($query, string $search) {
+                        // Permette di cercare nella tabella per nome/cognome del polimorfico
+                        $query->whereHasMorph('auditable', ['App\Models\Agent', 'App\Models\Employee'], function ($q) use ($search) {
+                            $q
+                                ->where('full_name', 'like', "%{$search}%")
+                                ->orWhere('name', 'like', "%{$search}%");
+                        });
                     }),
-                // 7. DATE E CONTROLLO RITARDI
+                // 3. Organismo di Vigilanza (Relazione con la tabella organizations)
+                TextColumn::make('organization.acronym')
+                    ->label('Ente Vigilante')
+                    ->badge()
+                    ->color('gray')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('Audit Interno'),
+                // 4. Chi esegue il controllo (Auditor)
+                TextColumn::make('auditor_name')
+                    ->label('Auditor'),
+                // 5. Date critiche (Formattate in formato italiano)
                 TextColumn::make('scheduled_at')
-                    ->label('Pianificato')
+                    ->label('Data Pianificata')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('executed_at')
-                    ->label('Eseguito')
+                    ->label('Data Esecuzione')
                     ->date('d/m/Y')
                     ->sortable()
-                    // Se l'audit è scaduto e non è stato eseguito, colora il testo di rosso
-                    ->color(fn($record) => $record->isDelayed() ? 'danger' : 'success')
-                    ->placeholder(fn($record) => $record->isDelayed() ? 'IN RITARDO' : 'Da eseguire'),
+                    ->toggleable(),
+                // 6. Stati ed Esiti (Visualizzazione a Badge avanzata)
+                TextColumn::make('status')
+                    ->label('Stato')
+                    ->badge()
+                    ->sortable(),  // Se usi l'Enum con HasColor/HasLabel, Filament fa tutto da solo
+                TextColumn::make('outcome')
+                    ->label('Esito')
+                    ->badge()
+                    ->colors([
+                        'success' => 'Passato',
+                        'warning' => 'Con Rilievi',
+                        'danger' => 'Fallito',
+                    ])
+                    ->sortable()
+                    ->placeholder('In attesa di esito'),
+                TextColumn::make('followup_date')
+                    ->label('Data Follow-up')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                //  ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('remediation_plan')
+                    ->label('Remediation Plan')
+                    ->sortable(),
+                // 1. Identificazione e Protocollo
                 TextColumn::make('protocol_number')
-                    ->label('Protocollo')
+                    ->label('N. Protocollo')
                     ->searchable()
                     ->sortable()
-                    ->copyable()
                     ->placeholder('Non protocollato')
-                    ->toggledHiddenByDefault(),  // Nascondibile se la tabella è troppo densa
-                // 2. TITOLO AUDIT
-                TextColumn::make('title')
-                    ->label('Titolo / Oggetto')
-                    ->searchable()
-                    ->sortable()
-                    ->limit(30),
-                // 3. GESTIONE DINAMICA DEL SOGGETTO POLIMORFICO (MOLTO IMPORTANTE)
-                // 4. ORIGINE E METODO DI ESECUZIONE
+                    ->weight('bold'),
+                // 7. Campi secondari nascosti di default (Toggleable) per non intasare lo schermo
                 TextColumn::make('origin_type')
                     ->label('Origine')
                     ->formatStateUsing(fn(string $state): string => match ($state) {
                         'internal' => 'Interno',
-                        'incoming' => 'In Entrata',
-                        'outgoing' => 'In Uscita',
+                        'external_incoming' => 'Ispezione Esterna',
                         default => $state,
                     })
-                    ->badge()
-                    ->color('gray'),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('execution_method')
-                    ->label('Modalità')
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'documentale' => 'Documentale',
-                        'ispezione' => 'Ispezione in Loco',
-                        default => $state,
-                    })
-                    ->icon(fn(string $state): string => match ($state) {
-                        'ispezione' => 'heroicon-o-eye',
-                        default => 'heroicon-o-document-text',
-                    })
-                    ->toggleable(),
-                // 5. STATO (Prende colore e testo direttamente dal PHP Enum)
-                TextColumn::make('status')
-                    ->label('Stato')
-                    ->badge()
-                    ->sortable(),
-                // 6. ESITO FINALIZZATO
-                TextColumn::make('outcome')
-                    ->label('Esito')
-                    ->badge()
-                    ->color(fn(?string $state): string => match ($state) {
-                        'superato' => 'success',
-                        'con_rilievi' => 'warning',
-                        'fallito' => 'danger',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn(?string $state): string => match ($state) {
-                        'superato' => 'Superato',
-                        'con_rilievi' => 'Con Rilievi',
-                        'fallito' => 'Non Superato',
-                        default => 'N/D',
-                    })
-                    ->placeholder('-'),
+                    ->label('Metodo')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            // --- FILTRI STRATEGICI PER LA COMPLIANCE ---
             ->filters([
-                // Filtro immediato per Stato
+                // Filtro rapido per stato dell'audit
                 SelectFilter::make('status')
-                    ->label('Stato Avanzamento')
+                    ->label('Stato Audit')
                     ->options(AuditStatus::class),
-                // Filtro per Origine dell'Audit
-                SelectFilter::make('origin_type')
-                    ->label('Direzione Audit')
-                    ->options([
-                        'internal' => 'Interno',
-                        'incoming' => 'In Entrata (Subìto)',
-                        'outgoing' => 'In Uscita (Effettuato)',
-                    ]),
-                // Filtro temporale avanzato per beccare gli audit in ritardo
-                Filter::make('in_ritardo')
-                    ->label('Mostra solo in ritardo')
-                    ->query(fn(Builder $query): Builder => $query
-                        ->whereNull('executed_at')
-                        ->where('scheduled_at', '<', now()->startOfDay())),
+                // Filtro per Organismo di Vigilanza
+                SelectFilter::make('organization_id')
+                    ->label('Ente Richiedente')
+                    ->relationship('organization', 'acronym')
+                    ->preload(),
+                // Filtro per record cancellati (Soft Deletes)
+                TrashedFilter::make()
+                    ->label('Cestino'),
             ])
-            // --- AZIONI SULLA RIGA ---
             ->actions([
-                // ViewAction::make(),
-                EditAction::make(),
+                // È buona pratica in Filament avere sia il View che l'Edit accessibili
+                ViewAction::make()->label('Vedi'),
+                EditAction::make()->label('Modifica'),
             ])
-            // --- AZIONI DI MASSA ---
+            // FIX CRITICO: Spostate le azioni di massa dentro bulkActions() invece di toolbarActions()
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }

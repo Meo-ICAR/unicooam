@@ -21,7 +21,7 @@ class ComplaintRegistryResource extends Resource
 {
     protected static ?string $model = ComplaintRegistry::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
     protected static ?string $recordTitleAttribute = 'protocol_number';
 

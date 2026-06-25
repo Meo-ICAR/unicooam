@@ -5,8 +5,6 @@ namespace App\Models;
 use App\Enums\AuditStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,53 +14,71 @@ class Audit extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * I campi che possono essere assegnati massivamente.
+     * Gli attributi assegnabili in massa (Mass Assignable).
+     * In Laravel 13 si preferisce la notazione dei tipi in formato list.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
-    protected $connection = 'mysql';
-
     protected $fillable = [
         'company_id',
         'auditable_type',
         'auditable_id',
+        'auditor_name',
+        'organization_id',
+        'requested_by_user_id',
+        'scheduled_at',
+        'executed_at',
+        'status',
         'protocol_number',
         'origin_type',
         'execution_method',
-        'authority_type',
-        'authority_name',
-        'title',
         'scope',
-        'scheduled_at',
-        'executed_at',
-        'followup_date',
-        'status',
         'outcome',
         'summary',
         'auditor_notes',
+        'remediation_plan',
+        'followup_date',
     ];
 
     /**
-     * I cast nativi per gli attributi del database.
-     * Sfruttiamo i PHP Enums per automatizzare la logica in Filament.
+     * Definizione dei Casts (Nuovo standard nativo da Laravel 11/12/13 tramite metodo).
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'scheduled_at' => 'date',
-        'executed_at' => 'date',
-        'followup_date' => 'date',
-        // Cast degli Enum (Assicurati di creare questi file in App\Enums)
-        'status' => AuditStatus::class,
-        // Puoi creare enum dedicati anche per gli altri campi stringa se preferisci:
-        // 'origin_type' => \App\Enums\AuditOrigin::class,
-        // 'execution_method' => \App\Enums\AuditExecution::class,
-        // 'outcome' => \App\Enums\AuditOutcome::class,
-    ];
+    protected function casts(): array
+    {
+        return [
+            'scheduled_at' => 'date',
+            'executed_at' => 'date',
+            'followup_date' => 'date',
+            // Cast nativo verso il PHP Enum (Filament lo adora)
+            'status' => AuditStatus::class,
+        ];
+    }
 
     /**
-     * Relazione con l'azienda principale (Tenant / Proprietaria del record).
-     * Nota: nella migrazione è foreignUuid, Laravel gestirà l'integrità automaticamente.
+     * I "Booted" del Modello.
+     * Intercetta le azioni del ciclo di vita di Eloquent.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Audit $audit) {
+            // Se non è già stato specificato un company_id, assegna la prima Company presente
+            if (blank($audit->company_id)) {
+                $audit->company_id = \App\Models\Company::first()?->id;
+            }
+        });
+    }
+
+    /**
+     * -----------------------------------------------------------------
+     * RELAZIONI ELOQUENT
+     * -----------------------------------------------------------------
+     */
+
+    /**
+     * Relazione col Tenant (La Company principale del mediatore creditizio)
+     * Fondamentale se usi il Multi-tenancy nativo di Filament 5.
      */
     public function company(): BelongsTo
     {
@@ -70,8 +86,8 @@ class Audit extends Model
     }
 
     /**
-     * Relazione Polimorfica (auditable_type + auditable_id).
-     * Rappresenta il soggetto controllato (es. ReteCommerciale, BancaMandante, OrganismoVigilanza, Client).
+     * Il Soggetto Controllato (Polimorfismo).
+     * Può restituire un modello Impiegato (Employee), Produttore/Agente (Agent), ecc.
      */
     public function auditable(): MorphTo
     {
@@ -79,34 +95,20 @@ class Audit extends Model
     }
 
     /**
-     * SCOPE: Filtra gli audit che richiedono un follow-up urgente.
+     * L'Organismo di Vigilanza esterno che ha richiesto o imposto l'audit (es. OAM, IVASS).
      */
-    public function scopeNeedsFollowup($query)
+    public function organization(): BelongsTo
     {
-        return $query
-            ->where('status', AuditStatus::PendingFollowup)
-            ->where('followup_date', '<=', now()->addDays(7));
+        // Se hai chiamato il modello "Organization", usa Organization::class
+        // Se lo hai chiamato "SupervisoryBody", usa SupervisoryBody::class
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 
     /**
-     * HELPER: Verifica se l'audit è stato eseguito in ritardo rispetto alla pianificazione.
+     * L'utente interno che ha richiesto l'apertura dell'audit (es. Responsabile Compliance).
      */
-    public function isDelayed(): bool
+    public function requestedByUser(): BelongsTo
     {
-        if ($this->executed_at && $this->scheduled_at) {
-            return $this->executed_at->isAfter($this->scheduled_at);
-        }
-
-        return $this->scheduled_at->isPast() && !$this->executed_at;
-    }
-
-    public function findings(): HasMany
-    {
-        return $this->hasMany(AuditFinding::class, 'audit_id');
-    }
-
-    public function documents(): MorphMany
-    {
-        return $this->morphMany(Document::class, 'documentable');
+        return $this->belongsTo(User::class, 'requested_by_user_id');
     }
 }

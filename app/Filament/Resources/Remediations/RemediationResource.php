@@ -21,7 +21,7 @@ class RemediationResource extends Resource
 {
     protected static ?string $model = Remediation::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-wrench-screwdriver';
 
     protected static ?string $recordTitleAttribute = 'name';
 

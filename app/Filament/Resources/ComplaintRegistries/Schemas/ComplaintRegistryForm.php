@@ -41,6 +41,7 @@ class ComplaintRegistryForm
                                     'email' => 'Email Ordinaria',
                                     'brevi_manu' => 'Consegna a Mano (Brevi Manu)',
                                 ])
+                                ->default('email')
                                 ->required(),
                         ]),
                         Grid::make(2)->schema([
@@ -52,13 +53,15 @@ class ComplaintRegistryForm
                             TextInput::make('complainant_name')
                                 ->label('Nome/Ragione Sociale Reclamante')
                                 ->placeholder('Es. Mario Rossi o Rossi S.r.l.')
+                                ->default('?')
                                 ->required(),
                         ]),
                         TextInput::make('complainant_email')
                             ->label('Email del Reclamante')
                             ->email()
                             ->placeholder('es. cliente@email.com'),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
                 // SEZIONE 2: NATURA DEL RECLAMO E OGGETTI COINVOLTI
                 Section::make('Dettaglio Contestazione e Responsabilità')
                     ->description('Classificazione del reclamo e soggetti della rete coinvolti')
@@ -73,6 +76,7 @@ class ComplaintRegistryForm
                                     'insurance' => 'Comparto Assicurativo (IVASS)',
                                     'operational' => 'Operativo / Servizi Generali',
                                 ])
+                                ->default('financial')
                                 ->required(),
                             Select::make('category')
                                 ->label('Categoria Specifica')
@@ -85,6 +89,7 @@ class ComplaintRegistryForm
                                     'gdpr_erasure' => 'Richiesta di Cancellazione / Oblio (Art. 17 GDPR)',
                                     'transparency' => 'Mancanza di Trasparenza Informativa',
                                 ])
+                                ->default('delay')
                                 ->required(),
                         ]),
                         Grid::make(2)->schema([
@@ -105,6 +110,7 @@ class ComplaintRegistryForm
                             ->label('Descrizione Dettagliata del Reclamo')
                             ->placeholder('Inserire qui i motivi della contestazione del cliente...')
                             ->required()
+                            ->default('Anomalia')
                             ->rows(5)
                             ->columnSpanFull(),
                         TextInput::make('financial_impact')
@@ -112,7 +118,8 @@ class ComplaintRegistryForm
                             ->numeric()
                             ->prefix('€')
                             ->default(0.0),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
                 // SEZIONE 3: ISTRUTTORIA, SCADENZE E RISOLUZIONE
                 Section::make('Flusso di lavoro e termini di legge')
                     ->description("Gestione dei tempi di risposta e note di chiusura dell'istruttoria")
@@ -132,6 +139,7 @@ class ComplaintRegistryForm
                                 ->required(),
                             DatePicker::make('deadline_at')
                                 ->label('Scadenza Risposta')
+                                ->default(now()->addDays(30))
                                 ->required()
                                 ->hint("Termine tassativo per l'invio del riscontro"),
                             Toggle::make('is_extended')
@@ -157,7 +165,8 @@ class ComplaintRegistryForm
                             ->placeholder("Specificare le motivazioni dell'accoglimento o del rigetto...")
                             ->rows(4)
                             ->columnSpanFull(),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 }

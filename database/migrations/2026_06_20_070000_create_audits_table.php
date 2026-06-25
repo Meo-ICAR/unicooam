@@ -11,49 +11,67 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('audits', function (Blueprint $table) {
-            $table->comment('Registro degli audit interni ed esterni gestiti dal mediatore');
+            $table->comment('Registro dei controlli (audit) eseguiti sui collaboratori/impiegati, richiesti da enti interni o esterni.');
             $table->id();
 
-            // Identificativo del tenant / azienda principale
-            $table->foreignUuid('company_id')->constrained('companies')->cascadeOnDelete();
+            // -----------------------------------------------------------------
+            // MULTI-TENANCY (Nativo in Filament 5)
+            // -----------------------------------------------------------------
+            // Filament isolerà i record in base alla Company attiva. Indispensabile l'indice.
+            $table->foreignUuid('company_id')->nullable()->index()->constrained('companies')->cascadeOnDelete();
 
-            // FIX: Usiamo uuidMorphs perché i soggetti (es. Company o Clienti) usano chiavi UUID
+            // -----------------------------------------------------------------
+            // 1. SU CHI? (Polimorfismo con UUID)
+            // -----------------------------------------------------------------
+            // Genera auditable_type e auditable_id. Perfetto per il componente MorphToSelect di Filament.
             $table->uuidMorphs('auditable');
 
-            // Date: separiamo pianificata ed effettiva per calcolare i ritardi
-            $table->date('scheduled_at')->nullable();
-            $table->date('executed_at')->nullable();
+            // -----------------------------------------------------------------
+            // 2. DA CHI? (Auditor - Utente Interno o Nome Esterno)
+            // -----------------------------------------------------------------
 
-            // Stato dell'avanzamento (gestito tramite PHP Enum)
-            $table->string('status')->default('planned');
+            $table
+                ->string('auditor_name')
+                ->nullable()
+                ->comment("Nome dell'ispettore o dell'auditor esterno/interno");
 
-            $table->string('auditor')->nullable();
-            $table->text('auditor_notes')->nullable();
-            $table->string('remediation_plan')->nullable();
-            $table->date('followup_date')->nullable();
-            // Numero protocollo: fondamentale per tracciabilità ispezioni OAM / Autorità
-            $table->string('protocol_number')->nullable()->unique();
+            // -----------------------------------------------------------------
+            // 3. RICHIESTO DA? (Organismo di Vigilanza o Richiedente Interno)
+            // -----------------------------------------------------------------
+            // Chiave esterna verso la tua tabella 'organizations'. Indicizzato per i filtri di Filament.
+            $table
+                ->foreignId('organization_id')
+                ->nullable()
+                ->index()
+                ->constrained('organizations')
+                ->nullOnDelete()
+                ->comment("L'organismo di vigilanza che ha richiesto l'audit (es. OAM). Null se interno.");
 
-            // Origine/Direzione dell'audit (Es. Interno, In entrata, In uscita)
-            $table->string('origin_type')->default('internal');
+            // -----------------------------------------------------------------
+            // DETTAGLI, DATE E STATO (Ideali per Enum e DatePicker di Filament)
+            // -----------------------------------------------------------------
+            // Usiamo index() sulle date e sugli stati perché in Filament saranno colonne di punta per l'ordinamento e i filtri
+            $table->date('scheduled_at')->nullable()->index()->comment('Data pianificata');
+            $table->date('executed_at')->nullable()->index()->comment('Data di esecuzione effettiva');
 
-            // Modalità di esecuzione (Es. Documentale, In Loco/Ispezione, Schedulato)
-            $table->string('execution_method')->default('documentale');
+            // In Filament 5 userai un PHP Backed Enum per lo stato (es. AuditStatus::class)
+            $table->string('status')->default('planned')->index()->comment('Stato: planned, in_progress, completed, cancelled');
 
-            // Ente Vigilante / Soggetto terzo che richiede o esegue l'audit (OAM, Banca d'Italia, IVASS, ecc.)
-            // Diventa stringa libera o slug gestito da PHP Enum, molto più flessibile
-            $table->string('authority_type')->nullable();
-            $table->string('authority_name')->nullable();
+            $table->string('protocol_number')->nullable()->unique()->comment('Numero di protocollo ufficiale (es. OAM)');
 
-            // Dati descrittivi
+            // Altri campi stringa gestibili con i nuovi ToggleButtons di Filament 5
+            $table->string('origin_type')->default('internal')->index()->comment('internal o external_incoming');
+            $table->string('execution_method')->default('documentale')->comment('Metodo: documentale, in_loco, intervista');
 
-            $table->text('scope')->nullable();
-
-            // Esito finale dell'audit: aiuta a fare reportistica immediata (es. Superato, Con Rilievi, Fallito)
-            $table->string('outcome')->nullable();
-
-            // Note e sintesi
-            $table->text('summary')->nullable();
+            // -----------------------------------------------------------------
+            // ESITI E NOTE (Ideali per RichEditor / Textarea di Filament)
+            // -----------------------------------------------------------------
+            $table->text('scope')->nullable()->comment('Ambito oggettivo del controllo');
+            $table->string('outcome')->nullable()->index()->comment('Esito: Passato, Con Rilievi, Fallito');  // Indicizzato per la reportistica
+            $table->text('summary')->nullable()->comment('Sintesi dei risultati');
+            $table->text('auditor_notes')->nullable()->comment("Note riservate dell'auditor");
+            $table->text('remediation_plan')->nullable()->comment('Piano di rimedio richiesto');  // Cambiato a text se il piano è lungo
+            $table->date('followup_date')->nullable()->comment('Data di verifica dei rimedi');
 
             $table->timestamps();
             $table->softDeletes();
@@ -65,7 +83,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        // FIX: Rimosso il vincolo fisso su 'mysql' per garantire compatibilità con i test (es. SQLite in-memory)
         Schema::dropIfExists('audits');
     }
 };

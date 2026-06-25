@@ -3,171 +3,163 @@
 namespace App\Filament\Resources\Audits\Schemas;
 
 use App\Enums\AuditStatus;
+use App\Models\PROFORMA\Clienti;
+use App\Models\PROFORMA\Fornitore;
+use App\Models\Branch;
+use App\Models\Company;
+use App\Models\Employee;
+use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Str;
 
 class AuditForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
-                // SEZIONE 1: ANAGRAFICA E TIPOLOGIA
-                Section::make("Inquadramento dell'Audit")
-                    ->description('Definisci la tipologia, il protocollo e il soggetto da controllare.')
-                    ->columns(2)
+                // SEZIONE 1: Dati Base e Soggetti
+                Section::make('Informazioni Principali')
+                    ->description("Definisci il soggetto sotto controllo e l'ente richiedente.")
+                    ->icon('heroicon-o-identification')
                     ->schema([
-                        TextInput::make('title')
-                            ->label("Titolo / Oggetto dell'Audit")
-                            ->required()
-                            ->placeholder('Es. Verifica Trasparenza Annuale 2026')
-                            ->columnSpanFull(),
-                        TextInput::make('protocol_number')
-                            ->label('Numero Protocollo')
-                            ->default(fn () => 'AUD-'.date('Y').'-'.strtoupper(Str::random(6)))
-                            ->unique(ignoreRecord: true)
-                            ->placeholder('Autogenerato se vuoto'),
-                        Select::make('origin_type')
-                            ->label('Direzione / Origine')
-                            ->options([
-                                'internal' => 'Interno (Sede Centrale)',
-                                'incoming' => 'In Entrata (Subìto da Terzi/Autorità)',
-                                'outgoing' => 'In Uscita (Effettuato verso la rete)',
-                            ])
-                            ->required()
-                            ->live(),  // Rende il campo reattivo per mostrare/nascondere i campi autorità
-                        // CAMPI CONDIZIONALI: Mostrati solo se l'audit è "In Entrata" (Incoming)
-                        Grid::make(2)
-                            ->schema([
-                                Select::make('authority_type')
-                                    ->label('Tipo Autorità / Richiedente')
-                                    ->options([
-                                        'oam' => 'OAM',
-                                        'banca_italia' => "Banca d'Italia",
-                                        'ivass' => 'IVASS',
-                                        'garante' => 'Garante Privacy',
-                                        'banca_mandante' => 'Banca Mandante',
-                                        'other' => 'Altro',
-                                    ])
-                                    ->required(),
-                                TextInput::make('authority_name')
-                                    ->label('Nome Specifico Ente / Ispettore')
-                                    ->placeholder('Es. Team Ispettivo OAM / Nome Banca'),
-                            ])
-                            //  ->visible(fn(Get $get) => $get('origin_type') === 'incoming')
-                            ->columnSpanFull(),
-                        Select::make('execution_method')
-                            ->label('Modalità di Esecuzione')
-                            ->options([
-                                'documentale' => 'Documentale (Verifica da remoto)',
-                                'ispezione' => 'Ispezione (In Loco presso sede/agente)',
-                            ])
-                            ->required()
-                            ->default('documentale'),
+                        Grid::make()->schema([
+                            // Gestione nativa e pulita del polimorfismo!
+                            MorphToSelect::make('auditable')
+                                ->label('Oggetto / Soggetto Controllato')
+                                ->types([
+                                    Type::make(Employee::class)
+                                        ->titleAttribute('name')  // o 'full_name'
+                                        ->label('Impiegato Interno'),
+                                    Type::make(Branch::class)
+                                        ->titleAttribute('name')
+                                        ->label('Filiale / Agenzia'),
+                                    Type::make(Clienti::class)
+                                        ->titleAttribute('name')
+                                        ->label('Cliente'),
+                                    Type::make(Fornitore::class)
+                                        ->titleAttribute('name')
+                                        ->label('Produttore'),
+                                    Type::make(Company::class)
+                                        ->titleAttribute('name')
+                                        ->label('Azienda'),
+                                ])
+                                ->searchable()
+                                ->preload()
+                                ->required(),
+                            Select::make('origin_type')
+                                ->label('Origine Audit')
+                                ->options([
+                                    'internal' => 'Audit Interno (Routine)',
+                                    'external_incoming' => 'Ispezione da Ente Esterno',
+                                    'whistleblowing' => 'Segnalazione / Whistleblowing',
+                                ])
+                                ->required()
+                                ->default('internal')
+                                ->live(),  // <--- FONDAMENTALE: rende il campo reattivo al cambio di selezione
+                            Select::make('organization_id')
+                                ->label('Ente Vigilante (Richiedente)')
+                                ->relationship('organization', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->placeholder("Seleziona l'ente esterno")
+                                // <--- SEGRETO DI FILAMENT: si nasconde se origin_type è 'internal'
+                                ->hidden(fn(Get $get) => $get('origin_type') === 'internal')
+                                // Opzionale: lo rende obbligatorio solo se l'ispezione è esterna
+                                ->required(fn(Get $get) => $get('origin_type') === 'external_incoming'),
+                        ])->columnSpanFull(),
                     ]),
-                // SEZIONE 2: SOGGETTO POLIMORFICO (REATTIVO)
-                Section::make('Soggetto Interessato')
-                    ->description('Seleziona la natura del soggetto sottoposto a controllo.')
-                    ->columns(2)
+                // SEZIONE 2: Pianificazione e Stato
+                Section::make('Esecuzione e Stato')
+                    ->description('Dettagli operativi, date e stato di avanzamento.')
+                    ->icon('heroicon-o-calendar')
                     ->schema([
-                        Select::make('auditable_type')
-                            ->label('Natura del Soggetto')
-                            ->options([
-                                'App\Models\Azienda' => 'Sede Centrale / Azienda',
-                                'App\Models\ReteCommerciale' => 'Rete Commerciale (Agenti/Collaboratori)',
-                                'App\Models\BancaMandante' => 'Banca Mandante',
-                                'App\Models\OrganismoVigilanza' => 'Autorità di Vigilanza',
-                            ])
-                            ->required()
-                            ->live()
-                            // Quando cambia il tipo, resetta l'ID del soggetto precedentemente selezionato
-                            ->afterStateUpdated(fn (Set $set) => $set('auditable_id', null)),
-                        Select::make('auditable_id')
-                            ->label('Soggetto Specifico')
-                            ->placeholder(fn (Get $get) => $get('auditable_type')
-                                ? 'Seleziona dalla lista...'
-                                : 'Scegli prima la Natura del Soggetto')
-                            //    ->disabled(fn(Get $get) => !$get('auditable_type'))
-                            ->options(function (Get $get) {
-                                $type = $get('auditable_type');
-                                if (! $type || ! class_exists($type)) {
-                                    return [];
-                                }
-
-                                // Pluck dinamico dei dati in base al modello selezionato
-                                return match ($type) {
-                                    'App\Models\Company' => $type::pluck('name', 'id'),
-                                    'App\Models\PROFORMA\Fornitore' => $type::pluck('name', 'id'),
-                                    'App\Models\PROFORMA\Clienti' => $type::pluck('name', 'id'),
-                                    //   'App\Models\OrganismoVigilanza' => $type::pluck('nome_organismo', 'id'),
-                                    default => [],
-                                };
-                            })
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                        Grid::make(3)->schema([
+                            DatePicker::make('scheduled_at')
+                                ->label('Data Pianificata')
+                                ->displayFormat('d/m/Y')
+                                ->native(false),
+                            DatePicker::make('executed_at')
+                                ->label('Data Esecuzione')
+                                ->displayFormat('d/m/Y')
+                                ->native(false),
+                            TextInput::make('protocol_number')
+                                ->label('Numero di Protocollo')
+                                ->maxLength(255)
+                                ->placeholder('Es. OAM-2026/1234'),
+                            ToggleButtons::make('status')
+                                ->label('Stato Audit')
+                                ->options(AuditStatus::class)
+                                ->default(AuditStatus::PLANNED)
+                                ->inline()
+                                ->required(),
+                            TextInput::make('auditor_name')
+                                ->label('Auditor')
+                                ->maxLength(255),
+                            Select::make('execution_method')
+                                ->label('Metodo di Esecuzione')
+                                ->options([
+                                    'documentale' => 'Documentale / Da Remoto',
+                                    'in_loco' => 'In Loco (Ispezione in filiale)',
+                                    'intervista' => 'Intervista',
+                                ])
+                                ->required()
+                                ->default('documentale'),
+                        ]),
                     ]),
-                // SEZIONE 3: STATO, ESITO E TEMPISTICHE
-                Section::make('Stato e Scadenze')
-                    ->columns(3)
+                // SEZIONE 3: Esiti e Reportistica
+                Section::make('Report e Compliance')
+                    ->description("Esito dell'ispezione e documentazione dei rilievi.")
+                    ->icon('heroicon-o-document-text')
                     ->schema([
-                        Select::make('status')
-                            ->label('Stato Avanzamento')
-                            ->options(AuditStatus::class)  // Carica automaticamente le etichette dall'Enum PHP
-                            ->required()
-                            ->default(AuditStatus::Planned)
-                            ->live(),
-                        // L'esito ha senso solo se l'audit è in corso o completato
+                        Textarea::make('scope')
+                            ->label('Ambito del Controllo')
+                            ->placeholder('Es. Verifica pratiche antiriciclaggio Q1 2026...')
+                            ->rows(2)
+                            ->columnSpanFull(),
                         Select::make('outcome')
                             ->label('Esito Finale')
                             ->options([
-                                'superato' => 'Superato (Nessun rilievo bloccante)',
-                                'con_rilievi' => 'Superato con Rilievi',
-                                'fallito' => 'Non Superato / Critico',
+                                'passato' => 'Passato / Conforme',
+                                'con_rilievi' => 'Con Rilievi (Non conformità minori)',
+                                'fallito' => 'Fallito / Grave non conformità',
                             ])
-                            ->disabled(fn (Get $get) => in_array($get('status'), [AuditStatus::Planned->value, null]))
-                            ->placeholder('In attesa di esito'),
-                        DatePicker::make('scheduled_at')
-                            ->label('Data Pianificata')
-                            ->required()
-                            ->native(false)
-                            ->displayFormat('d/m/Y'),
-                        DatePicker::make('executed_at')
-                            ->label('Data Effettiva Esecuzione')
-                            ->native(false)
-                            ->displayFormat('d/m/Y'),
-                        DatePicker::make('followup_date')
-                            ->label('Data prevista verifica di follow-up')
-                            ->native(false)
-                            ->displayFormat('d/m/Y'),
-                    ]),
-                // SEZIONE 4: CONTENUTO ISPETTIVO E NOTE
-                Section::make('Note e Perimetro del Controllo')
-                    ->collapsible()
-                    ->schema([
-                        Textarea::make('scope')
-                            ->label("Perimetro / Oggetto dell'Audit")
-                            ->placeholder('Specificare i processi o i prodotti campionati (es. Cessione del Quinto, Trasparenza precontrattuale...)')
-                            ->rows(3),
-                        RichEditor::make('summary')
-                            ->label("Sintesi dell'Audit (Verbale / Risultanze)")
-                            ->toolbarButtons([
-                                'blockquote', 'bold', 'bulletList', 'orderedList', 'redo', 'undo',
-                            ])
+                            ->native(false),
+                        Textarea::make('summary')
+                            ->label('Sintesi dei Risultati')
+                            ->rows(3)
                             ->columnSpanFull(),
                         Textarea::make('auditor_notes')
-                            ->label("Note Interne dell'Auditor (Riservate)")
-                            ->placeholder('Appunti interni del team di compliance non inseriti nel verbale ufficiale')
-                            ->rows(3),
+                            ->label('Note Riservate Auditor')
+                            ->helperText('Queste note sono visibili solo al team compliance.')
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ]),
+                // SEZIONE 4: Piano di Rimedio (Remediation Plan)
+                Section::make('Risoluzione Anomalie (Remediation)')
+                    ->description('Da compilare se sono emerse non conformità.')
+                    ->icon('heroicon-o-wrench-screwdriver')
+                    ->collapsed()  // Nasconde la sezione di default per tenere l'interfaccia pulita
+                    ->schema([
+                        Textarea::make('remediation_plan')
+                            ->label('Piano di Rientro Richiesto')
+                            ->placeholder('Azioni che il collaboratore deve intraprendere per sanare le anomalie...')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        DatePicker::make('followup_date')
+                            ->label('Data Scadenza Follow-up')
+                            ->displayFormat('d/m/Y')
+                            ->native(false)
+                            ->helperText('Data entro cui verificare che le anomalie siano state sanate.'),
                     ]),
             ]);
     }

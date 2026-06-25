@@ -18,9 +18,9 @@ class OamSemestraleResource extends Resource
 {
     protected static ?string $model = OamSemestrale::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
 
-    protected static ?string $navigationLabel = 'OAM Semestrale';
+    protected static ?string $navigationLabel = 'Profilo Economico OAM';
 
     public static function form(Schema $schema): Schema
     {

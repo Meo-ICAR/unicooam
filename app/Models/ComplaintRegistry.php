@@ -64,6 +64,20 @@ class ComplaintRegistry extends Model
         'reception_channel' => ReceptionChannel::class,
     ];
 
+    /**
+     * I "Booted" del Modello.
+     * Intercetta le azioni del ciclo di vita di Eloquent.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Audit $audit) {
+            // Se non è già stato specificato un company_id, assegna la prima Company presente
+            if (blank($audit->company_id)) {
+                $audit->company_id = \App\Models\Company::first()?->id;
+            }
+        });
+    }
+
     // ==========================================
     // RELAZIONI POLIMORFICHE (I MORPHS)
     // ==========================================
