@@ -12,19 +12,23 @@ class TaskSeeder extends Seeder
         $tasks = [
             [
                 'name' => 'OnBoarding',
-                'description' => 'Attività e documenti richiesti per il caricamento di una nuova anagrafica.',
+                'description' => 'Attività e documenti richiesti per il caricamento di una nuovo produttore.',
+                'taskable' => 'fornitore',
             ],
             [
                 'name' => 'OAM-Agenti',
                 'description' => 'Attività e controlli per il rinnovo periodico OAM',
+                'taskable' => 'fornitore',
             ],
             [
                 'name' => 'OAM-Semestrale',
-                'description' => 'Documenti semestrale OAM',
+                'description' => 'Documenti aziendali semestrale OAM',
+                'taskable' => 'company',
             ],
             [
                 'name' => 'Renewal',
                 'description' => 'Attività e controlli per il rinnovo periodico delle convenzioni o contratti.',
+                'taskable' => 'company',
             ],
             [
                 'name' => 'Audit',
@@ -37,6 +41,7 @@ class TaskSeeder extends Seeder
             [
                 'name' => 'OffBoarding',
                 'description' => 'Attività e documenti richiesti per la chiusura di una anagrafica.',
+                'taskable' => 'fornitore',
             ],
         ];
 

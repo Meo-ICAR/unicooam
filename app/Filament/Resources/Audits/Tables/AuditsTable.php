@@ -22,20 +22,6 @@ class AuditsTable
         return $table
             ->columns([
                 // 1. CODICE PROTOCOLLO (Cliccabile per copiare al volo)
-                TextColumn::make('protocol_number')
-                    ->label('Protocollo')
-                    ->searchable()
-                    ->sortable()
-                    ->copyable()
-                    ->placeholder('Non protocollato')
-                    ->toggledHiddenByDefault(),  // Nascondibile se la tabella è troppo densa
-                // 2. TITOLO AUDIT
-                TextColumn::make('title')
-                    ->label('Titolo / Oggetto')
-                    ->searchable()
-                    ->sortable()
-                    ->limit(30),
-                // 3. GESTIONE DINAMICA DEL SOGGETTO POLIMORFICO (MOLTO IMPORTANTE)
                 TextColumn::make('auditable')
                     ->label('Soggetto Interessato')
                     ->state(function ($record) {
@@ -57,6 +43,32 @@ class AuditsTable
                         // 'App\Models\OrganismoVigilanza' => 'Autorità di Vigilanza',
                         default => 'Altro Soggetto',
                     }),
+                // 7. DATE E CONTROLLO RITARDI
+                TextColumn::make('scheduled_at')
+                    ->label('Pianificato')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                TextColumn::make('executed_at')
+                    ->label('Eseguito')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    // Se l'audit è scaduto e non è stato eseguito, colora il testo di rosso
+                    ->color(fn($record) => $record->isDelayed() ? 'danger' : 'success')
+                    ->placeholder(fn($record) => $record->isDelayed() ? 'IN RITARDO' : 'Da eseguire'),
+                TextColumn::make('protocol_number')
+                    ->label('Protocollo')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->placeholder('Non protocollato')
+                    ->toggledHiddenByDefault(),  // Nascondibile se la tabella è troppo densa
+                // 2. TITOLO AUDIT
+                TextColumn::make('title')
+                    ->label('Titolo / Oggetto')
+                    ->searchable()
+                    ->sortable()
+                    ->limit(30),
+                // 3. GESTIONE DINAMICA DEL SOGGETTO POLIMORFICO (MOLTO IMPORTANTE)
                 // 4. ORIGINE E METODO DI ESECUZIONE
                 TextColumn::make('origin_type')
                     ->label('Origine')
@@ -102,18 +114,6 @@ class AuditsTable
                         default => 'N/D',
                     })
                     ->placeholder('-'),
-                // 7. DATE E CONTROLLO RITARDI
-                TextColumn::make('scheduled_at')
-                    ->label('Pianificato il')
-                    ->date('d/m/Y')
-                    ->sortable(),
-                TextColumn::make('executed_at')
-                    ->label('Eseguito il')
-                    ->date('d/m/Y')
-                    ->sortable()
-                    // Se l'audit è scaduto e non è stato eseguito, colora il testo di rosso
-                    ->color(fn($record) => $record->isDelayed() ? 'danger' : 'success')
-                    ->placeholder(fn($record) => $record->isDelayed() ? 'IN RITARDO' : 'Da eseguire'),
             ])
             // --- FILTRI STRATEGICI PER LA COMPLIANCE ---
             ->filters([

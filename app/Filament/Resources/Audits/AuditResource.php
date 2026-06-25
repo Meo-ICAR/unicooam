@@ -47,7 +47,7 @@ class AuditResource extends Resource
     public static function getRelations(): array
     {
         return [
-            FindingsRelationManager::class,
+            //  FindingsRelationManager::class,
             DocumentsRelationManager::class,
         ];
     }

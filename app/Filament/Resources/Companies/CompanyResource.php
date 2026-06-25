@@ -47,11 +47,11 @@ class CompanyResource extends Resource
     public static function getRelations(): array
     {
         return [
+            DocumentsRelationManager::class,
+            CompanyRolesRelationManager::class,
             BranchesRelationManager::class,
             WebsitesRelationManager::class,
             MailAccountRelationManager::class,
-            CompanyRolesRelationManager::class,
-            DocumentsRelationManager::class,
         ];
     }
 

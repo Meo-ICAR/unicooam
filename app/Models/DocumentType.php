@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -32,6 +34,7 @@ class DocumentType extends Model
         'is_practice',
         'is_signed',
         'is_monitored',
+        'renewed_by_id',
         'duration',
         'emitted_by',
         'is_sensible',
@@ -81,6 +84,14 @@ class DocumentType extends Model
     public function documents()
     {
         return $this->hasMany(Document::class);
+    }
+
+    /**
+     * Relazione Gerarchica: Il mio Responsabile diretto
+     */
+    public function renewedBy(): BelongsTo
+    {
+        return $this->belongsTo(DocumentType::class, 'renewed_by_id');
     }
 
     /**

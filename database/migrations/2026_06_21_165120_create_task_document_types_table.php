@@ -16,7 +16,7 @@ return new class extends Migration {
             // Chiave esterna verso i tipi di documento
             // NOTA: Se la tabella 'document_types' usa UUID (char 36), usa: $table->foreignUuid('document_type_id')
             $table->foreignId('document_type_id')->constrained()->onDelete('cascade');
-
+            $table->string('slug')->nullable()->comment('Slug univoco per URL');
             // Un campo extra molto utile per la logica di business (Opzionale)
             $table->boolean('is_required')->default(true)->comment('Se il documento è obbligatorio per questo task');
 

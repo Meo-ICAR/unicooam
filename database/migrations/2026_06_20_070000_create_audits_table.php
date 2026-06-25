@@ -20,6 +20,17 @@ return new class extends Migration {
             // FIX: Usiamo uuidMorphs perché i soggetti (es. Company o Clienti) usano chiavi UUID
             $table->uuidMorphs('auditable');
 
+            // Date: separiamo pianificata ed effettiva per calcolare i ritardi
+            $table->date('scheduled_at')->nullable();
+            $table->date('executed_at')->nullable();
+
+            // Stato dell'avanzamento (gestito tramite PHP Enum)
+            $table->string('status')->default('planned');
+
+            $table->string('auditor')->nullable();
+            $table->text('auditor_notes')->nullable();
+            $table->string('remediation_plan')->nullable();
+            $table->date('followup_date')->nullable();
             // Numero protocollo: fondamentale per tracciabilità ispezioni OAM / Autorità
             $table->string('protocol_number')->nullable()->unique();
 
@@ -35,23 +46,14 @@ return new class extends Migration {
             $table->string('authority_name')->nullable();
 
             // Dati descrittivi
-            $table->string('title');
+
             $table->text('scope')->nullable();
-
-            // Date: separiamo pianificata ed effettiva per calcolare i ritardi
-            $table->date('scheduled_at');
-            $table->date('executed_at')->nullable();
-            $table->date('followup_date')->nullable();
-
-            // Stato dell'avanzamento (gestito tramite PHP Enum)
-            $table->string('status')->default('planned');
 
             // Esito finale dell'audit: aiuta a fare reportistica immediata (es. Superato, Con Rilievi, Fallito)
             $table->string('outcome')->nullable();
 
             // Note e sintesi
             $table->text('summary')->nullable();
-            $table->text('auditor_notes')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

@@ -388,6 +388,18 @@ class DocumentTypeSeeder extends Seeder
                 'created_at' => '2026-03-18 10:18:58',
                 'updated_at' => '2026-03-18 10:18:58',
             ],
+            // ----------- task document type seeder new ----------
+            [
+                'name' => 'Modulo esito Audit',
+                'slug' => 'modulo-esito-audit',
+                'priority' => 1,
+                'is_person' => 0,
+                'is_signed' => 0,
+                'is_monitored' => 0,
+                'regex' => '/internal.*audit/i',
+                'created_at' => '2026-03-18 10:18:58',
+                'updated_at' => '2026-03-18 10:18:58',
+            ],
 
             /*
              * [

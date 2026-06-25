@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class TaskDocumentType extends Model
+class TaskDocumentType extends Pivot
 {
     use HasFactory;
 
@@ -39,6 +39,22 @@ class TaskDocumentType extends Model
     protected $casts = [
         'is_required' => 'boolean',
     ];
+
+    public $incrementing = true;
+
+    protected static function booted(): void
+    {
+        static::creating(function (TaskDocumentType $pivot) {
+            // Se lo slug è vuoto, lo andiamo a recuperare dal DocumentType collegato
+            if (empty($pivot->slug) && $pivot->document_type_id) {
+                $documentType = DocumentType::find($pivot->document_type_id);
+
+                if ($documentType) {
+                    $pivot->slug = $documentType->slug;
+                }
+            }
+        });
+    }
 
     /**
      * Relazione: ottiene il Task a cui è associato questo record.

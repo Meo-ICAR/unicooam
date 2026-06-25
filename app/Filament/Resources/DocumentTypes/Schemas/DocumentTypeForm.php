@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\DocumentTypes\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -63,6 +64,13 @@ class DocumentTypeForm
                 TextInput::make('duration')
                     ->label('Durata (giorni)')
                     ->numeric(),
+                Select::make('renewed_by_id')
+                    ->label('Rinnovato da')
+                    ->relationship('renewedBy', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->nullable(),
+                // ->helperText('Seleziona un coordinatore della stessa sede'),
                 TextInput::make('emitted_by')
                     ->label('Emesso da'),
                 Toggle::make('is_sensible')
