@@ -13,6 +13,8 @@ class Audit extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $connection = 'mysql';
+
     /**
      * Gli attributi assegnabili in massa (Mass Assignable).
      * In Laravel 13 si preferisce la notazione dei tipi in formato list.

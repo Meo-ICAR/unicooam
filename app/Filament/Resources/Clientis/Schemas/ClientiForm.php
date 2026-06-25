@@ -12,6 +12,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class ClientiForm
 {
@@ -66,7 +67,9 @@ class ClientiForm
                                             ->label('Prodotti')
                                             ->relationship(
                                                 name: 'oamCodes',
-                                                titleAttribute: 'tipo_prodotto'
+                                                titleAttribute: 'tipo_prodotto',
+                                                //  modifyQueryUsing: fn(Builder $query) => $query
+                                                //    ->where('is_dummy', false)
                                             )
                                             ->searchable()
                                             ->bulkToggleable()

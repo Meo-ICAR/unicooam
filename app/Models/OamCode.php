@@ -28,7 +28,6 @@ class OamCode extends Model
     {
         return $this
             ->belongsToMany(Clienti::class, 'clienti_oam', 'oam_code_id', 'clienti_id')
-            ->where('clientis.is_dummy', 0)
             ->withPivot(['dal', 'al'])
             ->withTimestamps();
     }

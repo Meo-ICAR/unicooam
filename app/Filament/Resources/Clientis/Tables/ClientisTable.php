@@ -50,6 +50,12 @@ class ClientisTable
                         'secondary' => 'SCADUTO',
                     ])
                     ->label('Stato Mandato'),
+                TextColumn::make('oam_codes_count')
+                    ->counts('oamCodes')
+                    ->label('Convenzioni')
+                    ->sortable()
+                    ->badge()  // Opzionale: racchiude il numero in un badge grafico molto pulito
+                    ->color('primary'),
                 IconColumn::make('is_active')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
