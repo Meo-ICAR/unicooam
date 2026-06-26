@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\PROFORMA\Clienti;
+use App\Models\Company;
+use App\Models\Employee;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +13,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class SuspiciousActivityReport extends Model
 {
     use SoftDeletes;
+
+    protected $connection = 'mysql';
 
     /**
      * Il nome della tabella associata al modello.

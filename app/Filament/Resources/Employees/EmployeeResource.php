@@ -31,6 +31,10 @@ class EmployeeResource extends Resource
 
     protected static ?string $navigationLabel = 'Dipendenti';
 
+    protected static ?string $modelLabel = 'Dipendente';
+
+    protected static ?string $pluralModelLabel = 'Dipendenti';
+
     protected static ?int $navigationSort = 7;
 
     public static function form(Schema $schema): Schema

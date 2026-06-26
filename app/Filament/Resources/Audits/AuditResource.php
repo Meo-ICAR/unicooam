@@ -29,7 +29,7 @@ class AuditResource extends Resource
 
     protected static ?string $modelLabel = 'Audit';
 
-    protected static ?string $pluralModelLabel = 'Audits';
+    protected static ?string $pluralModelLabel = 'Audit';
 
     public static function form(Schema $schema): Schema
     {

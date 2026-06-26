@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\SuspiciousActivityReports\Tables;
 
+use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Company;
+use App\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -14,12 +16,23 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class SuspiciousActivityReportsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        DynamicGroupExport::make(),
+                        //    ->groupBy('Produttore')  // Campo per il raggruppamento
+                        //    ->sumColumns(['Provvigione']),  // Campi da sommare
+                    ])
+                    ->label('Esporta Excel')
+                    ->color('success'),
+            ])
             ->columns([
                 // ==========================================
                 // 1. INFORMAZIONI PRIMARIE

@@ -27,6 +27,7 @@ return new class extends Migration {
             $table->date('expires_at')->nullable();
             $table->integer('days_until_expiry');
             $table->string('status');
+            $table->timestamp('last_sent_at')->nullable()->comment('Data ultimo sollecito inviato');
             $table->integer('reminders_count')->default(0);
 
             $table->timestamps();

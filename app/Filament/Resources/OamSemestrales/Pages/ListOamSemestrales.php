@@ -7,6 +7,7 @@ use App\Filament\Actions\ImportOamAction;
 use App\Filament\Resources\OamSemestrales\OamSemestraleResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
 use Illuminate\Support\HtmlString;
 
@@ -17,9 +18,11 @@ class ListOamSemestrales extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            ImportOamAction::make(),
+            ImportOamAction::make()
+                ->icon(Heroicon::OutlinedArrowPath)
+                ->color('info'),
             ExportOamAction::make(),
-            CreateAction::make(),
+            //    CreateAction::make(),
         ];
     }
 }

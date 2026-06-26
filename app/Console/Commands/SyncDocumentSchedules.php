@@ -41,6 +41,7 @@ class SyncDocumentSchedules extends Command
                 'days_until_expiry' => $reminderService->daysUntilExpiry($doc),
                 'status' => $doc->status,
                 'reminders_count' => $doc->reminders_count ?? $doc->reminders()->count(),
+                'last_sent_at' => $doc->last_sent_at,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

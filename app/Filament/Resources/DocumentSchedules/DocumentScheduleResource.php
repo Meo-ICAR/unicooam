@@ -45,13 +45,13 @@ class DocumentScheduleResource extends Resource
 
     protected static ?string $modelLabel = 'Scadenziario documenti';
 
+    protected static ?string $pluralModelLabel = 'Scadenziario documenti';
+
     //    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?int $navigationSort = 30;
-
-    protected static ?string $pluralModelLabel = 'Scadenziario documenti';
 
     public static function table(Table $table): Table
     {
@@ -102,6 +102,11 @@ class DocumentScheduleResource extends Resource
                 TextColumn::make('reminders_count')
                     ->label('Solleciti inviati')
                     ->sortable(),
+                TextColumn::make('last_sent_at')
+                    ->label('Ultimo sollecito')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->placeholder('Mai'),
             ])
             ->filters([
                 Filter::make('scaduti')
@@ -143,7 +148,7 @@ class DocumentScheduleResource extends Resource
                     ->color('success'),
                 // IL BOTTONE DI AGGIORNAMENTO DATI ORA È UN'AZIONE DI HEADER DELLA RESOURCE
                 Action::make('sincronizzaScadenziario')
-                    ->label('Aggiorna dati scadenziario')
+                    ->label('Aggiorna scadenziario')
                     ->icon(Heroicon::OutlinedArrowPath)
                     ->color('info')
                     ->action(function (): void {
@@ -170,6 +175,7 @@ class DocumentScheduleResource extends Resource
                                 'days_until_expiry' => $reminderService->daysUntilExpiry($doc),
                                 'status' => $doc->status,
                                 'reminders_count' => $doc->reminders_count ?? $doc->reminders()->count(),
+                                'last_sent_at' => $doc->last_sent_at,
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ];
@@ -228,6 +234,7 @@ class DocumentScheduleResource extends Resource
 
                                 // Tua logica di invio reale qui...
                                 $record->increment('reminders_count', 1);
+                                $record->update(['last_sent_at' => now()]);
                                 $sentCount++;
                                 $email = $record->entity?->email;
                                 if (!$email)

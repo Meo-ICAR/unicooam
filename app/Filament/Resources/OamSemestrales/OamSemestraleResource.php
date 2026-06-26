@@ -22,6 +22,10 @@ class OamSemestraleResource extends Resource
 
     protected static ?string $navigationLabel = 'Prof. Economico OAM';
 
+    protected static ?string $modelLabel = 'Prof. Economico OAM';
+
+    protected static ?string $pluralModelLabel = 'Prof. Economico OAM';
+
     protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema

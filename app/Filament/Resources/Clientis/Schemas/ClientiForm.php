@@ -135,7 +135,7 @@ class ClientiForm
                                             ->label('Mandato in Esclusiva'),
                                     ]),
                                 Grid::make(2)->schema([
-                                    Section::make('Sezione OAM / ABI')
+                                    Section::make('Sezione OAM')
                                         ->columnSpan(1)
                                         ->schema([
                                             TextInput::make('abi')

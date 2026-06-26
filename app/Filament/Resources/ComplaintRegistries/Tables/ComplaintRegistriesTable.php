@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ComplaintRegistries\Tables;
 use App\Enums\ComplaintCategory;
 use App\Enums\ComplaintMacroCategory;
 use App\Enums\ComplaintStatus;
+use App\Filament\Exports\DynamicGroupExport;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -17,12 +18,23 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class ComplaintRegistriesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        DynamicGroupExport::make(),
+                        //    ->groupBy('Produttore')  // Campo per il raggruppamento
+                        //    ->sumColumns(['Provvigione']),  // Campi da sommare
+                    ])
+                    ->label('Esporta Excel')
+                    ->color('success'),
+            ])
             ->columns([
                 // 1. CODICI E PROTOCOLLO
                 TextColumn::make('protocol_number')
