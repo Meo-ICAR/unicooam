@@ -23,11 +23,15 @@ class OamCodeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static UnitEnum|string|null $navigationGroup = 'Impostazioni';
+    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
     protected static ?string $navigationLabel = 'Convenzioni';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?string $modelLabel = 'Prodotto';
+
+    protected static ?string $pluralModelLabel = 'Prodotti';
+
+    protected static ?int $navigationSort = 6;
 
     //    protected static bool $shouldRegisterNavigation = false;
 

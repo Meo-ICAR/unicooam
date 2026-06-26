@@ -10,6 +10,8 @@ use App\Models\DocumentSchedule;
 use App\Models\Task;
 use App\Services\DocumentReminderService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
@@ -26,7 +28,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+// use Illuminate\Support\Collection;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 use BackedEnum;
 use UnitEnum;
@@ -41,11 +45,13 @@ class DocumentScheduleResource extends Resource
 
     protected static ?string $modelLabel = 'Scadenziario documenti';
 
-    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
+    //    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?int $navigationSort = 30;
+
+    protected static ?string $pluralModelLabel = 'Scadenziario documenti';
 
     public static function table(Table $table): Table
     {
@@ -54,7 +60,7 @@ class DocumentScheduleResource extends Resource
             ->defaultSort('expires_at')
             ->groups([
                 Group::make('documentable_group_key')
-                    ->label('Entità')
+                    ->label('Destinatario')
                     ->titlePrefixedWithLabel(false)
                     ->getTitleFromRecordUsing(fn(DocumentSchedule $record): string => $record->entity_name)
                     ->collapsible(),
@@ -99,15 +105,20 @@ class DocumentScheduleResource extends Resource
             ])
             ->filters([
                 Filter::make('scaduti')
-                    ->label('Solo scaduti')
+                    ->label('Già scaduti')
                     ->query(fn(Builder $query): Builder => $query->whereDate('expires_at', '<', now()->toDateString())),
+                Filter::make('in_scadenza_7')
+                    ->label('In scadenza imminente (7 gg)')
+                    ->query(fn(Builder $query): Builder => $query
+                        ->whereDate('expires_at', '>=', now()->toDateString())
+                        ->whereDate('expires_at', '<=', now()->addDays(7)->toDateString())),
                 Filter::make('in_scadenza')
                     ->label('In scadenza (30 gg)')
                     ->query(fn(Builder $query): Builder => $query
                         ->whereDate('expires_at', '>=', now()->toDateString())
                         ->whereDate('expires_at', '<=', now()->addDays(30)->toDateString())),
                 SelectFilter::make('documentable_type')
-                    ->label('Modello')
+                    ->label('Destinatari')
                     ->options([
                         'fornitore' => 'Produttore',
                         'company' => 'Azienda',
@@ -122,13 +133,19 @@ class DocumentScheduleResource extends Resource
                 //  DeleteAction::make(),
             ])
             ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        DynamicGroupExport::make(),
+                        //    ->groupBy('Produttore')  // Campo per il raggruppamento
+                        //    ->sumColumns(['Provvigione']),  // Campi da sommare
+                    ])
+                    ->label('Esporta Excel')
+                    ->color('success'),
                 // IL BOTTONE DI AGGIORNAMENTO DATI ORA È UN'AZIONE DI HEADER DELLA RESOURCE
                 Action::make('sincronizzaScadenziario')
                     ->label('Aggiorna dati scadenziario')
                     ->icon(Heroicon::OutlinedArrowPath)
                     ->color('info')
-                    ->requiresConfirmation()
-                    ->modalDescription("Vuoi ricalcolare e aggiornare tutte le scadenze adesso? L'operazione potrebbe richiedere qualche secondo.")
                     ->action(function (): void {
                         $reminderService = app(DocumentReminderService::class);
 
@@ -148,6 +165,7 @@ class DocumentScheduleResource extends Resource
                                 'document_type_name' => $doc->documentType?->name ?? '-',
                                 'entity_name' => $entityName,
                                 'documentable_type' => $doc->documentable_type,
+                                'documentable_id' => $doc->documentable_id,
                                 'expires_at' => $doc->expires_at?->toDateString(),
                                 'days_until_expiry' => $reminderService->daysUntilExpiry($doc),
                                 'status' => $doc->status,
@@ -170,42 +188,69 @@ class DocumentScheduleResource extends Resource
                             ->success()
                             ->send();
                     }),
-                Action::make('inviaSollecitiProgrammati')
-                    ->label('Invia solleciti programmati')
-                    ->icon(Heroicon::OutlinedPaperAirplane)
-                    ->requiresConfirmation()
-                    ->action(function (): void {
-                        $stats = app(DocumentReminderService::class)->sendReminders(onlyDueToday: true);
-                        Notification::make()
-                            ->title('Solleciti programmati inviati')
-                            ->body("Email inviate: {$stats['sent']}")
-                            ->success()
-                            ->send();
-                    }),
-                Action::make('inviaSollecito')
-                    ->label('Invia sollecito')
-                    ->icon(Heroicon::OutlinedEnvelope)
-                    ->requiresConfirmation()
-                    ->action(function (DocumentSchedule $record): void {
-                        $document = Document::find($record->document_id);
-                        if (!$document)
-                            return;
 
-                        $reminderService = app(DocumentReminderService::class);
-                        $stats = $reminderService->sendReminders(onlyDueToday: false, groupKey: $record->documentable_group_key);
-
-                        $record->increment('reminders_count', $stats['sent']);
-
-                        Notification::make()
-                            ->title('Sollecito inviato')
-                            ->success()
-                            ->send();
-                    }),
+                /*
+                 * Action::make('inviaSollecitiProgrammati')
+                 *     ->label('Invia solleciti programmati')
+                 *     ->icon(Heroicon::OutlinedPaperAirplane)
+                 *     ->requiresConfirmation()
+                 *     ->action(function (): void {
+                 *         $stats = app(DocumentReminderService::class)->sendReminders(onlyDueToday: true);
+                 *         Notification::make()
+                 *             ->title('Solleciti programmati inviati')
+                 *             ->body("Email inviate: {$stats['sent']}")
+                 *             ->success()
+                 *             ->send();
+                 *     }),
+                 */
             ])
             ->toolbarActions([
-                //   BulkActionGroup::make([
-                //      DeleteBulkAction::make(),
-                //  ]),
+                BulkActionGroup::make([
+                    BulkAction::make('inviaSollecito')
+                        ->label('Invia sollecito -SIMULAZIONE --')
+                        ->icon('heroicon-o-envelope')
+                        ->requiresConfirmation()
+                        ->color('warning')
+                        ->action(function (Collection $records): void {
+                            $sentCount = 0;
+                            $nrecipients = 0;
+                            $erroreIsCompany = false;
+
+                            $recipient = null;
+                            foreach ($records as $record) {
+                                $document = Document::find($record->document_id);
+                                if (!$document)
+                                    continue;
+                                if ($record->documentable_type <> 'fornitore') {
+                                    $erroreIsCompany = true;
+                                    continue;
+                                }
+
+                                // Tua logica di invio reale qui...
+                                $record->increment('reminders_count', 1);
+                                $sentCount++;
+                                $email = $record->entity?->email;
+                                if (!$email)
+                                    continue;
+
+                                if ($recipient <> $email) {
+                                    $nrecipients++;
+                                    $recipient = $email;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("Inviati a {$nrecipients} destinatari {$sentCount} solleciti")
+                                ->success()
+                                ->send();
+                            if ($erroreIsCompany) {
+                                Notification::make()
+                                    ->title('Alcuni documenti non sono stati inviati perché non sono associati ad un produttore')
+                                    ->alert()
+                                    ->send();
+                            }
+                        }),
+                ]),
             ]);
     }
 

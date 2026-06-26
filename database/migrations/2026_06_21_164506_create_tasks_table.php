@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('trigger_field')->nullable()->comment('Campo del modello da controllare');
             $table->string('trigger_state')->nullable()->comment('filled, empty, equals');
             $table->string('trigger_value')->nullable()->comment('Il valore specifico da controllare');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

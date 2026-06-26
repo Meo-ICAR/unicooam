@@ -14,6 +14,7 @@ class ClientiOam extends Model
     use HasFactory;
 
     // Forza il nome della tabella visto che non segue la pluralizzazione inglese standard
+
     protected $connection = 'mysql';
     protected $table = 'clienti_oam';
 

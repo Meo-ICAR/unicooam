@@ -19,21 +19,25 @@ class FornitoreForm
                 Section::make('Dati Anagrafici e Contatti')
                     ->description("Informazioni personali e di contatto dell'agente o fornitore.")
                     ->schema([
-                        Grid::make(2)->schema([
+                        Grid::make(3)->schema([
                             TextInput::make('name')
                                 ->label('Denominazione')
                                 ->maxLength(255),
                             TextInput::make('nome')
                                 ->label('Ragione Sociale')
                                 ->maxLength(255),
+                            DatePicker::make('available_at')
+                                ->label('Data Disponibilità')
+                                ->displayFormat('d/m/Y'),
+                            Toggle::make('is_active')
+                                ->label('Agente Attivo')
+                                ->default(true)
+                                ->inline(false),
                             DatePicker::make('stipulated_at')
                                 ->label('Data Stipula')
                                 ->displayFormat('d/m/Y'),
                             DatePicker::make('dismissed_at')
                                 ->label('Data Cessazione')
-                                ->displayFormat('d/m/Y'),
-                            DatePicker::make('available_at')
-                                ->label('Data Disponibilità')
                                 ->displayFormat('d/m/Y'),
                             TextInput::make('piva')
                                 ->label('Partita IVA')
@@ -59,11 +63,12 @@ class FornitoreForm
                                 ->maxLength(255),
                         ]),
                     ])
+                    ->collapsed()
                     ->columnSpanFull(),
                 // 2. ISCRIZIONI E ALBI (OAM / IVASS)
                 Section::make('Iscrizioni e Albi')
                     ->schema([
-                        Grid::make(2)->schema([
+                        Grid::make(3)->schema([
                             // OAM
                             TextInput::make('oam')
                                 ->label('Codice OAM')
@@ -103,119 +108,8 @@ class FornitoreForm
                                 ->displayFormat('d/m/Y'),
                         ]),
                     ])
+                    ->columnSpanFull()
                     ->collapsed(),
-                // 3. DATI CONTRATTUALI E INQUADRAMENTO
-                Section::make('Dati Contrattuali e Inquadramento')
-                    ->schema([
-                        Grid::make(3)->schema([
-                            Toggle::make('is_active')
-                                ->label('Agente Attivo')
-                                ->default(true)
-                                ->inline(false),
-                            Toggle::make('is_art108')
-                                ->label('Esente art. 108')
-                                ->default(false)
-                                ->inline(false),
-                            Toggle::make('iscollaboratore')
-                                ->label('È un collaboratore')
-                                ->inline(false),
-                            Toggle::make('isdipendente')
-                                ->label('È un dipendente')
-                                ->default(false)
-                                ->inline(false),
-                            Toggle::make('issubfornitore')
-                                ->label('Sub-fornitore')
-                                ->inline(false),
-                        ]),
-                        Grid::make(2)->schema([
-                            Select::make('enasarco')
-                                ->label('Mandato ENASARCO')
-                                ->options([
-                                    'no' => 'Nessuno',
-                                    'monomandatario' => 'Monomandatario',
-                                    'plurimandatario' => 'Plurimandatario',
-                                    'societa' => 'Società',
-                                ])
-                                ->default('plurimandatario'),
-                            TextInput::make('type')
-                                ->label('Tipologia')
-                                ->helperText('Agente / Mediatore / Consulente / Call Center')
-                                ->maxLength(30),
-                            Select::make('supervisor_type')
-                                ->label('Tipo Supervisore')
-                                ->options([
-                                    'no' => 'Nessuno',
-                                    'si' => 'Sì',
-                                    'filiale' => 'Filiale',
-                                ])
-                                ->default('no')
-                                ->required(),
-                            TextInput::make('coordinatore')
-                                ->label('Nome Coordinatore')
-                                ->maxLength(255),
-                            TextInput::make('campagna')
-                                ->label('Codice Campagna')
-                                ->maxLength(255),
-                        ]),
-                    ])
-                    ->collapsed(),
-                // 4. DATI ECONOMICI E CONTABILI
-                Section::make('Dati Economici e Amministrativi')
-                    ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('codice')
-                                ->label('Codice Gestionale')
-                                ->maxLength(255),
-                            TextInput::make('coge')
-                                ->label('Codice COGE')
-                                ->maxLength(255),
-                            TextInput::make('nomecoge')
-                                ->label('Nome per Contabilità')
-                                ->maxLength(255),
-                            TextInput::make('nomefattura')
-                                ->label('Nome in Fattura')
-                                ->maxLength(255),
-                        ]),
-                        Grid::make(3)->schema([
-                            TextInput::make('budget')
-                                ->label('Budget previsto')
-                                ->numeric()
-                                ->prefix('€'),
-                            TextInput::make('welcome_bonus')
-                                ->label('Premio di Benvenuto')
-                                ->numeric()
-                                ->prefix('€'),
-                            TextInput::make('anticipo')
-                                ->label('Anticipo Mensile')
-                                ->numeric()
-                                ->prefix('€'),
-                            TextInput::make('anticipo_description')
-                                ->label('Descrizione Anticipo')
-                                ->maxLength(255)
-                                ->default('Anticipo attuale'),
-                            TextInput::make('anticipo_residuo')
-                                ->label('Anticipo Residuo (Debito)')
-                                ->numeric()
-                                ->prefix('€'),
-                            TextInput::make('contributo')
-                                ->label('Contributo Spese')
-                                ->numeric()
-                                ->prefix('€'),
-                            TextInput::make('contributo_description')
-                                ->label('Descrizione Contributo')
-                                ->maxLength(255)
-                                ->default('Contributo spese'),
-                            TextInput::make('contributoperiodicita')
-                                ->label('Periodicità Contributo')
-                                ->helperText('Es: 1 = Mensile, 3 = Trimestrale')
-                                ->numeric(),
-                            DatePicker::make('contributodalmese')
-                                ->label('Contributo Dal Mese')
-                                ->displayFormat('m/Y'),
-                        ]),
-                    ])
-                    ->collapsed(),
-                // 5. RELAZIONI E ID DI SISTEMA
             ]);
     }
 }

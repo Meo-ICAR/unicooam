@@ -5,6 +5,8 @@ namespace App\Filament\Resources\SuspiciousActivityReports\Pages;
 use App\Filament\Resources\SuspiciousActivityReports\SuspiciousActivityReportResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
+use Illuminate\Support\HtmlString;
 
 class ListSuspiciousActivityReports extends ListRecords
 {

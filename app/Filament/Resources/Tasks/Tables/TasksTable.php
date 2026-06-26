@@ -21,6 +21,9 @@ class TasksTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->query(function () {
+                return Task::query()->where('is_active', true);
+            })
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome attività')

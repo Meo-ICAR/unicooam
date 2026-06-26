@@ -47,7 +47,7 @@ return new class extends Migration {
             $table->string('duration_unit')->default('days')->comment('Unità di misura: hours, days, months, years');
 
             // Nuova colonna per la natura del documento
-            $table->string('nature')->default('incoming')->comment('Natura del flusso: incoming, template_fillable, compliance');
+            $table->string('nature')->nullable()->default('incoming')->comment('Tipo flusso: incoming, template_fillable, compliance', 'oucoming');
             $table->string('emitted_by')->nullable()->comment('Ente di rilascio predefinito');
             $table->boolean('is_sensible')->default(false)->comment('Contiene dati sensibili');
             $table->boolean('is_template')->default(false)->comment('Forniamo noi il template');

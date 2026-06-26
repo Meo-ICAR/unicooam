@@ -61,7 +61,9 @@ class ClientiForm
                                         ]),
                                     ]),
                                 Section::make('Associazione prodotti')
-                                    ->description('Seleziona i prodotti convenzionati a questo cliente.')
+                                    ->description('Seleziona i prodotti convenzionati con questa mandante.')
+                                    ->collapsible()
+                                    ->collapsed()
                                     ->schema([
                                         CheckboxList::make('oamCodes')
                                             ->label('Prodotti')
@@ -73,7 +75,7 @@ class ClientiForm
                                             )
                                             ->searchable()
                                             ->bulkToggleable()
-                                            ->columns(3)
+                                            ->columns(7)
                                             ->gridDirection('row'),
                                     ])
                                     ->columnSpanFull(),

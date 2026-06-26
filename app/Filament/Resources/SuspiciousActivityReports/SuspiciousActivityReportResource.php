@@ -32,7 +32,7 @@ class SuspiciousActivityReportResource extends Resource
 
     // protected static string|\UnitEnum|null $navigationGroup = 'Antiriciclaggio';
 
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
     {

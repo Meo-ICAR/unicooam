@@ -9,6 +9,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
@@ -33,7 +34,8 @@ class ClientisTable
                     ->searchable()
                     ->sortable()
                     ->label('Ragione Sociale'),
-                TextColumn::make('type')
+                TextColumn::make('principal_type')
+                    ->sortable()
                     ->badge()
                     ->colors([
                         'primary' => 'Banca',
@@ -41,42 +43,37 @@ class ClientisTable
                         'success' => 'Captive',
                     ])
                     ->label('Tipo'),
-                TextColumn::make('status')
-                    ->badge()
-                    ->colors([
-                        'success' => 'ATTIVO',
-                        'danger' => 'RECEDUTO',
-                        'warning' => 'SOSPESO',
-                        'secondary' => 'SCADUTO',
-                    ])
-                    ->label('Stato Mandato'),
+                IconColumn::make('is_active')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle')
+                    ->label('Attivo'),
                 TextColumn::make('oam_codes_count')
                     ->counts('oamCodes')
                     ->label('Convenzioni')
                     ->sortable()
                     ->badge()  // Opzionale: racchiude il numero in un badge grafico molto pulito
                     ->color('primary'),
-                IconColumn::make('is_active')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->label('Attivo'),
+                TextColumn::make('stipulated_at')
+                    ->date()
+                    ->sortable()
+                    ->label('Data di stipula'),
+                TextColumn::make('dismissed_at')
+                    ->date()
+                    ->sortable()
+                    ->label('Data di revoca'),
             ])
             ->filters([
-                SelectFilter::make('status')
-                    ->options([
-                        'ATTIVO' => 'Attivo',
-                        'SCADUTO' => 'Scaduto',
-                        'RECEDUTO' => 'Receduto',
-                        'SOSPESO' => 'Sospeso',
-                    ])
-                    ->label('Stato'),
+                TernaryFilter::make('is_active')
+                    ->label('Attivo'),
                 SelectFilter::make('principal_type')
                     ->options([
+                        '--' => '---',
                         'banca' => 'Banca',
-                        'broker' => 'Broker',
-                        'captive' => 'Broker Captive',
+                        'agente_assicurativo' => 'Broker',
+                        'agente_captive' => 'Broker Captive',
                     ])
+                    ->default('banca')
                     ->label('Tipo Mandante'),
                 SelectFilter::make('ivass_section')
                     ->options([

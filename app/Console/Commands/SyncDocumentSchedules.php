@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 class SyncDocumentSchedules extends Command
 {
     protected $signature = 'documents:sync-schedule';
-    protected $description = 'Sincronizza la tabella piatta dello scadenziario documenti';
+    protected $description = 'Sincronizza la tabella  dello scadenziario documenti';
 
     public function handle()
     {
@@ -36,6 +36,7 @@ class SyncDocumentSchedules extends Command
                 'document_type_name' => $doc->documentType?->name ?? '-',
                 'entity_name' => $entityName,
                 'documentable_type' => $doc->documentable_type,
+                'documentable_id' => $doc->documentable_id,
                 'expires_at' => $doc->expires_at?->toDateString(),
                 'days_until_expiry' => $reminderService->daysUntilExpiry($doc),
                 'status' => $doc->status,

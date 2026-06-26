@@ -14,9 +14,9 @@ class OamCodesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->query(function () {
-                return OamCode::query()->where('is_dummy', false);
-            })
+            //     ->query(function () {
+            //         return OamCode::query()->where('is_dummy', false)->withCount('clienti');  // Aggiunge il conteggio dei clienti associati a ogni OAM
+            //     })
             ->columns([
                 TextColumn::make('tipo_prodotto')
                     ->label('Tipo prodotto')

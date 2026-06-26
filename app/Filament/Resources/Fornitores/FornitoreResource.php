@@ -32,6 +32,10 @@ class FornitoreResource extends Resource
 
     protected static ?string $navigationLabel = 'Produttori';
 
+    protected static ?string $modelLabel = 'Produttore';
+
+    protected static ?string $pluralModelLabel = 'Produttori';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema

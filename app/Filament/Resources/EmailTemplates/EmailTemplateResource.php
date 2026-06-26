@@ -23,6 +23,8 @@ class EmailTemplateResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $navigationLabel = 'Modelli email';
 
     protected static ?string $modelLabel = 'Modello email';

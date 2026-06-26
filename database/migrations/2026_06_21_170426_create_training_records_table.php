@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->char('company_id', 36);
 
             // Relazione polimorfica (Genera trainable_type, trainable_id e l'indice composto)
-            $table->numericMorphs('trainable');
+            $table->uuidMorphs('trainable');
 
             // Enum Ambiti Regolatori
             $table->enum('regulatory_framework', [

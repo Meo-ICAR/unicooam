@@ -5,6 +5,8 @@ namespace App\Filament\Resources\EmailTemplates\Pages;
 use App\Filament\Resources\EmailTemplates\EmailTemplateResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
+use Illuminate\Support\HtmlString;
 
 class ListEmailTemplates extends ListRecords
 {

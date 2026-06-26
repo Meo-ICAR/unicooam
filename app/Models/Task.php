@@ -15,7 +15,7 @@ class Task extends Model
     protected $connection = 'mysql';
     protected $orderBy = 'name';
     protected $orderDirection = 'asc';
-    protected $fillable = ['name', 'description', 'taskable'];
+    protected $fillable = ['name', 'description', 'taskable', 'trigger_field', 'trigger_state', 'trigger_value', 'is_active'];
 
     /**
      * I tipi di documento associati a questo Task

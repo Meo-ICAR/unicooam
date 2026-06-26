@@ -23,11 +23,11 @@ class TaskResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $navigationLabel = 'Tasks e documenti';
+    protected static ?string $navigationLabel = 'Plico documentale';
 
-    protected static ?string $modelLabel = 'Task';
+    protected static ?string $modelLabel = 'Plico';
 
-    protected static ?string $pluralModelLabel = 'Tasks';
+    protected static ?string $pluralModelLabel = 'Plichi';
 
     protected static UnitEnum|string|null $navigationGroup = 'Impostazioni';
 

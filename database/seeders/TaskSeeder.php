@@ -16,6 +16,7 @@ class TaskSeeder extends Seeder
                 'taskable' => 'fornitore',
                 'trigger_field' => 'oam_at',
                 'trigger_state' => 'empty',
+                'is_active' => false,
             ],
             [
                 'name' => 'OAM-Agenti',
@@ -41,6 +42,7 @@ class TaskSeeder extends Seeder
                 'name' => 'Renewal',
                 'description' => 'Attività e controlli per il rinnovo periodico delle convenzioni o contratti.',
                 'taskable' => 'company',
+                'is_active' => false,
             ],
             [
                 'name' => 'Audit',
@@ -56,6 +58,7 @@ class TaskSeeder extends Seeder
                 'taskable' => 'fornitore',
                 'trigger_field' => 'dismissed_at',
                 'trigger_state' => 'filled',
+                'is_active' => false,
             ],
         ];
 

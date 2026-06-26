@@ -27,8 +27,13 @@ class OamCode extends Model
     public function clienti(): BelongsToMany
     {
         return $this
-            ->belongsToMany(Clienti::class, 'clienti_oam', 'oam_code_id', 'clienti_id')
-            ->withPivot(['dal', 'al'])
+            ->belongsToMany(
+                Clienti::class,
+                'clienti_oam',
+                'oam_code_id',  // Invertito: prima la chiave di questo modello nella pivot
+                'clienti_id'  // Poi la chiave del modello correlato
+            )
+            ->withPivot('dal', 'al')
             ->withTimestamps();
     }
 }

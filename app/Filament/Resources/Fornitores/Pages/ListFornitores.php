@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Fornitores\Pages;
 use App\Filament\Resources\Fornitores\FornitoreResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
+use Illuminate\Support\HtmlString;
 
 class ListFornitores extends ListRecords
 {

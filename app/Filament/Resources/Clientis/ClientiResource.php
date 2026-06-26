@@ -28,6 +28,10 @@ class ClientiResource extends Resource
 
     protected static ?string $navigationLabel = 'Istituti';
 
+    protected static ?string $modelLabel = 'Istituto';
+
+    protected static ?string $pluralModelLabel = 'Istituti';
+
     protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema

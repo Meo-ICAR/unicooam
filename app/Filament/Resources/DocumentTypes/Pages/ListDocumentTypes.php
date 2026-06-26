@@ -5,6 +5,8 @@ namespace App\Filament\Resources\DocumentTypes\Pages;
 use App\Filament\Resources\DocumentTypes\DocumentTypeResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
+use Illuminate\Support\HtmlString;
 
 class ListDocumentTypes extends ListRecords
 {

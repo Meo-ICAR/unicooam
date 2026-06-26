@@ -2,13 +2,17 @@
 
 namespace App\Filament\Resources\DocumentTypes\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
@@ -18,148 +22,128 @@ class DocumentTypesTable
     {
         return $table
             ->columns([
+                // ==========================================
+                // COLONNE DELLA TABELLA
+                // ==========================================
                 TextColumn::make('name')
-                    ->label('Nome')
-                    ->searchable(),
-                TextColumn::make('description')
-                    ->label('Descrizione')
-                    ->searchable(),
+                    ->label('Nome documento')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
                 TextColumn::make('code')
                     ->label('Codice')
-                    ->searchable(),
-                TextColumn::make('codegroup')
-                    ->label('Gruppo codice')
-                    ->searchable(),
-                TextColumn::make('slug')
-                    ->label('Slug')
-                    ->searchable(),
-                TextColumn::make('regex_pattern')
-                    ->label('Pattern regex')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('priority')
-                    ->label('Priorità')
-                    ->numeric()
+                // Natura del documento (Flusso) con Badge dedicati
+                TextColumn::make('nature')
+                    ->label('Natura Flusso')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'incoming' => 'info',
+                        'template_fillable' => 'warning',
+                        'compliance' => 'success',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'incoming' => '📥 Da Ricevere',
+                        'template_fillable' => '📝 Modulo da Compilare',
+                        'compliance' => '⚖️ Compliance / Regolamento',
+                        default => $state,
+                    })
                     ->sortable(),
-                TextColumn::make('phase')
-                    ->label('Fase')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_person')
-                    ->label('Persona fisica')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_company')
-                    ->label('Azienda')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_employee')
-                    ->label('Dipendente')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_agent')
-                    ->label('Agente')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_principal')
-                    ->label('Mandante')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_client')
-                    ->label('Cliente')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_practice')
-                    ->label('Pratica')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // Integrazione Durata Leggibile (Ore, Giorni, Mesi, Anni)
+                TextColumn::make('duration')
+                    ->label('Validità')
+                    ->formatStateUsing(function ($record) {
+                        if (!$record->duration) {
+                            return 'Nessuna scadenza';
+                        }
+
+                        $unit = match ($record->duration_unit) {
+                            'hours' => 'Ore',
+                            'days' => 'Giorni',
+                            'months' => 'Mesi',
+                            'years' => 'Anni',
+                            default => 'Giorni'
+                        };
+
+                        return "{$record->duration} {$unit}";
+                    })
+                    ->placeholder('Senza scadenza')
+                    ->sortable(['duration']),
+                // Destinatari compattati in un'unica colonna dinamica (Evita 7 colonne booleane)
+                TextColumn::make('target')
+                    ->label('Applicabile a')
+                    ->badge()
+                    ->color('gray')
+                    ->state(function ($record): array {
+                        $targets = [];
+                        if ($record->is_person)
+                            $targets[] = 'Persona';
+                        if ($record->is_company)
+                            $targets[] = 'Azienda';
+                        if ($record->is_employee)
+                            $targets[] = 'Dipendente';
+                        if ($record->is_agent)
+                            $targets[] = 'Agente';
+                        if ($record->is_principal)
+                            $targets[] = 'Mandante';
+                        if ($record->is_client)
+                            $targets[] = 'Cliente';
+                        if ($record->is_practice)
+                            $targets[] = 'Pratica';
+                        return $targets;
+                    })
+                    ->placeholder('Nessun target'),
+                // Icone di stato rapide
                 IconColumn::make('is_signed')
-                    ->label('Richiede firma')
+                    ->label('Firma')
                     ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->trueIcon('heroicon-o-pencil-square')
+                    ->falseIcon('')  // Nasconde l'icona se falsa per pulizia visiva
+                    ->toggleable(),
                 IconColumn::make('is_monitored')
                     ->label('Monitorato')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('duration')
-                    ->label('Durata (giorni)')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('emitted_by')
-                    ->label('Emesso da')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_sensible')
-                    ->label('Dati sensibili')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_template')
-                    ->label('Modello')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_stored')
-                    ->label('Archiviato')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('regex')
-                    ->label('Regex validazione')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_endmonth')
-                    ->label('Scadenza a fine mese')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_AiAbstract')
-                    ->label('Riassunto AI')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_AiCheck')
-                    ->label('Controllo AI')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('min_confidence')
-                    ->label('Affidabilità minima (%)')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('allow_auto_verification')
-                    ->label('Verifica automatica')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('retention_years')
-                    ->label('Anni conservazione')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Creato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->label('Aggiornato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->label('Eliminato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('phase')
+                    ->label('Fase')
+                    ->toggleable(),
             ])
+            // ==========================================
+            // FILTRI DI RICERCA AVANZATI
+            // ==========================================
             ->filters([
-                TrashedFilter::make()
-                    ->label('Eliminati'),
+                // Filtro per Natura/Flusso
+                SelectFilter::make('nature')
+                    ->label('Natura Flusso')
+                    ->options([
+                        'incoming' => 'Da Ricevere',
+                        'template_fillable' => 'Moduli da Compilare',
+                        'compliance' => 'Compliance / Regolamenti',
+                    ]),
+                // Filtro rapido per i target di riferimento
+                TernaryFilter::make('is_company')
+                    ->label('Target Azienda')
+                    ->placeholder('Tutti'),
+                TernaryFilter::make('is_employee')
+                    ->label('Target Dipendente')
+                    ->placeholder('Tutti'),
+                // Filtro per capire se richiede firma obbligatoria
+                TernaryFilter::make('is_signed')
+                    ->label('Richiede Firma')
+                    ->placeholder('Tutti'),
             ])
-            ->recordActions([
+            // ==========================================
+            // AZIONI DI RIGA E DI GRUPPO
+            // ==========================================
+            ->actions([
                 EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                 ]),
             ]);
     }

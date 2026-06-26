@@ -25,8 +25,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\HtmlString;
 
 class DocumentsRelationManager extends RelationManager
 {
@@ -156,9 +158,9 @@ class DocumentsRelationManager extends RelationManager
             ->recordActions([
                 EditAction::make(),
                 Action::make('renew')
-                    ->label('Rinnove Documento')
+                    ->label('Rinnovo')
                     ->icon('heroicon-o-arrow-path')
-                    ->color('warning')
+                    ->color('success')
                     ->requiresConfirmation()
                     // Mostra il pulsante SOLO se il documento scade ed è monitorato
                     ->visible(fn(Document $record) => $record->documentType->is_monitored)

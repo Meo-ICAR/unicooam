@@ -10,8 +10,8 @@ use App\Models\EmailTemplate;
 use App\Support\DocumentRecipientResolver;
 use App\Support\EmailTemplateRenderer;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class DocumentReminderService
@@ -34,6 +34,11 @@ class DocumentReminderService
                 DocumentStatus::REJECTED->value,
                 DocumentStatus::REVOKED->value,
             ])
+            //
+            //     ->whereDoesntHave('reminders', function (Builder $query) {
+            //       $query->where('sent_at', '>=', now()->subDay(5)->toDateString());
+            //    })
+            //
             ->orderBy('expires_at');
     }
 
@@ -45,7 +50,7 @@ class DocumentReminderService
         $documents = ($query ?? $this->scheduleQuery())->get();
 
         return $documents->groupBy(
-            fn (Document $document): string => $document->documentable_type.'|'.$document->documentable_id
+            fn(Document $document): string => $document->documentable_type . '|' . $document->documentable_id
         );
     }
 
@@ -73,7 +78,7 @@ class DocumentReminderService
 
         foreach ($groups as $documents) {
             $dueDocuments = $documents
-                ->filter(fn (Document $document): bool => $this->shouldRemind($document, $onlyDueToday))
+                ->filter(fn(Document $document): bool => $this->shouldRemind($document, $onlyDueToday))
                 ->values();
 
             if ($dueDocuments->isEmpty()) {
@@ -124,11 +129,11 @@ class DocumentReminderService
         $daysUntilExpiry = $this->daysUntilExpiry($document);
 
         if ($onlyDueToday) {
-            if (! in_array($daysUntilExpiry, $this->notifyThresholds($document), true)) {
+            if (!in_array($daysUntilExpiry, $this->notifyThresholds($document), true)) {
                 return false;
             }
 
-            return ! $this->reminderAlreadySent($document, $daysUntilExpiry);
+            return !$this->reminderAlreadySent($document, $daysUntilExpiry);
         }
 
         return true;
@@ -178,20 +183,20 @@ class DocumentReminderService
             '{agente_nome}' => $recipientName,
             '{documento_nome}' => $documents->count() === 1
                 ? (string) $firstDocument?->name
-                : $documents->count().' documenti',
+                : $documents->count() . ' documenti',
             '{data_scadenza}' => $documents->count() === 1
                 ? ($firstDocument?->expires_at?->format('d/m/Y') ?? '—')
                 : 'vedi elenco',
         ]);
 
-        if (! Str::contains($rendered['body'], '{elenco_documenti}')) {
-            $rendered['body'] .= '<ul>'.$listItems.'</ul>';
+        if (!Str::contains($rendered['body'], '{elenco_documenti}')) {
+            $rendered['body'] .= '<ul>' . $listItems . '</ul>';
         } else {
-            $rendered['body'] = str_replace('{elenco_documenti}', '<ul>'.$listItems.'</ul>', $rendered['body']);
+            $rendered['body'] = str_replace('{elenco_documenti}', '<ul>' . $listItems . '</ul>', $rendered['body']);
         }
 
         if ($documents->count() > 1) {
-            $rendered['subject'] = 'Sollecito scadenze documenti ('.$documents->count().')';
+            $rendered['subject'] = 'Sollecito scadenze documenti (' . $documents->count() . ')';
         }
 
         return $rendered;

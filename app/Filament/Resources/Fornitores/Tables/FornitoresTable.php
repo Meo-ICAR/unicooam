@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Fornitores\Tables;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Company;
 use App\Models\Task;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;  // Importante per il form nel modal
@@ -44,40 +46,26 @@ class FornitoresTable
                     ->label('P. IVA')
                     ->searchable()
                     ->toggleable(),
+                TextColumn::make('stipulated_at')
+                    ->label('Mandato')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                TextColumn::make('dismissed_at')
+                    ->label('Cessato')
+                    ->date('d/m/Y')
+                    ->sortable(),
                 TextColumn::make('oam')
                     ->label('OAM')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('email')
-                    ->label('Indirizzo email')
-                    ->searchable()
-                    ->icon('heroicon-m-envelope')
-                    ->copyable(),
-                TextColumn::make('tel')
-                    ->label('Telefono')
-                    ->searchable()
-                    ->icon('heroicon-m-phone'),
-                TextColumn::make('pec')
-                    ->label('PEC')
-                    ->searchable()
-                    ->icon('heroicon-m-envelope')
-                    ->copyable(),
-                TextColumn::make('nome')
-                    ->label('Referente')
+                TextColumn::make('isvass')
+                    ->label('IVASS')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('type')
-                    ->label('Tipologia')
+                TextColumn::make('ivass_section')
+                    ->label('Sez.')
                     ->searchable()
-                    ->sortable()
-                    ->badge()
-                    ->color('info'),
-                // CONTATTI
-                TextColumn::make('email')
-                    ->label('Indirizzo email')
-                    ->searchable()
-                    ->icon('heroicon-m-envelope')
-                    ->copyable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 // STATO E INQUADRAMENTO
                 IconColumn::make('is_active')
                     ->label('Attivo')
@@ -97,16 +85,6 @@ class FornitoresTable
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 // DATE
-                TextColumn::make('stipulated_at')
-                    ->label('Data Stipula')
-                    ->date('d/m/Y')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Creato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 // Filtro per stato attivo/inattivo

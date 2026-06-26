@@ -7,6 +7,8 @@ use App\Filament\Actions\ImportOamAction;
 use App\Filament\Resources\OamSemestrales\OamSemestraleResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
+use Illuminate\Support\HtmlString;
 
 class ListOamSemestrales extends ListRecords
 {
