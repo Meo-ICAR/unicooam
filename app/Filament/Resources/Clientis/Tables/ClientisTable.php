@@ -8,6 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -43,10 +44,10 @@ class ClientisTable
                         'success' => 'Captive',
                     ])
                     ->label('Tipo'),
-                IconColumn::make('is_active')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
+                ToggleColumn::make('is_active')
+                    //   ->boolean()
+                    //   ->trueIcon('heroicon-o-check-circle')
+                    //   ->falseIcon('heroicon-o-x-circle')
                     ->label('Attivo'),
                 TextColumn::make('oam_codes_count')
                     ->counts('oamCodes')
@@ -65,7 +66,11 @@ class ClientisTable
             ])
             ->filters([
                 TernaryFilter::make('is_active')
-                    ->label('Attivo'),
+                    ->label('Stato')
+                    ->placeholder('Tutti')
+                    ->trueLabel('Solo Attivi')
+                    ->falseLabel('Solo Inattivi')
+                    ->default(true),
                 SelectFilter::make('principal_type')
                     ->options([
                         '--' => '---',

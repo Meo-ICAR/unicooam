@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             // Chiave esterna sul documento reale
             $table->foreignUuid('document_id')->constrained()->cascadeOnDelete()->nullable();
-            $table->uuidMorphs('documentable')->nullable();
+            $table->uuidMorphs('documentable');
             $table->string('entity_name');  // Nome leggibile del Soggetto (es: "Mario Rossi")
             // Raggruppamento pulito per il codice (ex alias stringa)
             $table->string('documentable_group_key');  // es: "employee|uuid"

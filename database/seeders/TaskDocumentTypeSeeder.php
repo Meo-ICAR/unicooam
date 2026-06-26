@@ -37,6 +37,20 @@ class TaskDocumentTypeSeeder extends Seeder
                 'formazione-30h-aggiornamento-oam',
                 'polizza-rc',  // Spesso richiesta per il rinnovo
             ],
+            'oam-cda' => [
+                'casellario-giudiziale',
+                'carichi-pendenti',
+                'dichiarazione-sostitutiva-certificato-onorabilita',
+                'formazione-30h-aggiornamento-oam',
+                'polizza-rc',  // Spesso richiesta per il rinnovo
+            ],
+            'oam-dipendenti' => [
+                'casellario-giudiziale',
+                'carichi-pendenti',
+                'dichiarazione-sostitutiva-certificato-onorabilita',
+                'formazione-30h-aggiornamento-oam',
+                'polizza-rc',  // Spesso richiesta per il rinnovo
+            ],
             'isvass-agenti' => [
                 'casellario-giudiziale',
                 'carichi-pendenti',
@@ -51,7 +65,12 @@ class TaskDocumentTypeSeeder extends Seeder
                 'trasparenza-avviso',
                 'foglio-informativo',
                 'trasparenza-web',
-                'transparency-doc',  // TEGM
+                'transparency-doc',
+                'proc-internal-audit',
+                'proc-aml-verifica',
+                'proc-compliance-risk',
+                'proc-reclami-ricezione',
+                'proc-reclami-info',
             ],
             'renewal' => [
                 'polizza-rc',

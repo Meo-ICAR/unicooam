@@ -107,6 +107,9 @@ class DocumentScheduleResource extends Resource
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->placeholder('Mai'),
+                TextColumn::make('documentable.email')
+                    ->label('Email')
+                    ->searchable(),
             ])
             ->filters([
                 Filter::make('scaduti')

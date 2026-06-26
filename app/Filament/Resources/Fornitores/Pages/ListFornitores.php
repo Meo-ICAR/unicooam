@@ -18,4 +18,9 @@ class ListFornitores extends ListRecords
             CreateAction::make(),
         ];
     }
+
+    public function getSubheading(): string|Htmlable
+    {
+        return new HtmlString('Selezionare i fornitori per cui si vuole aggiungere plico  documentale');
+    }
 }

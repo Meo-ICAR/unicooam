@@ -50,7 +50,7 @@ class FornitoreForm
                                 ->tel()
                                 ->maxLength(255),
                             TextInput::make('email')
-                                ->label('Indirizzo email')
+                                ->label('Email aziendale o privata se non ancora assegnata')
                                 ->email()
                                 ->maxLength(255),
                             TextInput::make('pec')
@@ -58,7 +58,8 @@ class FornitoreForm
                                 ->email()
                                 ->maxLength(255),
                             TextInput::make('email_private')
-                                ->label('Indirizzo email privata')
+                                ->label('Email privata')
+                                ->disabled(fn($get) => $get('email') === null)
                                 ->email()
                                 ->maxLength(255),
                         ]),

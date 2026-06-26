@@ -67,7 +67,7 @@ class DocumentType extends Model
         'is_sensible' => 'boolean',
         'is_template' => 'boolean',
         'is_stored' => 'boolean',
-        'is_endmonth' => 'boolean',
+        'is_endMonth' => 'boolean',
         'is_AiAbstract' => 'boolean',
         'is_AiCheck' => 'boolean',
         'allow_auto_verification' => 'boolean',

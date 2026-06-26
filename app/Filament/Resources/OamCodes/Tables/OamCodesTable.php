@@ -7,6 +7,8 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class OamCodesTable
@@ -30,9 +32,19 @@ class OamCodesTable
                     ->counts('clienti')
                     ->label('N. Convenzioni')
                     ->sortable(),
+                // STATO E INQUADRAMENTO
+                ToggleColumn::make('is_active')
+                    ->label('Attivo')
+                    //  ->boolean()
+                    ->sortable(),
             ])
             ->filters([
-                //
+                TernaryFilter::make('is_active')
+                    ->label('Stato Agente')
+                    ->placeholder('Tutti')
+                    ->trueLabel('Solo Attivi')
+                    ->falseLabel('Solo Inattivi')
+                    ->default(true),
             ])
             ->recordActions([
                 EditAction::make(),

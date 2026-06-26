@@ -24,6 +24,9 @@ class TaskSeeder extends Seeder
                 'taskable' => 'fornitore',
                 'trigger_field' => 'oam_at',
                 'trigger_state' => 'filled',
+                'exclude_field' => 'ivass_section',
+                'exclude_state' => 'equals',
+                'exclude_value' => 'E',
             ],
             [
                 'name' => 'ISVASS-Agenti',
@@ -32,6 +35,23 @@ class TaskSeeder extends Seeder
                 'trigger_field' => 'ivass_section',
                 'trigger_state' => 'equals',
                 'trigger_value' => 'E',
+            ],
+            [
+                'name' => 'OAM-dipendenti',
+                'description' => 'Attività e controlli per il rinnovo periodico OAM',
+                'taskable' => 'dipendente',
+                'trigger_field' => 'oam_at',
+                'trigger_state' => 'filled',
+            ],
+            [
+                'name' => 'OAM-cda',
+                'description' => 'Attività e controlli per il rinnovo periodico OAM',
+                'taskable' => 'dipendente',
+                'trigger_field' => 'employee_types',
+                'trigger_state' => 'equals',
+                'trigger_value' => 'cda',
+                'exclude_field' => 'oam_at',
+                'exclude_state' => 'filled',
             ],
             [
                 'name' => 'OAM-Semestrale',
@@ -51,6 +71,7 @@ class TaskSeeder extends Seeder
             [
                 'name' => 'Ispezione',
                 'description' => 'Attività di ispezione e verifica della documentazione.',
+                'is_active' => false,
             ],
             [
                 'name' => 'OffBoarding',

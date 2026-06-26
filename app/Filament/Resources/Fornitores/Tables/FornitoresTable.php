@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;  // Importante per il form nel modal
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -35,6 +36,7 @@ class FornitoresTable
                     ->label('Esporta Excel')
                     ->color('success'),
             ])
+            ->selectable('is_active = 1')
             ->columns([
                 // DATI PRINCIPALI
                 TextColumn::make('name')
@@ -67,13 +69,13 @@ class FornitoresTable
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 // STATO E INQUADRAMENTO
-                IconColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label('Attivo')
-                    ->boolean()
+                    //  ->boolean()
                     ->sortable(),
-                IconColumn::make('isdipendente')
+                ToggleColumn::make('isdipendente')
                     ->label('Dipendente')
-                    ->boolean()
+                    //     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('enasarco')
                     ->label('Enasarco')
@@ -92,7 +94,8 @@ class FornitoresTable
                     ->label('Stato Agente')
                     ->placeholder('Tutti')
                     ->trueLabel('Solo Attivi')
-                    ->falseLabel('Solo Inattivi'),
+                    ->falseLabel('Solo Inattivi')
+                    ->default(true),
                 // Filtro per tipologia di mandato Enasarco
                 SelectFilter::make('enasarco')
                     ->label('Mandato Enasarco')
@@ -111,11 +114,21 @@ class FornitoresTable
             ])
             ->actions([
                 EditAction::make(),
+                Action::make('createtaskForFornitore')
+                    ->label('Crea plico')
+                    ->icon('heroicon-o-document-plus')
+                    ->form([
+                        Select::make('task_id')
+                            ->label('Seleziona il Task')
+                            ->options(fn($record) => Task::getAvailableFor($record)->pluck('name', 'id'))
+                            ->searchable()
+                            ->required(),
+                    ])
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     BulkAction::make('createDocumentationForFornitori')
-                        ->label('Crea documentazione')
+                        ->label('Crea plico documentazione')
                         ->icon('heroicon-o-document-plus')
                         ->requiresConfirmation()
                         // 1. Definiamo il form all'interno del Modal della Bulk Action

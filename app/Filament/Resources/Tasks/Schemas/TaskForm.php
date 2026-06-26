@@ -22,7 +22,7 @@ class TaskForm
                     ->label('Descrizione')
                     ->maxLength(255),
                 Select::make('taskable')
-                    ->label('Entità collegata')
+                    ->label('Collegata a')
                     ->options([
                         'audit' => 'Audit',
                         'company' => 'Azienda',
@@ -37,6 +37,7 @@ class TaskForm
                 // ==========================================
                 Section::make('Regole di Attivazione Dinamica')
                     ->description('Configura le condizioni per cui questo task deve attivarsi in base ai dati del record.')
+                    ->collapsed()
                     ->schema([
                         TextInput::make('trigger_field')
                             ->label('Nome colonna del Database')
@@ -55,6 +56,32 @@ class TaskForm
                             ->placeholder('es. esterno, attivo')
                             ->visible(fn($get) => $get('trigger_state') === 'equals')  // Visibile solo se selezioni 'equals'
                             ->required(fn($get) => $get('trigger_state') === 'equals'),  // Obbligatorio solo se visibile
+                    ])
+                    ->columns(3),
+                // ==========================================
+                // NUOVA SEZIONE: FILTRI DI Esclusione
+                // ==========================================
+                Section::make('Regole di Esclusione Dinamica')
+                    ->description('Configura le condizioni per cui questo task deve essere escluso in base ai dati del record.')
+                    ->collapsed()
+                    ->schema([
+                        TextInput::make('exclude_field')
+                            ->label('Nome colonna del Database')
+                            ->placeholder('es. data_dimissione, tipo_fornitore')
+                            ->helperText("Inserisci il nome esatto del campo sulla tabella dell'entità."),
+                        Select::make('exclude_state')
+                            ->label('Condizione del campo')
+                            ->options([
+                                'empty' => 'Deve essere VUOTO (Null / Vuoto)',
+                                'filled' => 'Deve essere COMPILATO (Contiene un valore)',
+                                'equals' => 'Deve essere UGUALE a un valore specifico',
+                            ])
+                            ->live(),  // Rende il campo reattivo per aggiornare la form al cambio
+                        TextInput::make('exclude_value')
+                            ->label('Valore specifico richiesto')
+                            ->placeholder('es. esterno, attivo')
+                            ->visible(fn($get) => $get('exclude_state') === 'equals')  // Visibile solo se selezioni 'equals'
+                            ->required(fn($get) => $get('exclude_state') === 'equals'),  // Obbligatorio solo se visibile
                     ])
                     ->columns(3),
                 // ==========================================

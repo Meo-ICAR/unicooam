@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->string('description')->nullable()->comment('Codice e Descrizione ambito operativo');
             $table->string('tipo_prodotto')->nullable()->comment('Tipo finanziamento');
             $table->boolean('is_dummy')->default(false)->comment('Flag per identificare record fittizio per associare prodotti non presenti in OAM');
+            $table->boolean('is_active')->default(true)->comment('Flag per identificare record attivo');
             $table->timestamps();
         });
     }

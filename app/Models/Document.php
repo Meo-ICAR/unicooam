@@ -79,6 +79,33 @@ class Document extends Model implements HasMedia
     ];
 
     /**
+     * Relazione: Tipo di documento
+     */
+    public function documentType(): BelongsTo
+    {
+        return $this->belongsTo(DocumentType::class);  // Presume l'esistenza del model DocumentType
+    }
+
+    /**
+     * I "Booted" del Modello.
+     * Intercetta le azioni del ciclo di vita di Eloquent.
+     */
+    protected static function booted(): void
+    {
+        static::updating(function (Document $document) {
+            // Se non è già stato specificato un company_id, assegna la prima Company presente
+            if (empty($document->expires_at) && !empty($document->emitted_at)) {
+                if ($document->documentType && $document->documentType->has_expiry) {
+                    $document->expires_at = $document->emitted_at->copy()->addMonth($document->documentType->duration);
+                    if ($document->documentType->is_endMonth) {
+                        $document->expires_at = $document->expires_at->endOfMonth();
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * Relazione: Tenant proprietario
      */
     public function company(): BelongsTo
@@ -92,14 +119,6 @@ class Document extends Model implements HasMedia
     public function documentable(): MorphTo
     {
         return $this->morphTo();
-    }
-
-    /**
-     * Relazione: Tipo di documento
-     */
-    public function documentType(): BelongsTo
-    {
-        return $this->belongsTo(DocumentType::class);  // Presume l'esistenza del model DocumentType
     }
 
     // --- Audit & User Relations ---

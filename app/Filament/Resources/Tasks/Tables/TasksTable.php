@@ -81,6 +81,35 @@ class TasksTable
                     ->badge()
                     ->color('gray')
                     ->visible(fn($record) => $record?->trigger_state === 'equals'),  // Nasconde la cella se non serve
+                // ==========================================
+                // NUOVE COLONNE PER LE REGOLE DI ESCLUSIONE
+                // ==========================================
+                TextColumn::make('exclude_field')
+                    ->label('Campo di Controllo')
+                    ->placeholder('Nessuno (Sempre attivo)')  // Se è null mostra questo testo grigio
+                    ->toggleable(isToggledHiddenByDefault: false),
+                TextColumn::make('exclude_state')
+                    ->label('Condizione')
+                    ->badge()
+                    ->color(fn(?string $state): string => match ($state) {
+                        'empty' => 'danger',
+                        'filled' => 'success',
+                        'equals' => 'info',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn(?string $state): string => match ($state) {
+                        'empty' => 'Deve essere vuoto',
+                        'filled' => 'Deve essere pieno',
+                        'equals' => 'Deve essere uguale a...',
+                        default => '-',
+                    })
+                    ->placeholder('-'),
+                TextColumn::make('exclude_value')
+                    ->label('Valore')
+                    ->placeholder('-')
+                    ->badge()
+                    ->color('gray')
+                    ->visible(fn($record) => $record?->exclude_state === 'equals'),  // Nasconde la cella se non serve
             ])
             ->filters([
                 // 1. Filtro per isolare l'entità (Azienda, Produttore, ecc.)

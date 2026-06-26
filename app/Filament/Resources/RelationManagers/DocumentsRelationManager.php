@@ -158,12 +158,12 @@ class DocumentsRelationManager extends RelationManager
             ->recordActions([
                 EditAction::make(),
                 Action::make('renew')
-                    ->label('Rinnovo')
+                    ->label('Aggiorna')
                     ->icon('heroicon-o-arrow-path')
                     ->color('success')
                     ->requiresConfirmation()
                     // Mostra il pulsante SOLO se il documento scade ed è monitorato
-                    ->visible(fn(Document $record) => $record->documentType->is_monitored)
+                    //    ->visible(fn(Document $record) => $record->documentType->is_monitored)
                     ->action(function (Document $record) {
                         // 1. Archiviamo il documento attuale (opzionale, dipende dal tuo DB)
                         $record->update([
