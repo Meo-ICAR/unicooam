@@ -39,7 +39,7 @@ return new class extends Migration {
             $table->boolean('is_monitored')->default(false)->comment('Scadenza monitorata nel tempo');
             // Gerarchia Interna (Self-Reference)
             $table->unsignedBigInteger('renewed_by_id')->nullable()->comment('ID del documento che lo rinnova');
-            $table->string('document_url')->comment('URL pubblico o percorso del documento sul web/storage');
+            $table->string('document_url')->comment('URL pubblico o percorso del documento sul web/storage')->nullable();
             $table->integer('training_hours')->nullable()->comment('Ore di formazione richieste');
             $table->enum('training_organization', ['interna', 'OAM', 'ISVASS', 'PRIVACY'])->nullable()->comment('Formazione per organizzazione');
             // Modifichiamo il commento di duration per renderlo generico
