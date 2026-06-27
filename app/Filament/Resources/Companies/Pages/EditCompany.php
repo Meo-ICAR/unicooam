@@ -14,6 +14,16 @@ class EditCompany extends EditRecord
     {
         return [
             DeleteAction::make(),
+            Action::make('createtask')
+                ->label('Crea plico')
+                ->icon('heroicon-o-document-plus')
+                ->form([
+                    Select::make('task_id')
+                        ->label('Seleziona il Task')
+                        ->options(fn($record) => Task::getAvailableFor($record)->pluck('name', 'id'))
+                        ->searchable()
+                        ->required(),
+                ])
         ];
     }
 }

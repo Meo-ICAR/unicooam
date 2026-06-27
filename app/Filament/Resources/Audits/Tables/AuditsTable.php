@@ -164,10 +164,18 @@ class AuditsTable
                     ->label('Esporta Excel')
                     ->color('success'),
             ])
-            ->actions([
-                // È buona pratica in Filament avere sia il View che l'Edit accessibili
-                ViewAction::make()->label('Vedi'),
-                EditAction::make()->label('Modifica'),
+            ->recordActions([
+                EditAction::make(),
+                Action::make('createtask')
+                    ->label('Crea plico')
+                    ->icon('heroicon-o-document-plus')
+                    ->form([
+                        Select::make('task_id')
+                            ->label('Seleziona il Task')
+                            ->options(fn($record) => Task::getAvailableFor($record)->pluck('name', 'id'))
+                            ->searchable()
+                            ->required(),
+                    ])
             ])
             // FIX CRITICO: Spostate le azioni di massa dentro bulkActions() invece di toolbarActions()
             ->bulkActions([

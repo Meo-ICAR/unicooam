@@ -14,6 +14,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -29,12 +30,17 @@ use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class DocumentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'documents';
 
     protected static ?string $title = 'Documenti';
+
+    protected static ?string $modelLabel = 'Documento';
+
+    protected static ?string $pluralModelLabel = 'Documenti';
 
     public function form(Schema $schema): Schema
     {
@@ -50,11 +56,9 @@ class DocumentsRelationManager extends RelationManager
                         ->columnSpanFull(),
                     TextInput::make('name')
                         ->label('Nome / Titolo')
+                        ->default(fn($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->name : null)
                         ->required()
                         ->columnSpanFull(),
-                    TextInput::make('docnumber')
-                        ->label('Numero documento')
-                        ->placeholder('es. CI-2024-001'),
                     Select::make('status')
                         ->label('Stato')
                         ->options(DocumentStatus::class)
@@ -62,20 +66,20 @@ class DocumentsRelationManager extends RelationManager
                         ->required(),
                     DatePicker::make('emitted_at')
                         ->label('Data emissione')
-                        ->native(false)
                         ->displayFormat('d/m/Y'),
                     DatePicker::make('expires_at')
                         ->label('Data scadenza')
-                        ->native(false)
+                        ->default(fn($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->durationCalculate($get('emitted_at')) : null)
                         ->displayFormat('d/m/Y')
                         ->afterOrEqual('emitted_at'),
-                    TextInput::make('emitted_by')
-                        ->label('Emesso da')
-                        ->placeholder('es. Comune di Roma'),
-                    Toggle::make('is_signed')
-                        ->label('Documento firmato'),
+                    TextInput::make('docnumber')
+                        ->label('Numero documento')
+                        ->placeholder('es. CI-2024-001'),
+                    TextInput::make('document_url')
+                        ->label('URL documento')
+                        ->url(fn($record) => $record->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
                     Textarea::make('description')
-                        ->label('Descrizione')
+                        ->label('Descrizione supplementare')
                         ->rows(2)
                         ->columnSpanFull(),
                     Textarea::make('internal_notes')
@@ -85,11 +89,10 @@ class DocumentsRelationManager extends RelationManager
                 ]),
             Section::make('File Allegato')
                 ->components([
-                    FileUpload::make('attachments')
+                    SpatieMediaLibraryFileUpload::make('attachments')
                         ->label('Carica file (PDF, immagini, Word)')
                         ->multiple()
-                        ->disk('public')
-                        ->directory('documents')
+                        ->collection('documents')
                         ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
                         ->maxSize(20480)
                         ->columnSpanFull(),
@@ -102,17 +105,12 @@ class DocumentsRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('documentType.name')
-                    ->label('Tipo')
-                    ->badge()
-                    ->color('gray')
-                    ->sortable()
-                    ->searchable(),
                 TextColumn::make('name')
-                    ->label('Nome documento')
+                    ->label('Documento')
+                    ->url(fn($record) => $record->getFirstMediaUrl('documents') ?: $record->document_url)
+                    ->openUrlInNewTab()
                     ->searchable()
-                    ->sortable()
-                    ->description(fn($record) => $record->docnumber),
+                    ->sortable(),
                 TextColumn::make('status')
                     ->label('Stato')
                     ->badge()
@@ -131,8 +129,17 @@ class DocumentsRelationManager extends RelationManager
                     ->label('Firmato')
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('emitted_by')
-                    ->label('Emesso da')
+                TextColumn::make('documentType.name')
+                    ->label('Tipo')
+                    ->badge()
+                    ->color('gray')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('document_url')
+                    ->label('URL')
+                    ->url(fn($record) => $record->document_url)
+                    ->openUrlInNewTab()
+                    ->visible(fn($record) => !empty($record->document_url))
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

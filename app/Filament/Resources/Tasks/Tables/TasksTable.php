@@ -41,6 +41,7 @@ class TasksTable
                         'fornitore' => 'warning',
                         'employee' => 'success',
                         'clienti' => 'purple',
+                        'audit' => 'danger',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn(string $state): string => match ($state) {

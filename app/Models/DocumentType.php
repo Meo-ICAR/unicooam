@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Date;
 
 class DocumentType extends Model
 {
@@ -19,6 +20,7 @@ class DocumentType extends Model
     protected $fillable = [
         'name',
         'description',
+        'document_url',
         'code',
         'codegroup',
         'slug',
@@ -77,6 +79,32 @@ class DocumentType extends Model
         'min_confidence' => 'integer',
         'retention_years' => 'integer',
     ];
+
+    public function durationCalculate(Date $emittedAt): ?Date
+    {
+        // Calcola la data di scadenza
+        if ($emittedAt) {
+            return null;
+        }
+        switch ($this->duration_unit) {
+            case 'Days':
+                $expirationDate = $emittedAt->addDays($this->duration);
+                break;
+            case 'Months':
+                $expirationDate = $emittedAt->addMonths($this->duration);
+                break;
+            case 'Years':
+                $expirationDate = $emittedAt->addYears($this->duration);
+                break;
+            default:
+                $expirationDate = null;
+                break;
+        }
+        if ($this->is_endMonth && $expirationDate) {
+            $expirationDate = $expirationDate->endOfMonth();
+        }
+        return $expirationDate;
+    }
 
     /**
      * Relazione con i documenti fisici caricati.

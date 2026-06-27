@@ -15,6 +15,7 @@ class CompanyForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(3)
             ->components([
                 Section::make()
                     ->columns(3)
@@ -85,15 +86,6 @@ class CompanyForm
                                     ->label('Sezione IVASS'),
                             ]),
                     ]),
-
-                /*
-                 * Textarea::make('page_header')
-                 *     ->label('Intestazione report')
-                 *     ->columnSpanFull(),
-                 * Textarea::make('page_footer')
-                 *     ->label('Piè di pagina report')
-                 *     ->columnSpanFull(),
-                 */
             ]);
     }
 }

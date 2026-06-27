@@ -35,7 +35,7 @@ return new class extends Migration {
             $table->enum('training_organization', ['interna', 'OAM', 'ISVASS', 'PRIVACY'])->nullable()->comment('Formazione per organizzazione');
             $table->string('docnumber')->nullable()->comment('Numero protocollo o identificativo del documento');
             $table->string('spatie_collection', 100)->default('default')->comment('Nome della collection per Spatie Media Library');
-            $table->string('document_url')->default('default')->comment('URL pubblico o percorso del documento sul web/storage');
+            $table->string('document_url')->comment('URL pubblico o percorso del documento sul web/storage');
 
             // Stati
             $table->string('status', 50)->default('uploaded')->comment('Stato del file: uploaded, verified, rejected, expired');

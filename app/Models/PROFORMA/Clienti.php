@@ -42,7 +42,7 @@ class Clienti extends Model
      */
     protected $connection = 'mysql_proforma';
 
-    protected $table = 'clientis';
+    protected $table = 'proforma.clientis';
 
     /**
      * The primary key for the model.
@@ -186,7 +186,7 @@ class Clienti extends Model
         return $this
             ->belongsToMany(
                 OamCode::class,  // Il modello correlato
-                'clienti_oam',  // La tabella pivot personalizzata
+                'unicooam.clienti_oam',  // La tabella pivot personalizzata
                 'clienti_id',  // La chiave esterna di questa tabella nella pivot
                 'oam_code_id'  // La chiave esterna del modello correlato nella pivot
             )

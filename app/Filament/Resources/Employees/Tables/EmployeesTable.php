@@ -69,98 +69,42 @@ class EmployeesTable
                     ->placeholder('Nessun coordinatore'),
             ])
             ->filters([
-                //
+                SelectFilter::make('employee_types')
+                    ->label('Ruolo')
+                    ->options([
+                        'dipendente' => 'Dipendente',
+                        'cda' => 'CdA',
+                        'consulente' => 'Consulente',
+                        'altro' => 'Altro',
+                    ]),
+                TernaryFilter::make('is_active')
+                    ->label('Stato')
+                    ->queries(
+                        true: fn($query) => $query->whereNull('termination_date'),
+                        false: fn($query) => $query->whereNotNull('termination_date'),
+                    )
+                    ->placeholder('Tutti')
+                    ->trueLabel('Solo Attivi')
+                    ->falseLabel('Solo Dimessi')
+                    ->default(true),
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('createtask')
+                    ->label('Crea plico')
+                    ->icon('heroicon-o-document-plus')
+                    ->form([
+                        Select::make('task_id')
+                            ->label('Seleziona il Task')
+                            ->options(fn($record) => Task::getAvailableFor($record)->pluck('name', 'id'))
+                            ->searchable()
+                            ->required(),
+                    ])
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    //  DeleteBulkAction::make(),
-                ]),
-
-                /*
-                 * Action::make('match_employee_rui')
-                 *     ->label('Abbina Dipendenti a OAM')
-                 *     ->icon('heroicon-o-link')
-                 *     ->color('warning')
-                 *     ->action(function () {
-                 *         try {
-                 *             $companyId = Auth::user()->company_id;
-                 *             $matchedCount = 0;
-                 *             $errors = [];
-                 *
-                 *             // Get all employee
-                 *             $employees = Employee::where('company_id', $companyId)
-                 *                 ->where('numero_iscrizione_rui', null)
-                 *                 ->get();
-                 *
-                 *             foreach ($employees as $employee) {
-                 *                 // Try to find matching RUI record by name
-                 *                 $rui = Rui::where('cognome_nome', 'like', '%' . $employee->name . '%')
-                 *                     ->first();
-                 *
-                 *                 if ($rui && !$employee->numero_iscrizione_rui) {
-                 *                     // Update agent with RUI registration number
-                 *                     $employee->update([
-                 *                         'numero_iscrizione_rui' => $rui->numero_iscrizione_rui,
-                 *                         'oam_at' => $rui->data_iscrizione,
-                 *                         'oam_name' => $rui->cognome_nome
-                 *                     ]);
-                 *                     $matchedCount++;
-                 *                 }
-                 *             }
-                 *
-                 *             Notification::make()
-                 *                 ->title('Abbinamento Agenti a OAM completata')
-                 *                 ->body("Abbinate trovate: {$matchedCount}, Errori: " . count($errors))
-                 *                 ->success()
-                 *                 ->send();
-                 *         } catch (\Exception $e) {
-                 *             Notification::make()
-                 *                 ->title('Errore abbina Agenti a OAM')
-                 *                 ->body('Errore durante abbina: ' . $e->getMessage())
-                 *                 ->danger()
-                 *                 ->send();
-                 *         }
-                 *     }),
-                 * Action::make('import_employees_excel')
-                 *     ->label('Importa Dipendenti Excel')
-                 *     ->icon('heroicon-o-document-arrow-up')
-                 *     ->color('success')
-                 *     ->form([
-                 *         FileUpload::make('import_file_excel')
-                 *             ->label('File Excel')
-                 *             ->helperText('Carica un file Excel con i dati dei dipendenti')
-                 *             ->acceptedFileTypes(['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])
-                 *             ->maxSize(10240)  // 10MB
-                 *             ->directory('employee-imports')
-                 *             ->visibility('public')
-                 *             ->required(),
-                 *     ])
-                 *     ->action(function (array $data) {
-                 *         try {
-                 *             $filePath = storage_path('app/public/' . $data['import_file_excel']);
-                 *             $companyId = Auth::user()->company_id;
-                 *             $filename = basename($data['import_file_excel']);
-                 *
-                 *             $importService = new \App\Services\EmployeeImportService($companyId);
-                 *             $results = $importService->import($filePath);
-                 *
-                 *             Notification::make()
-                 *                 ->title('Importazione Excel completata')
-                 *                 ->body("Importazione da {$filename} completata. Importate: {$results['imported']}, Aggiornate: {$results['updated']}, Errori: {$results['errors']}")
-                 *                 ->success()
-                 *                 ->send();
-                 *         } catch (\Exception $e) {
-                 *             Notification::make()
-                 *                 ->title('Errore importazione Excel')
-                 *                 ->body('Errore durante importazione: ' . $e->getMessage())
-                 *                 ->danger()
-                 *                 ->send();
-                 *         }
-                 *     }),
-                 */
+                //  BulkActionGroup::make([
+                //  DeleteBulkAction::make(),
+                //  ]),
             ]);
     }
 }

@@ -65,7 +65,7 @@ class Task extends Model
 
                 if ($is_debug && isset($documentType->is_monitored)) {
                     //   $templateData['is_monitored'] = (bool) $documentType->is_monitored;
-                    $templateData['expires_at'] = now()->addDays(rand(1, 70));
+                    $templateData['expires_at'] = now()->addDays(rand(1, 90))->subDays(10);
                 }
 
                 // 3. Uniamo lo stato iniziale richiesto
@@ -86,10 +86,6 @@ class Task extends Model
             }
 
             // 2. Correzione per il mapping di is_endmonth (da snake_case della sorgente a camelCase della destinazione)
-            if (array_key_exists('is_endmonth', $templateData)) {
-                $templateData['is_endMonth'] = $templateData['is_endmonth'];
-                unset($templateData['is_endmonth']);
-            }
 
             // 3. Unisce i dati estratti con i valori di stato predefiniti
             $creationData = array_merge($templateData, [

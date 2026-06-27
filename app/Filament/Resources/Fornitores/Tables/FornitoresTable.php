@@ -112,9 +112,9 @@ class FornitoresTable
                     ->trueLabel('Solo Dipendenti')
                     ->falseLabel('Solo P. IVA / Agenzie'),
             ])
-            ->actions([
+            ->recordActions([
                 EditAction::make(),
-                Action::make('createtaskForFornitore')
+                Action::make('createtask')
                     ->label('Crea plico')
                     ->icon('heroicon-o-document-plus')
                     ->form([

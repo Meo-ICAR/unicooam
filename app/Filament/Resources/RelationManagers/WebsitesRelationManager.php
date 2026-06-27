@@ -33,62 +33,46 @@ class WebsitesRelationManager extends RelationManager
 
     protected static ?string $title = 'Siti web';
 
+    protected static ?string $modelLabel = 'Sito web';
+
+    protected static ?string $pluralModelLabel = 'Siti web';
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
+                TextInput::make('domain')
+                    ->label('Dominio')
+                    ->openUrlInNewTab()
+                    ->url(fn($record) => $record->domain ? (str_starts_with($record->domain, 'http') ? $record->domain : "https://{$record->domain}") : null)
+                    ->required(),
+                Select::make('type')
+                    ->label('Tipologia')
+                    ->placeholder('es. social per FB / Istagram, landing mandataria')
+                    ->options([
+                        'istituzionale' => 'Istituzionale',
+                        'social' => 'Social',
+                        'landing' => 'Landing',
+                        'vetrina' => 'Vetrina',
+                        'e-commerce' => 'E-commerce',
+                        'altro' => 'Altro',
+                    ]),
+                TextInput::make('url_transparency')
+                    ->label('URL trasparenza')
+                    ->openUrlInNewTab()
+                    ->visible(fn($get) => $get('type') === 'istituzionale')
+                    ->url(fn($record) => $record->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
+                DatePicker::make('transparency_date')
+                    ->label('Data trasparenza')
+                    ->visible(fn($get) => $get('type') === 'istituzionale')
+                    ->native(false)
+                    ->displayFormat('d/m/Y'),
                 TextInput::make('name')
+                    ->default(fn($get) => $get('type'))
                     ->label('Nome sito')
                     ->required(),
                 Toggle::make('is_active')
                     ->label('Attivo')
-                    ->required(),
-                TextInput::make('domain')
-                    ->label('Dominio')
-                    ->required(),
-                TextInput::make('url_transparency')
-                    ->label('URL trasparenza')
-                    ->url(),
-                DatePicker::make('transparency_date')
-                    ->label('Data trasparenza')
-                    ->native(false)
-                    ->displayFormat('d/m/Y'),
-                TextInput::make('type')
-                    ->label('Tipologia')
-                    ->placeholder('es. vetrina, e-commerce, landing'),
-
-                /*
-                 * TextInput::make('clienti_id')
-                 * ->label('ID mandante')
-                 * ->numeric(),
-                 * Toggle::make('is_typical')
-                 *     ->label('Attività tipica')
-                 *     ->required(),
-                 * DatePicker::make('privacy_date')
-                 *     ->label('Data privacy policy')
-                 *     ->native(false)
-                 *     ->displayFormat('d/m/Y'),
-                 * DatePicker::make('privacy_prior_date')
-                 *     ->label('Data precedente privacy')
-                 *     ->native(false)
-                 *     ->displayFormat('d/m/Y'),
-                 * DatePicker::make('transparency_prior_date')
-                 *     ->label('Data precedente trasparenza')
-                 *     ->native(false)
-                 *     ->displayFormat('d/m/Y'),
-                 *
-                 * TextInput::make('url_privacy')
-                 *     ->label('URL privacy policy')
-                 *     ->url(),
-                 * TextInput::make('url_cookies')
-                 *     ->label('URL cookie policy')
-                 *     ->url(),
-                 * Toggle::make('is_footercompilant')
-                 *     ->label('Footer conforme')
-                 *     ->required(),
-                 */
-                Toggle::make('is_iso27001_certified')
-                    ->label('Certificato ISO 27001')
                     ->required(),
             ]);
     }
@@ -98,26 +82,34 @@ class WebsitesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('domain')
             ->columns([
-                TextColumn::make('name')
-                    ->label('Nome')
+                TextColumn::make('domain')
+                    ->label('Dominio')
+                    ->openUrlInNewTab()
+                    ->url(fn($record) => str_starts_with($record->domain, 'http') ? $record->domain : "https://{$record->domain}")
+                    ->openUrlInNewTab()
                     ->searchable(),
                 TextColumn::make('type')
                     ->label('Tipologia')
+                    ->sortable()
                     ->searchable(),
+                IconColumn::make('is_active')
+                    ->label('Attivo')
+                    ->sortable()
+                    ->boolean(),
+                TextColumn::make('url_transparency')
+                    ->label('URL trasparenza')
+                    ->openUrlInNewTab()
+                    ->url(fn($record) => $record->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
+                DatePicker::make('transparency_date')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('transparency_date')
                     ->label('Trasparenza')
                     ->date('d/m/Y')
                     ->sortable(),
-                IconColumn::make('is_active')
-                    ->label('Attivo')
-                    ->boolean(),
-                TextColumn::make('domain')
-                    ->label('Dominio')
+                TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
-                TextColumn::make('url_transparency')
-                    ->label('URL trasparenza')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 /*
                  * TextColumn::make('client.name')
@@ -161,26 +153,22 @@ class WebsitesRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make(),
-                AssociateAction::make(),
+                //  AssociateAction::make(),
             ])
             ->recordActions([
                 EditAction::make(),
-                DissociateAction::make(),
+                //   DissociateAction::make(),
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
+                    //     DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
-            ])
-            ->modifyQueryUsing(fn(Builder $query) => $query
-                ->withoutGlobalScopes([
-                    SoftDeletingScope::class,
-                ]));
+            ]);
     }
 }

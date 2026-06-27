@@ -45,9 +45,9 @@ class TaskSeeder extends Seeder
             ],
             [
                 'name' => 'OAM-cda',
-                'description' => 'Attività e controlli per il rinnovo periodico OAM',
+                'description' => 'Attività per il rinnovo periodico OAM dei CdA',
                 'taskable' => 'dipendente',
-                'trigger_field' => 'employee_types',
+                'trigger_field' => 'employee_type',
                 'trigger_state' => 'equals',
                 'trigger_value' => 'cda',
                 'exclude_field' => 'oam_at',

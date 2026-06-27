@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class DocumentTypeForm
 {
@@ -28,12 +29,24 @@ class DocumentTypeForm
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn(string $operation, $state, $set) =>
                                 $operation === 'create' ? $set('slug', Str::slug($state)) : null),
-                        TextInput::make('emitted_by')
-                            ->label('Ente di Rilascio Predefinito')
-                            ->maxLength(255),
                         Textarea::make('description')
                             ->label('Descrizione Aggiuntiva')
                             ->maxLength(255)
+                            ->columnSpanFull(),
+                        TextColumn::make('document_url')
+                            ->label('URL')
+                            ->url(fn($record) => $record->document_url)
+                            ->searchable()
+                            ->sortable(),
+                    ]),
+                Section::make('File Allegato')
+                    ->components([
+                        SpatieMediaLibraryFileUpload::make('attachments')
+                            ->label('Carica file (PDF, immagini, Word)')
+                            ->multiple()
+                            ->collection('documents')
+                            ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                            ->maxSize(20480)
                             ->columnSpanFull(),
                     ]),
                 // TAB 2: DESTINATARI E FLUSSO
@@ -82,7 +95,6 @@ class DocumentTypeForm
                         Select::make('duration_unit')
                             ->label('Unità di Misura')
                             ->options([
-                                'hours' => 'Ore',
                                 'days' => 'Giorni',
                                 'months' => 'Mesi',
                                 'years' => 'Anni',

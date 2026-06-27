@@ -93,15 +93,10 @@ class Document extends Model implements HasMedia
     protected static function booted(): void
     {
         static::updating(function (Document $document) {
-            // Se non è già stato specificato un company_id, assegna la prima Company presente
-            if (empty($document->expires_at) && !empty($document->emitted_at)) {
-                if ($document->documentType && $document->documentType->has_expiry) {
-                    $document->expires_at = $document->emitted_at->copy()->addMonth($document->documentType->duration);
-                    if ($document->documentType->is_endMonth) {
-                        $document->expires_at = $document->expires_at->endOfMonth();
-                    }
-                }
-            }
+            if (empty($document->expires_at) &&
+                    !empty($document->emitted_at) &&
+                    $document->expires_at = $document->documentType?->durationCalculate($document->emitted_at)
+            )
         });
     }
 

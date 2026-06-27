@@ -7,16 +7,16 @@ use App\Models\OamCode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;  // <-- Usa Pivot invece di Model
-use Illuminate\Database\Eloquent\Model;
+// use Illuminate\Database\Eloquent\Model;
 
-class ClientiOam extends Model
+class ClientiOam extends Pivot
 {
     use HasFactory;
 
     // Forza il nome della tabella visto che non segue la pluralizzazione inglese standard
 
     protected $connection = 'mysql';
-    protected $table = 'clienti_oam';
+    protected $table = 'unicooam.clienti_oam';
 
     protected $fillable = [
         'clienti_id',
