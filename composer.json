@@ -13,7 +13,10 @@
         "laravel/framework": "^13.8",
         "laravel/socialite": "^5.28",
         "laravel/tinker": "^3.0",
-        "pxlrbt/filament-excel": "^3.6"
+        "owenvoke/blade-fontawesome": "^3.3",
+        "pxlrbt/filament-excel": "^3.6",
+        "socialiteproviders/google": "^4.1",
+        "socialiteproviders/microsoft": "^4.9"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^4.3",
