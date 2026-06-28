@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\PROFORMA\Provvigione;
+use App\Models\OamCode;
 use App\Models\OamPratiche;
 use App\Models\OamSemestrale;
-use App\Models\PROFORMA\Provvigione;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -20,7 +21,7 @@ class OamSemestraleService
     public function aggregate(?string $period = null, ?string $companyId = null): int
     {
         // Svuotiamo prima di aprire la transazione
-        if (! $period) {
+        if (!$period) {
             OamSemestrale::truncate();
         } else {
             OamSemestrale::where('period', $period)->delete();
@@ -99,8 +100,8 @@ class OamSemestraleService
             // Calcolo storni: provvigioni Istituto con "storno" in descrizione
             $risultati = Provvigione::query()
                 ->with([
-                    'pratica' => fn ($q) => $q->select('id', 'tipo_prodotto'),
-                    'pratica.oamCode' => fn ($q) => $q->select('tipo_prodotto', 'description'),
+                    'pratica' => fn($q) => $q->select('id', 'tipo_prodotto'),
+                    'pratica.oamCode' => fn($q) => $q->select('tipo_prodotto', 'description'),
                 ])
                 ->where('descrizione', 'like', '%storno%')
                 ->where('tipo', 'Istituto')
@@ -140,6 +141,17 @@ class OamSemestraleService
                         'importo_retrocesse' => $datiStorno['importo_retrocesse'] ?? 0.0,
                     ]
                 );
+            }
+
+            Log::info('OAM Code:');
+            $oamCodes = OamCode::where('is_dummy', false)->where('is_active', true)->get();
+            foreach ($oamCodes as $oamCode) {
+                OamSemestrale::where('company_id', $lastCompanyId)
+                    ->where('period', $lastPeriod)
+                    ->where('prodotto_creditizio', $oamCode->description)
+                    ->update([
+                        'intermediari_convenzionati' => $oamCode->clienti()->count(),
+                    ]);
             }
 
             return $aggregates->count();

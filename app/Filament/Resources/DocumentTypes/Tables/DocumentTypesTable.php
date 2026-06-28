@@ -45,9 +45,9 @@ class DocumentTypesTable
                         default => 'gray',
                     })
                     ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'incoming' => '📥 Da Ricevere',
-                        'template_fillable' => '📝 Modulo da Compilare',
-                        'compliance' => '⚖️ Compliance / Regolamento',
+                        'incoming' => 'Da Ricevere',
+                        'template_fillable' => 'Modulo da Compilare',
+                        'compliance' => 'Compliance / Regolamento',
                         default => $state,
                     })
                     ->sortable(),
@@ -96,18 +96,22 @@ class DocumentTypesTable
                     })
                     ->placeholder('Nessun target'),
                 // Icone di stato rapide
-                IconColumn::make('is_signed')
-                    ->label('Firma')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-pencil-square')
-                    ->falseIcon('')  // Nasconde l'icona se falsa per pulizia visiva
-                    ->toggleable(),
                 IconColumn::make('is_monitored')
                     ->label('Monitorato')
+                    ->sortable()
                     ->boolean()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('phase')
-                    ->label('Fase')
+                TextColumn::make('doctype')
+                    ->label('Tipo documento')
+                    ->sortable()
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'modulo' => 'info',
+                        'procedura' => 'warning',
+                        'informativa' => 'info',
+                        'template' => 'success',
+                        default => 'gray',
+                    })
                     ->toggleable(),
             ])
             // ==========================================

@@ -36,6 +36,8 @@ class DocumentType extends Model
         'is_practice',
         'is_signed',
         'is_monitored',
+        'doctype',
+        'cellposition',
         'renewed_by_id',
         'duration',
         'emitted_by',

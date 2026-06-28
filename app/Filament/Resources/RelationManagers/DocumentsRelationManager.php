@@ -67,19 +67,28 @@ class DocumentsRelationManager extends RelationManager
                         ->options(DocumentStatus::class)
                         ->default(DocumentStatus::PENDING)
                         ->required(),
+                    Select::make('doctype')
+                        ->label('Tipo documento')
+                        ->options([
+                            'modulo' => 'Modulo',
+                            'procedura' => 'Procedura',
+                            'template' => 'Template',
+                        ]),
+                    TextInput::make('cellposition')
+                        ->label('Posizione cella'),
                     Toggle::make('is_monitored')
                         ->label('Controlla scadenza')
                         ->default(false)
                         ->live(),
                     DatePicker::make('emitted_at')
                         ->label('Data emissione')
-                        ->visible(fn($get) => $get('is_monitored'))
+                        //  ->visible(fn($get) => $get('is_monitored'))
                         ->displayFormat('d/m/Y'),
                     DatePicker::make('expires_at')
                         ->label('Data scadenza')
                         ->default(fn($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->durationCalculate($get('emitted_at')) : null)
                         ->displayFormat('d/m/Y')
-                        //       ->visible(fn($get) => $get('is_monitored'))
+                        ->visible(fn($get) => $get('is_monitored'))
                         ->afterOrEqual('emitted_at'),
                     TextInput::make('docnumber')
                         ->label('Numero documento')
@@ -127,7 +136,7 @@ class DocumentsRelationManager extends RelationManager
                 TextColumn::make('emitted_at')
                     ->label('Emissione')
                     ->date('d/m/Y')
-                    ->visible(fn($record) => $record?->is_monitored)
+                    //  ->visible(fn($record) => $record?->is_monitored)
                     ->sortable(),
                 TextColumn::make('expires_at')
                     ->label('Scadenza')
@@ -136,10 +145,16 @@ class DocumentsRelationManager extends RelationManager
                     ->visible(fn($record) => $record?->is_monitored ?? false)
                     ->color(fn($record) => $record?->expires_at?->isPast() ? 'danger' : 'gray')
                     ->weight(fn($record) => $record?->expires_at?->isPast() ? 'bold' : 'normal'),
-                IconColumn::make('is_signed')
-                    ->label('Firmato')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('doctype')
+                    ->label('Tipo documento')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'modulo' => 'info',
+                        'procedura' => 'warning',
+                        'template' => 'success',
+                        default => 'gray',
+                    })
+                    ->toggleable(),
                 TextColumn::make('documentType.name')
                     ->label('Tipo')
                     ->badge()
@@ -163,6 +178,15 @@ class DocumentsRelationManager extends RelationManager
                     ->label('Stato')
                     ->multiple()
                     ->options(DocumentStatus::class),
+                SelectFilter::make('doctype')
+                    ->label('Tipo documento')
+                    ->multiple()
+                    ->options([
+                        'modulo' => 'Modulo',
+                        'procedura' => 'Procedura',
+                        'informativa' => 'Informativa',
+                        'template' => 'Template',
+                    ]),
                 Filter::make('is_monitored')
                     ->label('Monitorato')
                     ->query(fn($query) => $query->where('is_monitored', true)),

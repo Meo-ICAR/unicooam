@@ -56,6 +56,8 @@ return new class extends Migration {
             // Flags
             $table->boolean('is_monitored')->default(false)->comment('Scadenza monitorata nel tempo');
             $table->boolean('is_template')->default(false)->comment("Indica se è un modello vuoto fornito dall'azienda");
+            $table->enum('doctype', ['modulo', 'informativa', 'procedura', 'template'])->nullable()->comment('Tipo documento: modulo, procedura, template');
+            $table->string('cellposition')->nullable()->comment('Posizione della cella in cui si trova il documento');
             $table->boolean('is_signed')->default(false)->comment('Indica se il documento è stato firmato');
             $table->boolean('is_unique')->default(false)->comment("Se true, è l'unico documento ammesso in questa collection");
             $table->boolean('is_endMonth')->default(false)->comment("Approssima la scadenza all'ultimo giorno del mese");

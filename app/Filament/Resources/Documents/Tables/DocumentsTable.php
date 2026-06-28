@@ -42,6 +42,19 @@ class DocumentsTable
                 TextColumn::make('documentType.name')
                     ->label('Tipo documento')
                     ->searchable(),
+                TextColumn::make('doctype')
+                    ->label('Tipo documento')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'modulo' => 'info',
+                        'procedura' => 'warning',
+                        'template' => 'success',
+                        default => 'gray',
+                    })
+                    ->toggleable(),
+                TextColumn::make('cellposition')
+                    ->label('Posizione cella')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('name')
                     ->label('Nome')
                     ->searchable(),

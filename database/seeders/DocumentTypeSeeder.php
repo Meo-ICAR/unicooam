@@ -60,6 +60,8 @@ class DocumentTypeSeeder extends Seeder
                 'is_person' => 0,
                 'is_signed' => 0,
                 'is_monitored' => 0,
+                'doctype' => 'procedura',
+                'cellposition' => 'MP120',
                 'regex' => '/requisiti.*organizzativi|art.*6/i',
                 'created_at' => '2026-03-18 10:18:58',
                 'updated_at' => '2026-03-18 10:18:58',
@@ -185,6 +187,7 @@ class DocumentTypeSeeder extends Seeder
             [
                 'name' => 'Codice Etico',
                 'slug' => 'codice-etico',
+                'doctype' => 'procedura',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,
@@ -197,6 +200,8 @@ class DocumentTypeSeeder extends Seeder
             [
                 'name' => 'Regolamento di Trasparenza',
                 'slug' => 'trasparenza-avviso',
+                'doctype' => 'procedura',
+                'cellposition' => 'MP120',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,
@@ -210,6 +215,9 @@ class DocumentTypeSeeder extends Seeder
                 'name' => 'Foglio informativo',
                 'code' => 'TRASPARENZA',
                 'slug' => 'foglio-informativo',
+                'doctype' => 'modulo',
+                'is_template' => 1,
+                'cellposition' => 'MP120',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,
@@ -247,6 +255,7 @@ class DocumentTypeSeeder extends Seeder
             [
                 'name' => 'Modulo AML',
                 'slug' => 'modulo-aml',
+                'doctype' => 'modulo',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,
@@ -258,6 +267,7 @@ class DocumentTypeSeeder extends Seeder
             [
                 'name' => 'Modulo Privacy',
                 'slug' => 'privacy-informativa',
+                'doctype' => 'modulo',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,
@@ -300,8 +310,9 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:57',
             ],
             [
-                'name' => 'Procedura Compliance & Risk',
+                'name' => 'Regolamento Compliance',
                 'slug' => 'proc-compliance-risk',
+                'doctype' => 'procedura',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,
@@ -311,8 +322,9 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:58',
             ],
             [
-                'name' => 'Procedura Gestione Reclami',
+                'name' => 'Gestione Reclami',
                 'slug' => 'proc-reclami-ricezione',
+                'doctype' => 'procedura',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,
@@ -336,6 +348,7 @@ class DocumentTypeSeeder extends Seeder
                 'name' => 'Contrato di Mediazione',
                 'code' => 'INCARICO-MED',
                 'slug' => 'incarico-mediazione',
+                'doctype' => 'modulo',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,
@@ -374,6 +387,7 @@ class DocumentTypeSeeder extends Seeder
             [
                 'name' => 'Procedura Internal Audit',
                 'slug' => 'proc-internal-audit',
+                'doctype' => 'procedura',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,
@@ -384,6 +398,7 @@ class DocumentTypeSeeder extends Seeder
             ],
             [
                 'name' => 'Procedura AML Verifica',
+                'doctype' => 'procedura',
                 'slug' => 'proc-aml-verifica',
                 'priority' => 1,
                 'is_person' => 0,

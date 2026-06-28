@@ -43,6 +43,8 @@ class Document extends Model implements HasMedia
         'ai_abstract',
         'ai_confidence_score',
         'is_template',
+        'doctype',
+        'cellposition',
         'is_signed',
         'is_unique',
         'is_endMonth',

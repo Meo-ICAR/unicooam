@@ -19,6 +19,15 @@ class DocumentForm
             ->components([
                 TextInput::make('name')
                     ->label('Nome / titolo'),
+                Select::make('doctype')
+                    ->label('Tipo documento')
+                    ->options([
+                        'modulo' => 'Modulo',
+                        'procedura' => 'Procedura',
+                        'template' => 'Template',
+                    ]),
+                TextInput::make('cellposition')
+                    ->label('Posizione cella'),
                 Toggle::make('is_monitored')
                     ->label('Monitora scadenza')
                     ->default(true)
@@ -26,8 +35,8 @@ class DocumentForm
                 DatePicker::make('emitted_at')
                     ->label('Data emissione')
                     ->native(false)
-                    ->displayFormat('d/m/Y')
-                    ->visible(fn($get) => $get('is_monitored')),
+                    //  ->visible(fn($get) => $get('is_monitored'))
+                    ->displayFormat('d/m/Y'),
                 DatePicker::make('expires_at')
                     ->label('Data scadenza')
                     ->native(false)

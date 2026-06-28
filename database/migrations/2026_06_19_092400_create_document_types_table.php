@@ -48,6 +48,9 @@ return new class extends Migration {
 
             // Nuova colonna per la natura del documento
             $table->string('nature')->nullable()->default('incoming')->comment('Tipo flusso: incoming, template_fillable, compliance', 'oucoming');
+            // Nuova colonna per la natura del documento
+            $table->enum('doctype', ['modulo', 'informativa', 'procedura', 'template'])->nullable()->comment('Tipo documento: modulo, procedura, template');
+            $table->string('cellposition')->nullable()->comment('Posizione della cella in cui si trova il documento');
             $table->string('emitted_by')->nullable()->comment('Ente di rilascio predefinito');
             $table->boolean('is_sensible')->default(false)->comment('Contiene dati sensibili');
             $table->boolean('is_template')->default(false)->comment('Forniamo noi il template');

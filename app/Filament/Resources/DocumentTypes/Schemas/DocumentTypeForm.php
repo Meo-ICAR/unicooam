@@ -10,6 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tab;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
@@ -33,11 +34,15 @@ class DocumentTypeForm
                             ->label('Descrizione Aggiuntiva')
                             ->maxLength(255)
                             ->columnSpanFull(),
-                        TextColumn::make('document_url')
-                            ->label('URL')
-                            ->url(fn($record) => $record->document_url)
-                            ->searchable()
-                            ->sortable(),
+                        Select::make('doctype')
+                            ->label('Tipo documento')
+                            ->options([
+                                'modulo' => 'Modulo',
+                                'procedura' => 'Procedura',
+                                'template' => 'Template',
+                            ]),
+                        TextInput::make('cellposition')
+                            ->label('Posizione cella'),
                     ]),
                 Section::make('File Allegato')
                     ->components([
