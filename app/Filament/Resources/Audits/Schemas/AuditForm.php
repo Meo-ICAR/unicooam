@@ -30,7 +30,7 @@ class AuditForm
             ->components([
                 // SEZIONE 1: Dati Base e Soggetti
                 Section::make('Informazioni Principali')
-                    ->description("Definisci il soggetto sotto controllo e l'ente richiedente.")
+                    ->description('Definisci il soggetto sotto controllo e il richiedente.')
                     ->icon('heroicon-o-identification')
                     ->schema([
                         Grid::make()->schema([
@@ -38,19 +38,13 @@ class AuditForm
                             MorphToSelect::make('auditable')
                                 ->label('Oggetto / Soggetto Controllato')
                                 ->types([
-                                    Type::make(Employee::class)
-                                        ->titleAttribute('name')  // o 'full_name'
-                                        ->label('Impiegato Interno'),
-                                    Type::make(Branch::class)
-                                        ->titleAttribute('name')
-                                        ->label('Filiale / Agenzia'),
-                                    Type::make(Clienti::class)
-                                        ->titleAttribute('name')
-                                        ->label('Cliente'),
                                     Type::make(Fornitore::class)
                                         ->titleAttribute('name')
                                         //     ->modifyOptionsQueryUsing(fn(Builder $query) => $query->whereNull($this->dismissed_at))
                                         ->label('Produttore'),
+                                    Type::make(Employee::class)
+                                        ->titleAttribute('name')  // o 'full_name'
+                                        ->label('Dipendente'),
                                     Type::make(Company::class)
                                         ->titleAttribute('name')
                                         ->label('Azienda'),
@@ -69,11 +63,11 @@ class AuditForm
                                 ->default('internal')
                                 ->live(),  // <--- FONDAMENTALE: rende il campo reattivo al cambio di selezione
                             Select::make('organization_id')
-                                ->label('Ente Vigilante (Richiedente)')
+                                ->label('Richiedente')
                                 ->relationship('organization', 'name')
                                 ->searchable()
                                 ->preload()
-                                ->placeholder("Seleziona l'ente esterno")
+                                ->placeholder('Seleziona richiedente')
                                 // <--- SEGRETO DI FILAMENT: si nasconde se origin_type è 'internal'
                                 ->hidden(fn(Get $get) => $get('origin_type') === 'internal')
                                 // Opzionale: lo rende obbligatorio solo se l'ispezione è esterna

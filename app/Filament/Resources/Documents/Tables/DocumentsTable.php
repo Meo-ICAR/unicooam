@@ -31,9 +31,6 @@ class DocumentsTable
                 TextColumn::make('id')
                     ->label('ID')
                     ->searchable(),
-                TextColumn::make('company.name')
-                    ->label('Azienda')
-                    ->searchable(),
                 TextColumn::make('documentable_type')
                     ->label('Tipo entità collegata')
                     ->searchable()

@@ -54,6 +54,7 @@ return new class extends Migration {
             $table->unsignedTinyInteger('ai_confidence_score')->nullable()->comment('Punteggio di affidabilita AI (0-100)');
 
             // Flags
+            $table->boolean('is_monitored')->default(false)->comment('Scadenza monitorata nel tempo');
             $table->boolean('is_template')->default(false)->comment("Indica se è un modello vuoto fornito dall'azienda");
             $table->boolean('is_signed')->default(false)->comment('Indica se il documento è stato firmato');
             $table->boolean('is_unique')->default(false)->comment("Se true, è l'unico documento ammesso in questa collection");

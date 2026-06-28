@@ -18,17 +18,24 @@ class DocumentForm
             ->components([
                 TextInput::make('name')
                     ->label('Nome / titolo'),
+                Toggle::make('is_monitored')
+                    ->label('Monitora scadenza')
+                    ->default(true)
+                    ->live(),
                 DatePicker::make('emitted_at')
                     ->label('Data emissione')
                     ->native(false)
-                    ->displayFormat('d/m/Y'),
+                    ->displayFormat('d/m/Y')
+                    ->visible(fn($get) => $get('is_monitored')),
                 DatePicker::make('expires_at')
                     ->label('Data scadenza')
                     ->native(false)
-                    ->displayFormat('d/m/Y'),
+                    ->displayFormat('d/m/Y')
+                    ->visible(fn($get) => $get('is_monitored')),
                 Toggle::make('is_endMonth')
                     ->label('Scadenza a fine mese')
-                    ->required(),
+                    ->required()
+                    ->visible(fn($get) => $get('is_monitored')),
                 TextInput::make('document_url')
                     ->label('URL documento')
                     ->url()

@@ -64,20 +64,23 @@ class DocumentsRelationManager extends RelationManager
                         ->options(DocumentStatus::class)
                         ->default(DocumentStatus::PENDING)
                         ->required(),
+                    Toggle::make('is_monitored')
+                        ->label('Controlla scadenza')
+                        ->default(false)
+                        ->live(),
                     DatePicker::make('emitted_at')
                         ->label('Data emissione')
+                        //    ->visible(fn($get) => $get('is_monitored'))
                         ->displayFormat('d/m/Y'),
                     DatePicker::make('expires_at')
                         ->label('Data scadenza')
                         ->default(fn($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->durationCalculate($get('emitted_at')) : null)
                         ->displayFormat('d/m/Y')
+                        //       ->visible(fn($get) => $get('is_monitored'))
                         ->afterOrEqual('emitted_at'),
                     TextInput::make('docnumber')
                         ->label('Numero documento')
                         ->placeholder('es. CI-2024-001'),
-                    TextInput::make('document_url')
-                        ->label('URL documento')
-                        ->url(fn($record) => $record->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
                     Textarea::make('description')
                         ->label('Descrizione supplementare')
                         ->rows(2)
@@ -89,6 +92,9 @@ class DocumentsRelationManager extends RelationManager
                 ]),
             Section::make('File Allegato')
                 ->components([
+                    TextInput::make('document_url')
+                        ->label('URL documento')
+                        ->url(fn($record) => $record->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
                     SpatieMediaLibraryFileUpload::make('attachments')
                         ->label('Carica file (PDF, immagini, Word)')
                         ->multiple()
@@ -118,11 +124,13 @@ class DocumentsRelationManager extends RelationManager
                 TextColumn::make('emitted_at')
                     ->label('Emissione')
                     ->date('d/m/Y')
+                    //   ->visible(fn($record) => $record->is_monitored),
                     ->sortable(),
                 TextColumn::make('expires_at')
                     ->label('Scadenza')
                     ->date('d/m/Y')
                     ->sortable()
+                    ->visible(fn($record) => $record->is_monitored)
                     ->color(fn($record) => $record->expires_at?->isPast() ? 'danger' : 'gray')
                     ->weight(fn($record) => $record->expires_at?->isPast() ? 'bold' : 'normal'),
                 IconColumn::make('is_signed')

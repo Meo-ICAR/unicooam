@@ -25,7 +25,7 @@ class AuditResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $navigationLabel = 'Audits';
+    protected static ?string $navigationLabel = 'Audit';
 
     protected static ?string $modelLabel = 'Audit';
 

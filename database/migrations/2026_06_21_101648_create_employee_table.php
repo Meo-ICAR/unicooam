@@ -22,6 +22,7 @@ return new class extends Migration {
 
             // Dati Anagrafici e Contatto
             $table->string('name')->nullable()->comment('Nome e Cognome del dipendente');
+            $table->boolean('is_active')->default(true)->comment('Attivo');
             $table->string('role_title', 100)->nullable()->comment('Qualifica o titolo professionale');
             $table->string('cf')->nullable()->comment('Codice Fiscale del dipendente');
             $table->string('email')->nullable()->comment('Email aziendale/operatore');

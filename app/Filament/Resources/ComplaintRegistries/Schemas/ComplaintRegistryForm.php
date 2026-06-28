@@ -86,7 +86,7 @@ class ComplaintRegistryForm
                                 ->preload()
                                 ->nullable(),
                             Select::make('bank_id')
-                                ->label('Banca Mandante Coinvolta')
+                                ->label('Mandante Coinvolta')
                                 ->relationship('bank', 'name')  // Assicurati che corrisponda alla colonna sul DB
                                 ->searchable()
                                 ->preload()

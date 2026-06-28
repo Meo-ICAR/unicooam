@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()->label('Anagrafiche'),  // ->collapsed(),
                 NavigationGroup::make()->label('Impostazioni')->collapsed(),
             ])
-            ->brandLogo(asset('images/unicoOAM.png'))
+            ->brandLogo(asset('images/unicoOAM_banner.png'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
             //   ->brandLogoHeight('3rem')
             // Imposta l'icona del browser (favicon)
@@ -92,10 +92,10 @@ class AdminPanelProvider extends PanelProvider
                         //   ->scopes(['...'])
                         //    ->with(['...']),
                     ])
-                // (optional) Override the panel slug to be used in the oauth routes. Defaults to the panel's configured path.
-                //   ->slug('admin')
-                // (optional) Enable/disable registration of new (socialite-) users.
-                //   ->registration(true)
+                    // (optional) Override the panel slug to be used in the oauth routes. Defaults to the panel's configured path.
+                    //   ->slug('admin')
+                    // (optional) Enable/disable registration of new (socialite-) users.
+                    ->registration(true)
                 // (optional) Enable/disable registration of new (socialite-) users using a callback.
                 // In this example, a login flow can only continue if there exists a user (Authenticatable) already.
                 //   ->registration(fn(string $provider, SocialiteUserContract $oauthUser, ?Authenticatable $user) => (bool) $user)

@@ -31,5 +31,14 @@ class AppServiceProvider extends ServiceProvider
             'fornitore' => \App\Models\PROFORMA\Fornitore::class,
             'website' => \App\Models\Website::class,
         ]);
+
+        \Illuminate\Support\Facades\Event::listen(
+            \SocialiteProviders\Manager\SocialiteWasCalled::class,
+            [\SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class, 'handle']
+        );
+        \Illuminate\Support\Facades\Event::listen(
+            \SocialiteProviders\Manager\SocialiteWasCalled::class,
+            [\SocialiteProviders\Google\GoogleExtendSocialite::class, 'handle']
+        );
     }
 }

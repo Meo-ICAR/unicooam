@@ -39,14 +39,14 @@ class TaskSeeder extends Seeder
             [
                 'name' => 'OAM-dipendenti',
                 'description' => 'Attività e controlli per il rinnovo periodico OAM',
-                'taskable' => 'dipendente',
+                'taskable' => 'employee',
                 'trigger_field' => 'oam_at',
                 'trigger_state' => 'filled',
             ],
             [
                 'name' => 'OAM-cda',
                 'description' => 'Attività per il rinnovo periodico OAM dei CdA',
-                'taskable' => 'dipendente',
+                'taskable' => 'employee',
                 'trigger_field' => 'employee_type',
                 'trigger_state' => 'equals',
                 'trigger_value' => 'cda',
@@ -67,10 +67,13 @@ class TaskSeeder extends Seeder
             [
                 'name' => 'Audit',
                 'description' => 'Attività di controllo conformità e verifica della documentazione interna.',
+                'taskable' => 'audit',
+                'is_active' => false,
             ],
             [
                 'name' => 'Ispezione',
-                'description' => 'Attività di ispezione e verifica della documentazione.',
+                'description' => 'Attività di ispezione in sede',
+                'taskable' => 'audit',
                 'is_active' => false,
             ],
             [

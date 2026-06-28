@@ -42,7 +42,7 @@ class DocumentSeeder extends Seeder
             }
 
             // Caso DIPENDENTE: cicliamo sui dipendenti e passiamo l'id del singolo dipendente
-            if (($task->taskable === 'dipendente')) {
+            if (($task->taskable === 'employee')) {
                 foreach ($employees as $employee) {
                     $createdCount += $task->createDocumentation($company_id, $employee->id, true);
                 }
