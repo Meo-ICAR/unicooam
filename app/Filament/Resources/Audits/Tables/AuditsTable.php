@@ -20,6 +20,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class AuditsTable
@@ -29,6 +30,7 @@ class AuditsTable
         return $table
             // Ordinamento di default: i più recenti pianificati o eseguiti in alto
             ->defaultSort('scheduled_at', 'desc')
+            //  ->contentFooter(fn($records) => new HtmlString($records?->count() > 0 ? 'Totale record: ' . $records->count() : 'Nessun record trovato'))
             ->columns([
                 // 2. Soggetto Controllato (Risolve il polimorfismo mostrando il nome reale dell'agente/impiegato)
                 TextColumn::make('auditable')

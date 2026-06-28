@@ -25,6 +25,8 @@ class ComplaintRegistriesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('received_at', 'desc')
+            //    ->contentFooter(fn($records) => $records?->count() > 0 ? 'Totale record: ' . $records->count() : 'Nessun record trovato')
             ->headerActions([
                 ExportAction::make()
                     ->exports([

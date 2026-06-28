@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->comment('Registro dettaglio delle segnalazioni di attività sospette');
             $table->id();
             $table->uuid('company_id')->comment('Logical FK: db_bpm.companies');
-            $table->unsignedBigInteger('client_id')->nullable();
+            $table->uuid('client_id')->nullable();
 
             // Polimorfica per il segnalatore (Agent o Employee)
             // -----------------------------------------------------------------

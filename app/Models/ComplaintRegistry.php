@@ -8,6 +8,7 @@ use App\Enums\ComplaintStatus;
 use App\Enums\ReceptionChannel;
 use App\Models\PROFORMA\Clienti;
 use App\Models\PROFORMA\Fornitore;
+use App\Models\Company;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -70,10 +71,10 @@ class ComplaintRegistry extends Model
      */
     protected static function booted(): void
     {
-        static::creating(function (Audit $audit) {
+        static::creating(function (ComplaintRegistry $complaint) {
             // Se non è già stato specificato un company_id, assegna la prima Company presente
-            if (blank($audit->company_id)) {
-                $audit->company_id = \App\Models\Company::first()?->id;
+            if (blank($complaint->company_id)) {
+                $complaint->company_id = Company::first()?->id;
             }
         });
     }

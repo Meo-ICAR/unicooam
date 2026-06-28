@@ -146,6 +146,7 @@ class DocumentsRelationManager extends RelationManager
                     ->color(fn($record) => $record?->expires_at?->isPast() ? 'danger' : 'gray')
                     ->weight(fn($record) => $record?->expires_at?->isPast() ? 'bold' : 'normal'),
                 TextColumn::make('doctype')
+                    ->sortable()
                     ->label('Tipo documento')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {

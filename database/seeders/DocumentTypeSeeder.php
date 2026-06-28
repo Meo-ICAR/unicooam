@@ -311,7 +311,7 @@ class DocumentTypeSeeder extends Seeder
             ],
             [
                 'name' => 'Regolamento Compliance',
-                'slug' => 'proc-compliance-risk',
+                'slug' => 'proc-compliance',
                 'doctype' => 'procedura',
                 'priority' => 1,
                 'is_person' => 0,

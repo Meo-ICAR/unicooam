@@ -13,9 +13,9 @@ return new class extends Migration {
             $table->uuid('company_id')->comment('Logical FK: db_bpm.companies');
 
             // 1. IDENTIFICAZIONE E RICEZIONE
-            $table->string('protocol_number', 50)->unique()->comment('Protocollo interno univoco');
-            $table->date('received_at')->comment('Data ufficiale di ricezione');
-            $table->string('reception_channel', 50)->comment('Enum: pec, raccomandata, email, brevi_manu');
+            $table->string('protocol_number', 50)->unique()->comment('Protocollo interno univoco')->nullable();
+            $table->date('received_at')->nullable()->comment('Data ufficiale di ricezione');
+            $table->string('reception_channel', 50)->comment('Enum: pec, raccomandata, email, brevi_manu')->nullable();
             $table->string('receiving_email')->nullable()->comment('La casella aziendale che ha ricevuto la notifica');
 
             // 2. IL RECLAMANTE (CHI FA LA SEGNALAZIONE)
@@ -26,8 +26,8 @@ return new class extends Migration {
             $table->string('complainant_email')->nullable()->comment('Contatto del reclamante');
 
             // 3. CLASSIFICAZIONE DEL RECLAMO
-            $table->string('macro_category', 30)->comment('Enum: financial, privacy, insurance, operational');
-            $table->string('category', 50)->comment('Enum: delay, behavior, fraud, gdpr_access, gdpr_erasure');
+            $table->string('macro_category', 30)->comment('Enum: financial, privacy, insurance, operational')->nullable();
+            $table->string('category', 50)->comment('Enum: delay, behavior, fraud, gdpr_access, gdpr_erasure')->nullable();
 
             // 4. OGGETTO DELLA SEGNALAZIONE E SOGGETTI COINVOLTI
             // A cosa si riferisce il reclamo? (Es. una specifica Pratica, un Contratto)
@@ -41,7 +41,7 @@ return new class extends Migration {
             $table->decimal('financial_impact', 10, 2)->default(0.0)->comment('Eventuale richiesta danni o rimborso in EUR');
 
             // 5. WORKFLOW, STATO E SCADENZE
-            $table->string('status', 30)->default('open')->comment('Enum: open, investigating, accepted, rejected, escalated');
+            $table->string('status', 30)->default('open')->comment('Enum: open, investigating, accepted, rejected, escalated')->nullable();
             $table->date('deadline_at')->nullable()->comment('Scadenza legale (es. 60gg per bancari, 30gg per GDPR)');
             $table->boolean('is_extended')->default(false)->comment('Se i termini sono stati estesi legalmente');
 

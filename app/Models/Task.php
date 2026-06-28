@@ -52,7 +52,8 @@ class Task extends Model
                     'emitted_by',
                     'is_template',
                     'is_signed',
-                    'is_monitored'
+                    'is_monitored',
+                    'doctype'
                 ])
                 ->toArray();
 
