@@ -34,7 +34,7 @@ class OamSemestralesTable
                     ->alignRight()
                     ->sortable(),
                 TextColumn::make('pratiche_intermediate')
-                    ->label('Intermedie')
+                    ->label('Intermediate')
                     ->numeric()  // Formatta automaticamente come € 1.234,56
                     ->alignRight()  // Allinea a destra per una lettura migliore
                     ->sortable(),
@@ -133,7 +133,7 @@ class OamSemestralesTable
                     ->label(false)
                     ->icon('heroicon-o-magnifying-glass-plus')
                     ->color('info')
-                    ->url(fn ($record) => OamPraticheResource::getUrl('index', [
+                    ->url(fn($record) => OamPraticheResource::getUrl('index', [
                         'filters' => [
                             // 'company_id' => ['value' => $record->company_id],
                             //  'period' => ['value' => $record->period],

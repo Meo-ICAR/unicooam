@@ -41,14 +41,16 @@ class BranchesRelationManager extends RelationManager
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Nome della filiale (es. Sede Milano, Ufficio Roma)')
+                    ->label('Filiale (es. Sede Milano, Ufficio Roma)')
                     ->required(),
                 Toggle::make('is_main_office')
                     ->label('Indica se è la Sede Legale/Operativa principale (1 = Sì, 0 = No)')
                     ->required(),
                 DateTimePicker::make('founded_at')
+                    ->displayFormat('d/m/Y')
                     ->label('Data di apertura della filiale'),
                 DateTimePicker::make('dismissed_at')
+                    ->displayFormat('d/m/Y')
                     ->label('Data dismissione della filiale'),
                 TextInput::make('address')
                     ->label('Via / Piazza'),

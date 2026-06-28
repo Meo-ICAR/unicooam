@@ -60,9 +60,9 @@ class FornitoresTable
                     ->label('OAM')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('isvass')
+                TextColumn::make('ivass')
                     ->label('IVASS')
-                    ->searchable()
+                    //  ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ivass_section')
                     ->label('Sez.')

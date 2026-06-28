@@ -12,10 +12,14 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 // use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
@@ -57,16 +61,16 @@ class EmployeesTable
                     ->label('Data cessazione')
                     ->date('d/m/Y')
                     ->sortable(),
-                TextColumn::make('numero_iscrizione_rui')
+                TextColumn::make('oam')
                     ->label('Cod. OAM')
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Indirizzo email')
                     ->searchable(),
-                TextColumn::make('coordinator.name')
-                    ->label('Coordinato da')
-                    ->searchable()
-                    ->placeholder('Nessun coordinatore'),
+                ToggleColumn::make('is_active')
+                    ->label('Attivo')
+                    //  ->boolean()
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('employee_types')
@@ -80,8 +84,8 @@ class EmployeesTable
                 TernaryFilter::make('is_active')
                     ->label('Stato')
                     ->queries(
-                        true: fn($query) => $query->whereNull('termination_date'),
-                        false: fn($query) => $query->whereNotNull('termination_date'),
+                        true: fn($query) => $query->where('is_active', true),
+                        false: fn($query) => $query->where('is_active', false),
                     )
                     ->placeholder('Tutti')
                     ->trueLabel('Solo Attivi')

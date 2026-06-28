@@ -23,26 +23,40 @@ use Filament\Tables\Table;
 class CompanyRolesRelationManager extends RelationManager
 {
     protected static string $relationship = 'companyRoles';
+    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $navigationLabel = 'Ruoli';
+    protected static ?string $title = 'Ruoli';
+    protected static ?string $modelLabel = 'Ruolo';
+    protected static ?string $pluralModelLabel = 'Ruoli';
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextInput::make('name'),
+                TextInput::make('name')
+                    ->label('Nome'),
                 Select::make('funzione')
+                    ->label('Funzione')
                     ->options([
-            'INTERNAL AUDIT' => 'I n t e r n a l a u d i t',
-            'COMPLIANCE' => 'C o m p l i a n c e',
-            'AML' => 'A m l',
-            'ALTRO' => 'A l t r o',
-        ]),
-                Toggle::make('is_external'),
-                DatePicker::make('dal'),
-                DatePicker::make('al'),
+                        'INTERNAL AUDIT' => 'Audit Interno',
+                        'COMPLIANCE' => 'Compliance',
+                        'DATA PROTECTION' => 'Protezione Dati',
+                        'AML' => 'AML',
+                        'ALTRO' => 'Altro',
+                    ]),
+                Toggle::make('is_external')
+                    ->label('Esterno'),
+                DatePicker::make('dal')
+                    ->label('Dal'),
+                DatePicker::make('al')
+                    ->label('Al'),
                 Select::make('execution_method')
-                    ->options(['documentale' => 'Documentale', '' => '', 'onsite' => 'Onsite']),
-                TextInput::make('expertName'),
+                    ->label('Metodo di esecuzione')
+                    ->options(['documentale' => 'Documentale', '' => '', 'onsite' => 'In loco']),
+                TextInput::make('expertName')
+                    ->label('Nome esperto'),
                 TextInput::make('n')
+                    ->label('Numero')
                     ->numeric(),
             ]);
     }
@@ -53,22 +67,30 @@ class CompanyRolesRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nome')
                     ->searchable(),
                 TextColumn::make('funzione')
+                    ->label('Funzione')
                     ->badge(),
                 IconColumn::make('is_external')
+                    ->label('Esterno')
                     ->boolean(),
                 TextColumn::make('dal')
+                    ->label('Dal')
                     ->date()
                     ->sortable(),
                 TextColumn::make('al')
+                    ->label('Al')
                     ->date()
                     ->sortable(),
                 TextColumn::make('execution_method')
+                    ->label('Metodo di esecuzione')
                     ->badge(),
                 TextColumn::make('expertName')
+                    ->label('Nome esperto')
                     ->searchable(),
                 TextColumn::make('n')
+                    ->label('Numero')
                     ->numeric()
                     ->sortable(),
             ])
@@ -77,16 +99,16 @@ class CompanyRolesRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make(),
-                AssociateAction::make(),
+                //  AssociateAction::make(),
             ])
             ->recordActions([
                 EditAction::make(),
-                DissociateAction::make(),
+                //    DissociateAction::make(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
+                    //  DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                 ]),
             ]);

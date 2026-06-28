@@ -43,11 +43,11 @@ class WebsitesRelationManager extends RelationManager
             ->components([
                 TextInput::make('domain')
                     ->label('Dominio')
-                    ->openUrlInNewTab()
                     ->url(fn($record) => $record->domain ? (str_starts_with($record->domain, 'http') ? $record->domain : "https://{$record->domain}") : null)
                     ->required(),
                 Select::make('type')
                     ->label('Tipologia')
+                    ->live()
                     ->placeholder('es. social per FB / Istagram, landing mandataria')
                     ->options([
                         'istituzionale' => 'Istituzionale',
@@ -59,7 +59,6 @@ class WebsitesRelationManager extends RelationManager
                     ]),
                 TextInput::make('url_transparency')
                     ->label('URL trasparenza')
-                    ->openUrlInNewTab()
                     ->visible(fn($get) => $get('type') === 'istituzionale')
                     ->url(fn($record) => $record->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
                 DatePicker::make('transparency_date')
@@ -97,13 +96,12 @@ class WebsitesRelationManager extends RelationManager
                     ->sortable()
                     ->boolean(),
                 TextColumn::make('url_transparency')
+                    ->visible(fn($record) => $record?->type === 'istituzionale')
                     ->label('URL trasparenza')
                     ->openUrlInNewTab()
                     ->url(fn($record) => $record->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
-                DatePicker::make('transparency_date')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('transparency_date')
+                    ->visible(fn($record) => $record?->type === 'istituzionale')
                     ->label('Trasparenza')
                     ->date('d/m/Y')
                     ->sortable(),

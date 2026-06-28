@@ -220,7 +220,7 @@ class EmployeeSeeder extends Seeder
                 'pec' => '',
                 'phone' => '06 99317742 ',
                 'department' => null,
-                'oam' => '2023-03-21',
+                'oam' => 'O625',
                 'oam_at' => '2023-03-21',
                 'oam_name' => 'MALPELI GERTRUDE',
                 'numero_iscrizione_rui' => 'E000726797',

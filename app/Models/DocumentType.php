@@ -80,21 +80,23 @@ class DocumentType extends Model
         'retention_years' => 'integer',
     ];
 
-    public function durationCalculate(Date $emittedAt): ?Date
+    public function durationCalculate(\Carbon\Carbon $emittedAt): ?\Carbon\Carbon
     {
         // Calcola la data di scadenza
-        if ($emittedAt) {
+        if (!$emittedAt) {
             return null;
         }
+
+        $expirationDate = $emittedAt->copy();
         switch ($this->duration_unit) {
-            case 'Days':
-                $expirationDate = $emittedAt->addDays($this->duration);
+            case 'days':
+                $expirationDate = $expirationDate->addDays($this->duration);
                 break;
-            case 'Months':
-                $expirationDate = $emittedAt->addMonths($this->duration);
+            case 'months':
+                $expirationDate = $expirationDate->addMonths($this->duration);
                 break;
-            case 'Years':
-                $expirationDate = $emittedAt->addYears($this->duration);
+            case 'years':
+                $expirationDate = $expirationDate->addYears($this->duration);
                 break;
             default:
                 $expirationDate = null;

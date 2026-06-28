@@ -70,8 +70,8 @@ class ClientiForm
                                             ->relationship(
                                                 name: 'oamCodes',
                                                 titleAttribute: 'tipo_prodotto',
-                                                //  modifyQueryUsing: fn(Builder $query) => $query
-                                                //    ->where('is_dummy', false)
+                                                modifyQueryUsing: fn(Builder $query) => $query
+                                                    ->where('is_dummy', false)
                                             )
                                             ->searchable()
                                             ->bulkToggleable()

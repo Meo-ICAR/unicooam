@@ -56,11 +56,11 @@ class ClientisTable
                     ->badge()  // Opzionale: racchiude il numero in un badge grafico molto pulito
                     ->color('primary'),
                 TextColumn::make('stipulated_at')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable()
                     ->label('Data di stipula'),
                 TextColumn::make('dismissed_at')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable()
                     ->label('Data di revoca'),
             ])

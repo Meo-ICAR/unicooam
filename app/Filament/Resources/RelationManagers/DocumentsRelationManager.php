@@ -18,12 +18,15 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
@@ -70,7 +73,7 @@ class DocumentsRelationManager extends RelationManager
                         ->live(),
                     DatePicker::make('emitted_at')
                         ->label('Data emissione')
-                        //    ->visible(fn($get) => $get('is_monitored'))
+                        ->visible(fn($get) => $get('is_monitored'))
                         ->displayFormat('d/m/Y'),
                     DatePicker::make('expires_at')
                         ->label('Data scadenza')
@@ -124,15 +127,15 @@ class DocumentsRelationManager extends RelationManager
                 TextColumn::make('emitted_at')
                     ->label('Emissione')
                     ->date('d/m/Y')
-                    //   ->visible(fn($record) => $record->is_monitored),
+                    ->visible(fn($record) => $record?->is_monitored)
                     ->sortable(),
                 TextColumn::make('expires_at')
                     ->label('Scadenza')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->visible(fn($record) => $record->is_monitored)
-                    ->color(fn($record) => $record->expires_at?->isPast() ? 'danger' : 'gray')
-                    ->weight(fn($record) => $record->expires_at?->isPast() ? 'bold' : 'normal'),
+                    ->visible(fn($record) => $record?->is_monitored ?? false)
+                    ->color(fn($record) => $record?->expires_at?->isPast() ? 'danger' : 'gray')
+                    ->weight(fn($record) => $record?->expires_at?->isPast() ? 'bold' : 'normal'),
                 IconColumn::make('is_signed')
                     ->label('Firmato')
                     ->boolean()
@@ -158,8 +161,19 @@ class DocumentsRelationManager extends RelationManager
                     ->preload(),
                 SelectFilter::make('status')
                     ->label('Stato')
+                    ->multiple()
                     ->options(DocumentStatus::class),
-                TrashedFilter::make(),
+                Filter::make('is_monitored')
+                    ->label('Monitorato')
+                    ->query(fn($query) => $query->where('is_monitored', true)),
+                TernaryFilter::make('is_expired')
+                    ->label('Scaduto')
+                    ->default(false)
+                    ->queries(
+                        true: fn($query) => $query->where('status', DocumentStatus::EXPIRED->value),
+                        false: fn($query) => $query->where('status', '!=', DocumentStatus::EXPIRED->value),
+                    ),
+                // TrashedFilter::make(),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -181,9 +195,6 @@ class DocumentsRelationManager extends RelationManager
                     //    ->visible(fn(Document $record) => $record->documentType->is_monitored)
                     ->action(function (Document $record) {
                         // 1. Archiviamo il documento attuale (opzionale, dipende dal tuo DB)
-                        $record->update([
-                            'status' => 'expired',  // o 'archived'
-                        ]);
 
                         // 2. Creiamo il nuovo documento per il rinnovo
                         $newDocument = Document::create([
@@ -193,13 +204,18 @@ class DocumentsRelationManager extends RelationManager
                             'document_type_id' => $record->document_type_id,
                             'name' => $record->name,
                             'status' => 'pending',  // Torna in attesa del nuovo file
-                            'is_monitored' => true,
-                            'expires_at' => null,  // Verrà inserita la nuova scadenza al caricamento
+                            'is_monitored' => $record->is_monitored,
+                            'emitted_at' => $record->expires_at,
+                            //  'expires_at' => null,
+                            // Verrà inserita la nuova
+                            //  scadenza al caricamento
                         ]);
-
+                        $record->update([
+                            'status' => 'expired',  // o 'archived'
+                        ]);
                         Notification::make()
-                            ->title('Rinnovo avviato')
-                            ->body("È stata creata una nuova richiesta di rinnovo per \"{$record->name}\".")
+                            ->title('Aggiornamento effettuato')
+                            ->body("Nuovo aggiornamento per \"{$record->name}\".")
                             ->success()
                             ->send();
                     }),

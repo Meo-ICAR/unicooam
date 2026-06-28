@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Pivot;
+use Illuminate\Support\Facades\Log;
 
 class Task extends Model
 {
@@ -43,56 +44,33 @@ class Task extends Model
 
         // Clicliamo sui documentTypes già caricati in memoria
         foreach ($this->documentTypes as $documentType) {
-            // 1. Converte il modello in array ed esclude chiavi primarie, globali ed identificativi univoci
-            foreach ($this->documentTypes as $documentType) {
-                // 1. Estraiamo SOLO i campi del template che la tabella 'documents' è in grado di accogliere
-                $templateData = collect($documentType->toArray())
-                    ->only([
-                        'name',
-                        'description',
-                        'training_hours',
-                        'training_organization',
-                        'emitted_by',
-                        'is_template',
-                        'is_signed',
-                    ])
-                    ->toArray();
+            // 1. Estraiamo SOLO i campi del template che la tabella 'documents' è in grado di accogliere
+            $templateData = collect($documentType->toArray())
+                ->only([
+                    'name',
+                    'description',
+                    'emitted_by',
+                    'is_template',
+                    'is_signed',
+                    'is_monitored'
+                ])
+                ->toArray();
 
-                // 2. Gestiamo la colonna della fine mese (is_endmonth -> is_endMonth)
-                if (isset($documentType->is_endmonth)) {
-                    $templateData['is_endMonth'] = (bool) $documentType->is_endmonth;
-                }
-
-                if ($is_debug && isset($documentType->is_monitored)) {
-                    //   $templateData['is_monitored'] = (bool) $documentType->is_monitored;
-                    $templateData['expires_at'] = now()->addDays(rand(1, 90))->subDays(10);
-                }
-
-                // 3. Uniamo lo stato iniziale richiesto
-                $creationData = array_merge($templateData, [
-                    'status' => 'pending',
-                ]);
-
-                // 4. Eseguiamo il firstOrCreate in sicurezza
-                $document = Document::firstOrCreate(
-                    [
-                        'company_id' => $companyId,
-                        'documentable_type' => $this->taskable,
-                        'documentable_id' => $documentableId,
-                        'document_type_id' => $documentType->id,
-                    ],
-                    $creationData
-                );
+            $emesso = now()->subDays(rand(3, 90));
+            $templateData['emitted_at'] = $emesso;
+            // 2. Set emitted_at for monitored documents
+            if ($documentType->is_monitored) {
+                $scade = $documentType->durationCalculate($emesso);
+                $templateData['expires_at'] = $scade;
+                Log::info($templateData['emitted_at'] . ' ' . $emesso . ' - Expires at: ' . $scade);
             }
 
-            // 2. Correzione per il mapping di is_endmonth (da snake_case della sorgente a camelCase della destinazione)
-
-            // 3. Unisce i dati estratti con i valori di stato predefiniti
+            // 3. Uniamo lo stato iniziale richiesto
             $creationData = array_merge($templateData, [
                 'status' => 'pending',
             ]);
 
-            // 4. Esegue il firstOrCreate usando le chiavi polimorfiche corrette
+            // 4. Eseguiamo il firstOrCreate in sicurezza
             $document = Document::firstOrCreate(
                 [
                     'company_id' => $companyId,
