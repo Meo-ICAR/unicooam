@@ -105,7 +105,7 @@ class AuditForm
                                 ->label('Metodo di Esecuzione')
                                 ->options([
                                     'documentale' => 'Documentale / Da Remoto',
-                                    'in_loco' => 'In Loco (Ispezione in filiale)',
+                                    'onsite' => 'On Site (Ispezione in filiale)',
                                     'intervista' => 'Intervista',
                                 ])
                                 ->required()

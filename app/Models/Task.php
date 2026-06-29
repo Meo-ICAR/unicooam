@@ -57,15 +57,15 @@ class Task extends Model
                 ])
                 ->toArray();
 
-            $emesso = now()->subDays(rand(3, 90));
-            $templateData['emitted_at'] = $emesso;
-            // 2. Set emitted_at for monitored documents
-            if ($documentType->is_monitored) {
-                $scade = $documentType->durationCalculate($emesso);
-                $templateData['expires_at'] = $scade;
-                Log::info($templateData['emitted_at'] . ' ' . $emesso . ' - Expires at: ' . $scade);
+            if ($is_debug) {
+                $emesso = now()->subDays(rand(3, 400));
+                $templateData['emitted_at'] = $emesso;
+                // 2. Set emitted_at for monitored documents
+                if ($documentType->is_monitored) {
+                    $scade = $documentType->durationCalculate($emesso);
+                    $templateData['expires_at'] = $scade;
+                }
             }
-
             // 3. Uniamo lo stato iniziale richiesto
             $creationData = array_merge($templateData, [
                 'status' => 'pending',
