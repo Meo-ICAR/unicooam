@@ -39,6 +39,16 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            // Se l'utente in fase di creazione non ha una password impostata (es. tramite Socialite)
+            if (empty($user->password)) {
+                $user->password = Hash::make('password');
+            }
+        });
+    }
+
     /**
      * Autorizza l'accesso al pannello Filament.
      * Tutti gli utenti registrati possono accedere.
