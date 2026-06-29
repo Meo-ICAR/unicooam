@@ -4,6 +4,7 @@ namespace App\Filament\Resources\DocumentTypes\Schemas;
 
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -46,6 +47,9 @@ class DocumentTypeForm
                     ]),
                 Section::make('File Allegato')
                     ->components([
+                        TextInput::make('document_url')
+                            ->label('URL documento')
+                            ->url(fn($record) => $record->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
                         SpatieMediaLibraryFileUpload::make('attachments')
                             ->label('Carica file (PDF, immagini, Word)')
                             ->multiple()

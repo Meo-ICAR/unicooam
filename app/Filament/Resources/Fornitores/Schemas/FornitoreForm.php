@@ -26,6 +26,9 @@ class FornitoreForm
                             TextInput::make('nome')
                                 ->label('Ragione Sociale')
                                 ->maxLength(255),
+                            TextInput::make('piva')
+                                ->label('Partita IVA')
+                                ->maxLength(20),
                             DatePicker::make('available_at')
                                 ->label('Data Disponibilità')
                                 ->displayFormat('d/m/Y'),
@@ -39,9 +42,6 @@ class FornitoreForm
                             DatePicker::make('dismissed_at')
                                 ->label('Data Cessazione')
                                 ->displayFormat('d/m/Y'),
-                            TextInput::make('piva')
-                                ->label('Partita IVA')
-                                ->maxLength(20),
                             TextInput::make('cf')
                                 ->label('Codice Fiscale')
                                 ->maxLength(16),

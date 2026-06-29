@@ -75,6 +75,7 @@ class EmployeesTable
             ->filters([
                 SelectFilter::make('employee_types')
                     ->label('Ruolo')
+                    ->default('dipendente')
                     ->options([
                         'dipendente' => 'Dipendente',
                         'cda' => 'CdA',

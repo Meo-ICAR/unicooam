@@ -27,9 +27,9 @@ class OamCodeResource extends Resource
 
     protected static ?string $navigationLabel = 'Convenzioni';
 
-    protected static ?string $modelLabel = 'Prodotto';
+    protected static ?string $modelLabel = 'Convenzione';
 
-    protected static ?string $pluralModelLabel = 'Prodotti';
+    protected static ?string $pluralModelLabel = 'Convenzioni';
 
     protected static ?int $navigationSort = 6;
 
