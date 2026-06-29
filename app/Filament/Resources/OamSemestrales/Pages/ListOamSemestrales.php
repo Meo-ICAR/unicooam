@@ -81,7 +81,7 @@ class ListOamSemestrales extends ListRecords
                 ->label('Anagrafica')
                 ->icon('heroicon-o-table-cells')
                 ->color('success')  // Colore verde per indicare che è uno strumento di debug
-                ->action(function (): BinaryFileResponse {
+                ->action(function () use ($azienda, $dipendenti, $fornitori): BinaryFileResponse {
                     // 1. Recuperiamo la prima azienda disponibile nel database per i dati reali
 
                     // 2. Prepariamo il set di dati richiesto dal costruttore di M510AnagraficaSheet

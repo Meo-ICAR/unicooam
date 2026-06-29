@@ -17,6 +17,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;  // Importante per il form nel modal
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -31,6 +32,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 // use Illuminate\Support\Collection;
+use App\Models\EmailTemplate;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 use BackedEnum;
 use UnitEnum;
@@ -197,21 +201,6 @@ class DocumentScheduleResource extends Resource
                             ->success()
                             ->send();
                     }),
-
-                /*
-                 * Action::make('inviaSollecitiProgrammati')
-                 *     ->label('Invia solleciti programmati')
-                 *     ->icon(Heroicon::OutlinedPaperAirplane)
-                 *     ->requiresConfirmation()
-                 *     ->action(function (): void {
-                 *         $stats = app(DocumentReminderService::class)->sendReminders(onlyDueToday: true);
-                 *         Notification::make()
-                 *             ->title('Solleciti programmati inviati')
-                 *             ->body("Email inviate: {$stats['sent']}")
-                 *             ->success()
-                 *             ->send();
-                 *     }),
-                 */
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -220,12 +209,33 @@ class DocumentScheduleResource extends Resource
                         ->icon('heroicon-o-envelope')
                         ->requiresConfirmation()
                         ->color('warning')
-                        ->action(function (Collection $records): void {
+                        ->form([
+                            Select::make('email_template_id')
+                                ->label('Template Email')
+                                ->options(EmailTemplate::where('is_active', true)->pluck('name', 'id'))
+                                ->searchable()
+                                ->preload()
+                                ->required(),
+                            TextInput::make('custom_message')
+                                ->label('Messaggio personalizzato')
+                                ->placeholder("Inserisci un messaggio personalizzato da inviare con l'email")
+                                ->visible(fn(callable $get) => $get('email_template_id') === null),
+                            Toggle::make('is_demo')
+                                ->helperText("Se attivato, invia l'email di sollecito a te stesso invece di inviarla ai destinatari")
+                                ->default(true)
+                                ->label('Invio in modalità demo (nessuna email vera verrà inviata)')
+                                ->visible(fn(callable $get) => $get('email_template_id') === null),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $emailTemplate = EmailTemplate::find($data['email_template_id']);
+                            $emailUser = auth()->user()->email;
+
                             $sentCount = 0;
                             $nrecipients = 0;
                             $erroreIsCompany = false;
 
                             $recipient = null;
+                            $documentNames = [];
                             foreach ($records as $record) {
                                 $document = Document::find($record->document_id);
                                 if (!$document)
@@ -235,28 +245,40 @@ class DocumentScheduleResource extends Resource
                                     continue;
                                 }
 
+                                $documentNames[] = $document->name;
                                 // Tua logica di invio reale qui...
                                 $record->increment('reminders_count', 1);
                                 $record->update(['last_sent_at' => now()]);
                                 $sentCount++;
+
                                 $email = $record->entity?->email;
                                 if (!$email)
                                     continue;
 
                                 if ($recipient <> $email) {
+                                    // Invia i documenti raccolti
+                                    $subject = $emailTemplate ? $emailTemplate->subject : 'Sollecito';
+                                    $body = $emailTemplate ? $emailTemplate->body : 'Devi inviare n. ' . count($documentNames) . ' documenti' . "\n" . implode("\n", $documentNames);
+                                    if ($data['is_demo']) {
+                                        $emailUser = $emailUser ?? auth()->user()->email;
+                                        mail($emailUser, $subject, $body);
+                                    } else {
+                                        mail($email, $subject, $body);
+                                    }
                                     $nrecipients++;
                                     $recipient = $email;
+                                    $documentNames = [];
                                 }
                             }
 
                             Notification::make()
                                 ->title("Inviati a {$nrecipients} destinatari {$sentCount} solleciti")
-                                ->success()
+                                ->color('success')
                                 ->send();
                             if ($erroreIsCompany) {
                                 Notification::make()
                                     ->title('Alcuni documenti non sono stati inviati perché non sono associati ad un produttore')
-                                    ->alert()
+                                    ->color('warning')
                                     ->send();
                             }
                         }),

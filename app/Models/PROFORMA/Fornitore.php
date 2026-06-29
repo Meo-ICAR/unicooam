@@ -9,6 +9,7 @@ use App\Models\Document;
 use App\Models\TrainingRecord;
 use App\Models\Website;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -58,6 +59,7 @@ class Fornitore extends Model
         'regione',
         'citta',
         'company_id',
+        'branch_id',
         'contributoperiodicita',
         'contributodalmese'
     ];
@@ -112,5 +114,10 @@ class Fornitore extends Model
     public function branches()
     {
         return $this->morphMany(Branch::class, 'branchable');
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
     }
 }

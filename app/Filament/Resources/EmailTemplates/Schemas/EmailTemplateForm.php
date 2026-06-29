@@ -25,6 +25,7 @@ class EmailTemplateForm
                 Textarea::make('body')
                     ->label('Corpo email')
                     ->required()
+                    ->rows(10)
                     ->columnSpanFull(),
                 TextInput::make('placeholders')
                     ->label('Segnaposto disponibili'),

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Fornitores\Schemas;
 
+use App\Models\Branch;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -62,6 +63,12 @@ class FornitoreForm
                                 ->disabled(fn($get) => $get('email') === null)
                                 ->email()
                                 ->maxLength(255),
+                            Select::make('branch_id')
+                                ->label('Filiale')
+                                ->relationship('branch', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->nullable(),
                         ]),
                     ])
                     ->collapsed()
