@@ -33,6 +33,21 @@ class DatabaseSeeder extends Seeder
                 'email' => 'mario@globaladvisory.it',
                 //  'is_super_admin' => false,
             ],
+            [
+                'name' => 'Roberto Perna',
+                'email' => 'segreteria@races.it',
+                //  'is_super_admin' => false,
+            ],
+            [
+                'name' => 'Michele Ferri',
+                'email' => 'avvferrimichele@gmail.com',
+                //  'is_super_admin' => false,
+            ],
+            [
+                'name' => 'Framcesco Maiello',
+                'email' => 'avvocatofrancescomaiello@gmail.com',
+                //  'is_super_admin' => false,
+            ],
         ];
 
         foreach ($users as $userData) {
