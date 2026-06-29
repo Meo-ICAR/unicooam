@@ -48,31 +48,38 @@ class ListOamSemestrales extends ListRecords
         $fornitori = Fornitore::where('is_active', true);
         $reclami = ComplaintRegistry::count();  // $oams->sum('reclami');
         $sars = SuspiciousActivityReport::count();
+
         $compliance_doc = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'documentale')->count();
         $compliance_onsite = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'onsite')->count();
+        $externalRoles = CompanyRole::where('is_external', true)->distinct('funzione')->get();
+
         $audit_doc = Audit::where('company_id', $azienda->id)->count();
         $audit_onsite = Audit::where('company_id', $azienda->id)->count();
 
         $websites = Website::where('is_active', true);
         $website_trasparenza = $websites->where('type', 'istituzionale')->first()->transparency_date;
 
-        $companyDocuments = Document::where('documentable_type', 'company');
-
-        $requisiti_organizzativi = $companyDocuments->whereHas('documentType', function ($query) {
+        $procedures = Document::where('documentable_type', 'company')
+            ->where('doctype', '=', 'procedura')
+            ->orderBy('emitted_at', 'desc')
+            ->get()
+            ->map(function ($doc) {
+                $data = $doc->emitted_at ? date('d/m/Y', strtotime($doc->emitted_at)) : 'N/D';
+                return "[{$data}] " . ($doc->name ?? $doc->title);
+            })
+            ->toArray();
+        $requisiti_organizzativi = Document::where('documentable_type', 'company')->whereHas('documentType', function ($query) {
             $query->where('slug', 'requisiti-organizzativi');
         })->orderBy('emitted_at', 'desc')->first();
-
-        $procedures = $companyDocuments->where('doctype', 'procedura')->orderBy('emitted_at', 'desc')->get();
-        $moduli = $companyDocuments->where('doctype', 'modulo')->orderBy('emitted_at', 'desc')->get();
-        $externalRoles = CompanyRole::where('is_external', true)->distinct('funzione')->get();
+        $moduli = Document::where('documentable_type', 'company')->where('doctype', '=', 'modulo')->orderBy('emitted_at', 'desc')->get();
 
         return [
             ImportOamAction::make()
                 ->icon(Heroicon::OutlinedArrowPath)
                 ->color('info'),
             Action::make('debugAnagrafica')
-                ->label('OAM Anagrafica')
-                ->icon('heroicon-o-bug-ant')
+                ->label('Anagrafica')
+                ->icon('heroicon-o-table-cells')
                 ->color('success')  // Colore verde per indicare che è uno strumento di debug
                 ->action(function (): BinaryFileResponse {
                     // 1. Recuperiamo la prima azienda disponibile nel database per i dati reali
@@ -97,25 +104,20 @@ class ListOamSemestrales extends ListRecords
                     );
                 }),
             Action::make('debugEconomicoBase')
-                ->label('OAM 1-Economico')
-                ->icon('heroicon-o-bug-ant')
+                ->label('1-Economico')
+                ->icon('heroicon-o-table-cells')
                 ->color('secondary')
-                ->action(function (): BinaryFileResponse {
+                ->action(function () use ($datiProdotti): BinaryFileResponse {
                     return Excel::download(
                         new M510EconomicoBaseSheet($datiProdotti),
                         'DEBUG_M510_Economico_Base.xlsx'
                     );
                 }),
             Action::make('debugPrudenziale')
-                ->label('OAM 3-Prudenziale')
-                ->icon('heroicon-o-bug-ant')
+                ->label('3-Prudenziale')
+                ->icon('heroicon-o-table-cells')
                 ->color('warning')  // Colore arancione per distinguerlo
-                ->action(function (): BinaryFileResponse {
-                    // 1. Prepariamo un set di dati fittizi strutturato esattamente come se
-                    // fosse stato estratto dal database dalla classe Master OamSemestraleExport
-
-                    // 1. Eseguiamo la query reale sulla tabella `audits` inserita nel prompt
-                    // (In produzione filtrerai per company_id corrente o per data del semestre)
+                ->action(function () use ($azienda, $provvigioni_assicurative, $reclami, $sars, $compliance_onsite, $audit_onsite, $compliance_doc, $audit_doc): BinaryFileResponse {
                     $auditsRegistrati = Audit::get();
 
                     $rilievi_lista = [];
@@ -162,22 +164,23 @@ class ListOamSemestrales extends ListRecords
                     );
                 }),
             Action::make('debugInformativo')
-                ->label('OAM 4-Informativo')
-                ->icon('heroicon-o-bug-ant')
+                ->label('4-Informativo')
+                ->icon('heroicon-o-table-cells')
                 ->color('info')
-                ->action(function (): BinaryFileResponse {
+                ->action(function () use ($websites, $website_trasparenza, $requisiti_organizzativi, $procedures, $moduli, $externalRoles): BinaryFileResponse {
                     // Struttura dati fittizia ricavata dall'immagine
+
                     $datiTestInformativo = [
                         'numero_siti' => $websites->count(),
                         'siti' => $websites->pluck('domain')->toArray(),
                         'data_trasparenza' => $website_trasparenza,
                         'data_relazione_requisiti' => $requisiti_organizzativi ? date('d/m/Y', strtotime($requisiti_organizzativi->emitted_at)) : 'N/A',
-                        'procedure' => $procedures->pluck('name')->toArray(),
+                        'procedure' => $procedures,
                         'moduli' => $moduli->pluck('name')->toArray(),
                         'modulistica_a' => $moduli->pluck('emitted_at')->map(function ($date) {
                             return date('d/m/Y', strtotime($date));
                         })->toArray(),
-                        'funzioni_esternalizzate' => $externalRoles->pluck('funzione')->toArray(),
+                        'funzioni_esternalizzate' => $externalRoles->pluck('funzione')->unique()->values()->toArray(),
                     ];
 
                     return Excel::download(
@@ -186,8 +189,8 @@ class ListOamSemestrales extends ListRecords
                     );
                 }),
             Action::make('debugSedi')
-                ->label('OAM 5-Sedi')
-                ->icon('heroicon-o-bug-ant')
+                ->label('5-Sedi')
+                ->icon('heroicon-o-table-cells')
                 ->color('success')
                 ->action(function () use ($azienda): BinaryFileResponse {
                     $branches_lista = [];

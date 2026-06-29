@@ -88,20 +88,20 @@ class M510InformativoSheet implements FromArray, WithTitle, WithEvents
             [
                 'MPI7',
                 'DATA ULTIMO AGGIORNAMENTO DELLA MODULISTICA',
-                'CONTRATTO DI MEDIAZIONE',
-                'FOGLIO INFORMATIVO',
-                'MODULO PRIVACY',
-                'MODULO AML',
+                $this->dati['moduli'][0] ?? '',
+                $this->dati['moduli'][1] ?? '',
+                $this->dati['moduli'][2] ?? '',
+                $this->dati['moduli'][3] ?? '',
                 ''
             ],
             // RIGA 10: MPI7-A Valori Modulistica
             [
                 '',
                 'MPI7-A',
-                $this->dati['modulistica_a']['mediazione'] ?? '',
-                $this->dati['modulistica_a']['informativo'] ?? '',
-                $this->dati['modulistica_a']['privacy'] ?? '',
-                $this->dati['modulistica_a']['aml'] ?? '',
+                $this->dati['modulistica_a'][0] ?? '',
+                $this->dati['modulistica_a'][1] ?? '',
+                $this->dati['modulistica_a'][2] ?? '',
+                $this->dati['modulistica_a'][3] ?? '',
                 ''
             ],
         ];
