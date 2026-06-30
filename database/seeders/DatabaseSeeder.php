@@ -39,6 +39,11 @@ class DatabaseSeeder extends Seeder
                 //  'is_super_admin' => false,
             ],
             [
+                'name' => 'Eustachio Allegretti',
+                'email' => 'eustachio.allegretti@races.it',
+                //  'is_super_admin' => false,
+            ],
+            [
                 'name' => 'Michele Ferri',
                 'email' => 'avvferrimichele@gmail.com',
                 //  'is_super_admin' => false,

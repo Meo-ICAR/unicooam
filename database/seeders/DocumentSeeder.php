@@ -37,7 +37,7 @@ class DocumentSeeder extends Seeder
             // Caso FORNITORE: cicliamo sui fornitori e passiamo l'id del singolo fornitore
             if ($task->taskable === 'fornitore') {
                 foreach ($fornitori as $fornitore) {
-                    if (getAvailableFor($fornitore)->contains($task)) {
+                    if ($task->getAvailableFor($fornitore)->contains($task)) {
                         $createdCount += $task->createDocumentation($company_id, $fornitore->id, true);
                     }
                 }
@@ -46,7 +46,7 @@ class DocumentSeeder extends Seeder
             // Caso DIPENDENTE: cicliamo sui dipendenti e passiamo l'id del singolo dipendente
             if (($task->taskable === 'employee')) {
                 foreach ($employees as $employee) {
-                    if (getAvailableFor($employee)->contains($task)) {
+                    if ($task->getAvailableFor($employee)->contains($task)) {
                         $createdCount += $task->createDocumentation($company_id, $employee->id, true);
                     }
                 }
