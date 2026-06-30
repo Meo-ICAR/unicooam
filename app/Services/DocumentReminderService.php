@@ -27,7 +27,8 @@ class DocumentReminderService
         $until = now()->addDays($windowDays)->toDateString();
 
         return Document::query()
-            ->with(['documentType', 'documentable', 'company'])
+            //  ->with(['documentType', 'documentable', 'company'])
+            ->where('is_monitored', true)
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', $until)
             ->whereNotIn('status', [
