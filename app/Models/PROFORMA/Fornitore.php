@@ -156,7 +156,7 @@ class Fornitore extends Model
     public static function getFornitoreNomeByName(string $name): ?string
     {
         $cliente = static::where('name', $name)->first();
-        $nome = $cliente->nome;
+        $nome = $cliente?->nome;
 
         return $nome;
     }

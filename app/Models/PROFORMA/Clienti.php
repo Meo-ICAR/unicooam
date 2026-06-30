@@ -162,12 +162,15 @@ class Clienti extends Model
     public static function getClienteNomeByName(string $name): ?string
     {
         $cliente = static::where('name', $name)->first();
+        if (!$cliente) {
+            return null;
+        }
         $nome = $cliente->nome;
-        if ($cliente && $cliente->piva && $cliente->is_dummy) {
+        if ($cliente->piva && $cliente->is_dummy) {
             $clientex = static::where('piva', $cliente->piva)
                 ->where('is_dummy', false)
                 ->first();
-            $nome = $clientex->nome;
+            $nome = $clientex?->nome;
         }
 
         return $nome;
