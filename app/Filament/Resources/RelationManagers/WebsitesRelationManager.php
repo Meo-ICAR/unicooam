@@ -22,6 +22,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -43,8 +44,14 @@ class WebsitesRelationManager extends RelationManager
             ->components([
                 TextInput::make('domain')
                     ->label('Dominio')
-                    ->url(fn($record) => $record->domain ? (str_starts_with($record->domain, 'http') ? $record->domain : "https://{$record->domain}") : null)
+                    ->url(fn($record) => $record?->domain ? (str_starts_with($record->domain, 'http') ? $record->domain : "https://{$record->domain}") : null)
                     ->required(),
+                ToggleColumn::make('is_active')
+                    ->default(true)
+                    //   ->boolean()
+                    //   ->trueIcon('heroicon-o-check-circle')
+                    //   ->falseIcon('heroicon-o-x-circle')
+                    ->label('Attivo'),
                 Select::make('type')
                     ->label('Tipologia')
                     ->live()
@@ -60,7 +67,7 @@ class WebsitesRelationManager extends RelationManager
                 TextInput::make('url_transparency')
                     ->label('URL trasparenza')
                     ->visible(fn($get) => $get('type') === 'istituzionale')
-                    ->url(fn($record) => $record->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
+                    ->url(fn($record) => $record?->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
                 DatePicker::make('transparency_date')
                     ->label('Data trasparenza')
                     ->visible(fn($get) => $get('type') === 'istituzionale')
