@@ -4,6 +4,9 @@ namespace App\Filament\Resources\Audits\Tables;
 
 use App\Enums\AuditStatus;
 use App\Filament\Exports\DynamicGroupExport;
+use App\Models\PROFORMA\Fornitore;
+use App\Models\Company;
+use App\Models\Employee;
 use App\Models\Task;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -38,13 +41,13 @@ class AuditsTable
                     ->label('Soggetto Controllato')
                     ->state(fn($record) => $record->auditable?->full_name ?? $record->auditable?->name ?? 'N/D')
                     ->description(fn($record) => match ($record->auditable_type) {
-                        'App\Models\Agent' => 'Collaboratore / Agente',
-                        'App\Models\Employee' => 'Impiegato Interno',
-                        default => str_replace('App\\Models\\', '', $record->auditable_type),
+                        'fornitore' => 'Collaboratore / Agente',
+                        'employee' => 'Impiegato Interno',
+                        default => 'fornitore',
                     })
                     ->searchable(query: function ($query, string $search) {
                         // Permette di cercare nella tabella per nome/cognome del polimorfico
-                        $query->whereHasMorph('auditable', ['App\Models\Agent', 'App\Models\Employee'], function ($q) use ($search) {
+                        $query->whereHasMorph('auditable', ['fornitore', 'employee'], function ($q) use ($search) {
                             $q
                                 ->where('full_name', 'like', "%{$search}%")
                                 ->orWhere('name', 'like', "%{$search}%");
@@ -171,20 +174,71 @@ class AuditsTable
             ])
             ->recordActions([
                 EditAction::make(),
-                Action::make('createtask')
-                    ->label('Crea plico')
-                    ->icon('heroicon-o-document-plus')
-                    ->form([
-                        Select::make('task_id')
-                            ->label('Seleziona il Task')
-                            ->options(fn($record) => Task::getAvailableFor($record)->pluck('name', 'id'))
-                            ->searchable()
-                            ->required(),
-                    ])
             ])
             // FIX CRITICO: Spostate le azioni di massa dentro bulkActions() invece di toolbarActions()
             ->bulkActions([
                 BulkActionGroup::make([
+                    BulkAction::make('createDocumentationForDipendente')
+                        ->label('Aggiungi plico documentazione')
+                        ->icon('heroicon-o-document-plus')
+                        ->requiresConfirmation()
+                        // 1. Definiamo il form all'interno del Modal della Bulk Action
+                        ->form([
+                            Select::make('task_id')
+                                ->label('Seleziona il Task')
+                                ->options(fn() => Task::where('taskable', 'audit')->pluck('name', 'id'))
+                                ->searchable()
+                                ->required(),
+                        ])
+                        // 2. Elaboriamo l'azione recuperando i dati compilati nel form ($data)
+                        ->action(function (Collection $records, array $data) {
+                            // Recuperiamo l'azienda principale
+                            $company = Company::first();
+
+                            if (!$company) {
+                                Notification::make()
+                                    ->title('Errore')
+                                    ->body('Nessuna azienda trovata nel sistema.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            // Recuperiamo il SINGOLO task selezionato dall'utente nel form
+                            $task = Task::with('documentTypes')->find($data['task_id']);
+
+                            if (!$task) {
+                                Notification::make()
+                                    ->title('Errore')
+                                    ->body('Task non trovato.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            $company_id = $company->id;
+                            $createdCount = 0;
+
+                            // 3. Cicliamo SOLO sui fornitori selezionati per questo specifico task
+                            foreach ($records as $fornitore) {
+                                $createdCount += $task->createDocumentation($company_id, $fornitore->id);
+                            }
+
+                            // 4. Notifica finale
+                            if ($createdCount > 0) {
+                                Notification::make()
+                                    ->title('Documentazione generata')
+                                    ->body("Creati con successo {$createdCount} nuovi documenti per il task \"{$task->name}\".")
+                                    ->success()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('Tutto aggiornato')
+                                    ->body('I documenti per questo task erano già tutti presenti per i fornitori selezionati.')
+                                    ->info()
+                                    ->send();
+                            }
+                        }),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),

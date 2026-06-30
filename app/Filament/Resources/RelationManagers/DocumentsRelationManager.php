@@ -109,7 +109,7 @@ class DocumentsRelationManager extends RelationManager
                 ->components([
                     TextInput::make('document_url')
                         ->label('URL documento')
-                        ->url(fn($record) => $record->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
+                        ->url(fn($record) => $record?->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
                     SpatieMediaLibraryFileUpload::make('attachments')
                         ->label('Carica file (PDF, immagini, Word)')
                         ->multiple()

@@ -4,14 +4,17 @@ namespace App\Filament\Resources\Employees\Tables;
 
 // use App\Filament\Traits\CanExportTable;
 use App\Filament\Exports\DynamicGroupExport;
+use App\Models\Company;
+use App\Models\Task;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 // use App\Models\Rui;
 use App\Models\BPM\Employee;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 // use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Components\FileUpload;
+// use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
@@ -23,8 +26,6 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
-
-// use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeesTable
 {
@@ -99,7 +100,7 @@ class EmployeesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    BulkAction::make('createDocumentationForFornitori')
+                    BulkAction::make('createDocumentationForDipendente')
                         ->label('Aggiungi plico documentazione')
                         ->icon('heroicon-o-document-plus')
                         ->requiresConfirmation()
@@ -107,7 +108,7 @@ class EmployeesTable
                         ->form([
                             Select::make('task_id')
                                 ->label('Seleziona il Task')
-                                ->options(fn() => Task::where('taskable', 'dipendente')->pluck('name', 'id'))
+                                ->options(fn() => Task::where('taskable', 'employee')->pluck('name', 'id'))
                                 ->searchable()
                                 ->required(),
                         ])
