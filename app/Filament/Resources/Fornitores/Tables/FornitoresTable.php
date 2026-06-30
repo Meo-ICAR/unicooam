@@ -46,12 +46,20 @@ class FornitoresTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
+                ToggleColumn::make('is_active')
+                    ->label('Attivo')
+                    //  ->boolean()
+                    ->sortable(),
                 TextColumn::make('piva')
                     ->label('P. IVA')
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('stipulated_at')
                     ->label('Mandato')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                TextColumn::make('oam_at')
+                    ->label('Data OAM')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('dismissed_at')
@@ -66,23 +74,11 @@ class FornitoresTable
                     ->label('PEC')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('oam')
-                    ->label('OAM')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ivass')
                     ->label('IVASS')
                     //  ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('ivass_section')
-                    ->label('Sez.')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 // STATO E INQUADRAMENTO
-                ToggleColumn::make('is_active')
-                    ->label('Attivo')
-                    //  ->boolean()
-                    ->sortable(),
                 ToggleColumn::make('isdipendente')
                     ->label('Dipendente')
                     //     ->boolean()

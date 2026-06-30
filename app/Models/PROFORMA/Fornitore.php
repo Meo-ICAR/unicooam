@@ -8,6 +8,7 @@ use App\Models\ComplaintRegistry;
 use App\Models\Document;
 use App\Models\TrainingRecord;
 use App\Models\Website;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -17,7 +18,7 @@ use Illuminate\Support\Str;
 
 class Fornitore extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes;
 
     protected $connection = 'mysql_proforma';
     protected $table = 'fornitoris';

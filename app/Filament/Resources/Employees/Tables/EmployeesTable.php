@@ -53,24 +53,25 @@ class EmployeesTable
                     ->label('Ruolo')
                     ->sortable()
                     ->searchable(),
+                ToggleColumn::make('is_active')
+                    ->label('Attivo')
+                    //  ->boolean()
+                    ->sortable(),
                 TextColumn::make('hiring_date')
                     ->label('Data assunzione')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                TextColumn::make('oam_at')
+                    ->label('Data OAM')
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('termination_date')
                     ->label('Data cessazione')
                     ->date('d/m/Y')
                     ->sortable(),
-                TextColumn::make('oam')
-                    ->label('Cod. OAM')
-                    ->searchable(),
                 TextColumn::make('email')
                     ->label('Indirizzo email')
                     ->searchable(),
-                ToggleColumn::make('is_active')
-                    ->label('Attivo')
-                    //  ->boolean()
-                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('employee_types')
