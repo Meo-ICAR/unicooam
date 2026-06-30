@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Clientis\Tables;
 
 use App\Filament\Exports\DynamicGroupExport;
+use App\Models\Clienti;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -20,6 +21,7 @@ class ClientisTable
     {
         return $table
             ->defaultSort('nome')
+            ->modifyQueryUsing(fn($query) => $query->where('is_dummy', false))
             ->headerActions([
                 ExportAction::make()
                     ->exports([

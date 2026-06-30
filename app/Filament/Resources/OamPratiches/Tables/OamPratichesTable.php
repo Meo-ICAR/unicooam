@@ -24,12 +24,16 @@ class OamPratichesTable
         return $table
             ->columns([
                 TextColumn::make('tipo_prodotto')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('istituto')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('agente')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('cliente')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('sended_at')
                     ->label('Inviata')
@@ -58,6 +62,7 @@ class OamPratichesTable
                     ->searchable(),
                 TextColumn::make('tipo_prodotto')
                     ->label('Prodotto')
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('intermediari_convenzionati')
                     ->label('Convenzionati')
