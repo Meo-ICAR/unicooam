@@ -42,7 +42,7 @@ class ListOamSemestrales extends ListRecords
         $provvigioni_assicurative = 0;  // $oams->sum('provvigioni_assicurative');
 
         $azienda = Company::first();
-        $sedi = Branch::where('company_id', $azienda->id)->get();
+        $sedi = Branch::where('company_id', $azienda->id)->where('is_active', true)->get();
 
         $dipendenti = Employee::where('company_id', $azienda->id)
             ->where('is_active', true);

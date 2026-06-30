@@ -43,6 +43,9 @@ class BranchesRelationManager extends RelationManager
                 TextInput::make('name')
                     ->label('Filiale (es. Sede Milano, Ufficio Roma)')
                     ->required(),
+                Toggle::make('is_active')
+                    ->label('Indica se la filiale è attiva (1 = Sì, 0 = No)')
+                    ->required(),
                 Toggle::make('is_main_office')
                     ->label('Indica se è la Sede Legale/Operativa principale (1 = Sì, 0 = No)')
                     ->required(),
