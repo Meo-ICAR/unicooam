@@ -9,6 +9,7 @@ use App\Enums\ReceptionChannel;
 use App\Models\PROFORMA\Clienti;
 use App\Models\PROFORMA\Fornitore;
 use App\Models\Company;
+use App\Models\Document;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;

@@ -22,6 +22,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
@@ -52,13 +54,13 @@ class DocumentsRelationManager extends RelationManager
     {
         return $schema->components([
             Section::make('Dettagli Documento')
-                ->columns(2)
+                //  ->columns(2)
                 ->components([
                     Select::make('document_type_id')
                         ->label('Tipo documento')
                         ->options(DocumentType::orderBy('name')->pluck('name', 'id'))
                         ->searchable()
-                        ->required()
+                        //  ->required()
                         ->columnSpanFull(),
                     TextInput::make('name')
                         ->label('Nome / Titolo')
@@ -77,16 +79,15 @@ class DocumentsRelationManager extends RelationManager
                             'procedura' => 'Procedura',
                             'template' => 'Template',
                         ]),
-                    TextInput::make('cellposition')
-                        ->label('Posizione cella'),
+                    DatePicker::make('emitted_at')
+                        ->label('Data emissione')
+                        ->live()
+                        //  ->visible(fn($get) => $get('is_monitored'))
+                        ->displayFormat('d/m/Y'),
                     Toggle::make('is_monitored')
                         ->label('Controlla scadenza')
                         ->default(false)
                         ->live(),
-                    DatePicker::make('emitted_at')
-                        ->label('Data emissione')
-                        //  ->visible(fn($get) => $get('is_monitored'))
-                        ->displayFormat('d/m/Y'),
                     DatePicker::make('expires_at')
                         ->label('Data scadenza')
                         ->default(fn($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->durationCalculate($get('emitted_at')) : null)

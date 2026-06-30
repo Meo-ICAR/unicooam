@@ -7,6 +7,7 @@ use App\Filament\Resources\Audits\Pages\EditAudit;
 use App\Filament\Resources\Audits\Pages\ListAudits;
 use App\Filament\Resources\Audits\Schemas\AuditForm;
 use App\Filament\Resources\Audits\Tables\AuditsTable;
+use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Models\Audit;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -44,7 +45,7 @@ class AuditResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DocumentsRelationManager::class,
         ];
     }
 

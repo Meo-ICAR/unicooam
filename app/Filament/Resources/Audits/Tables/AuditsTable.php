@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Task;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -17,6 +18,7 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextareaColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -24,6 +26,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\HtmlString;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
@@ -178,7 +181,7 @@ class AuditsTable
             // FIX CRITICO: Spostate le azioni di massa dentro bulkActions() invece di toolbarActions()
             ->bulkActions([
                 BulkActionGroup::make([
-                    BulkAction::make('createDocumentationForDipendente')
+                    BulkAction::make('createDocumentationForAudit')
                         ->label('Aggiungi plico documentazione')
                         ->icon('heroicon-o-document-plus')
                         ->requiresConfirmation()

@@ -9,7 +9,7 @@ use App\Models\Task;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 // use App\Models\Rui;
-use App\Models\BPM\Employee;
+use App\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -24,6 +24,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
