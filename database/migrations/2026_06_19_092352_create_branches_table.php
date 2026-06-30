@@ -35,6 +35,7 @@ return new class extends Migration {
             $table->uuidMorphs('branchable');
 
             $table->boolean('is_main_office')->default(false)->comment('Indica se è la Sede Legale/Operativa principale (1 = Sì, 0 = No)');
+            $table->boolean('is_active')->default(true)->comment('Indica se la filiale è attiva (1 = Sì, 0 = No)');
 
             // Dati del Manager
             $table->string('manager_first_name', 100)->nullable()->comment('Nome del responsabile della filiale');

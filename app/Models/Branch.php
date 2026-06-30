@@ -41,6 +41,7 @@ class Branch extends Model
         'manager_tax_code',
         'founded_at',
         'dismissed_at',
+        'is_active'
     ];
 
     /**
@@ -50,6 +51,7 @@ class Branch extends Model
      */
     protected $casts = [
         'is_main_office' => 'boolean',
+        'is_active' => 'boolean',
         'founded_at' => 'date',
         'dismissed_at' => 'date',
     ];

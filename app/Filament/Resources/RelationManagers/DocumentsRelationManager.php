@@ -255,6 +255,31 @@ class DocumentsRelationManager extends RelationManager
                 DeleteAction::make(),
             ])
             ->toolbarActions([
+                BulkAction::make('updatedate')
+                    ->label('Aggiorna documentazione')
+                    ->icon('heroicon-o-document')
+                    ->form([
+                        DatePicker::make('new_emitted_at')
+                            ->label('Nuova data emissione')
+                            ->required()
+                            ->displayFormat('d/m/Y'),
+                    ])
+                    ->action(function (Collection $records, array $data) {
+                        $updatedCount = 0;
+
+                        foreach ($records as $record) {
+                            $record->update([
+                                'emitted_at' => $data['new_emitted_at'],
+                            ]);
+                            $updatedCount++;
+                        }
+
+                        Notification::make()
+                            ->title('Aggiornamento completato')
+                            ->body("Aggiornate {$updatedCount} documenti alla nuova data.")
+                            ->success()
+                            ->send();
+                    }),
                 DeleteBulkAction::make(),
             ])
             ->modifyQueryUsing(fn(Builder $query) => $query->withoutGlobalScopes([

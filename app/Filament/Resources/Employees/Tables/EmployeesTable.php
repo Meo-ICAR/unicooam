@@ -95,21 +95,71 @@ class EmployeesTable
             ])
             ->recordActions([
                 EditAction::make(),
-                Action::make('createtask')
-                    ->label('Crea plico')
-                    ->icon('heroicon-o-document-plus')
-                    ->form([
-                        Select::make('task_id')
-                            ->label('Seleziona il Task')
-                            ->options(fn($record) => Task::getAvailableFor($record)->pluck('name', 'id'))
-                            ->searchable()
-                            ->required(),
-                    ])
             ])
             ->toolbarActions([
-                //  BulkActionGroup::make([
-                //  DeleteBulkAction::make(),
-                //  ]),
-            ]);
+                BulkActionGroup::make([
+                    BulkAction::make('createDocumentationForFornitori')
+                        ->label('Aggiungi plico documentazione')
+                        ->icon('heroicon-o-document-plus')
+                        ->requiresConfirmation()
+                        // 1. Definiamo il form all'interno del Modal della Bulk Action
+                        ->form([
+                            Select::make('task_id')
+                                ->label('Seleziona il Task')
+                                ->options(fn() => Task::where('taskable', 'dipendente')->pluck('name', 'id'))
+                                ->searchable()
+                                ->required(),
+                        ])
+                        // 2. Elaboriamo l'azione recuperando i dati compilati nel form ($data)
+                        ->action(function (Collection $records, array $data) {
+                            // Recuperiamo l'azienda principale
+                            $company = Company::first();
+
+                            if (!$company) {
+                                Notification::make()
+                                    ->title('Errore')
+                                    ->body('Nessuna azienda trovata nel sistema.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            // Recuperiamo il SINGOLO task selezionato dall'utente nel form
+                            $task = Task::with('documentTypes')->find($data['task_id']);
+
+                            if (!$task) {
+                                Notification::make()
+                                    ->title('Errore')
+                                    ->body('Task non trovato.')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+
+                            $company_id = $company->id;
+                            $createdCount = 0;
+
+                            // 3. Cicliamo SOLO sui fornitori selezionati per questo specifico task
+                            foreach ($records as $fornitore) {
+                                $createdCount += $task->createDocumentation($company_id, $fornitore->id);
+                            }
+
+                            // 4. Notifica finale
+                            if ($createdCount > 0) {
+                                Notification::make()
+                                    ->title('Documentazione generata')
+                                    ->body("Creati con successo {$createdCount} nuovi documenti per il task \"{$task->name}\".")
+                                    ->success()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('Tutto aggiornato')
+                                    ->body('I documenti per questo task erano già tutti presenti per i fornitori selezionati.')
+                                    ->info()
+                                    ->send();
+                            }
+                        }),
+                ]),
+            ]);  // toolbarActions
     }
 }
