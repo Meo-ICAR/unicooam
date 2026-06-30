@@ -52,6 +52,8 @@ class AuditForm
                                 ->searchable()
                                 ->preload()
                                 ->required(),
+                        ])->columnSpanFull(),
+                        Grid::make()->schema([
                             Select::make('origin_type')
                                 ->label('Origine Audit')
                                 ->options([

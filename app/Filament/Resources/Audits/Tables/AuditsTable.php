@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Audits\Tables;
 
 use App\Enums\AuditStatus;
 use App\Filament\Exports\DynamicGroupExport;
+use App\Models\Task;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
