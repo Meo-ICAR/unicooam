@@ -29,7 +29,7 @@ class OamCodeForm
                             ->label('Mandanti')
                             ->relationship(
                                 name: 'clienti',
-                                titleAttribute: 'name',
+                                titleAttribute: 'nome',
                                 modifyQueryUsing: fn(Builder $query) => $query
                                     ->whereNull('dismissed_at')
                                     ->where('principal_type', 'banca'),

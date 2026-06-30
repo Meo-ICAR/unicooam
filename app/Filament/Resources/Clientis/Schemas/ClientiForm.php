@@ -30,7 +30,7 @@ class ClientiForm
                                     TextInput::make('nome')
                                         ->maxLength(255)
                                         ->label('Denominazione in fatturazione'),
-                                    Select::make('type')
+                                    Select::make('principal_type')
                                         ->options([
                                             'banca' => 'Banca',
                                             'broker' => 'Broker',

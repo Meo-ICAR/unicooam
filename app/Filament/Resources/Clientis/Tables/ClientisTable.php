@@ -19,7 +19,7 @@ class ClientisTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('name')
+            ->defaultSort('nome')
             ->headerActions([
                 ExportAction::make()
                     ->exports([
@@ -31,7 +31,7 @@ class ClientisTable
                     ->color('success'),
             ])
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('nome')
                     ->searchable()
                     ->sortable()
                     ->label('Ragione Sociale'),
@@ -75,8 +75,9 @@ class ClientisTable
                     ->options([
                         '--' => '---',
                         'banca' => 'Banca',
-                        'agente_assicurativo' => 'Broker',
-                        'agente_captive' => 'Broker Captive',
+                        'broker' => 'Broker',
+                        'captive' => 'Broker Captive',
+                        'assicurazione' => 'Assicurazione',
                     ])
                     ->default('banca')
                     ->label('Tipo Mandante'),
