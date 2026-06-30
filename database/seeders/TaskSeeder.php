@@ -29,8 +29,8 @@ class TaskSeeder extends Seeder
                 'exclude_value' => 'E',
             ],
             [
-                'name' => 'ISVASS-Agenti',
-                'description' => 'Attività e controlli per il rinnovo periodico ISVASS',
+                'name' => 'IVASS-Agenti',
+                'description' => 'Attività e controlli per il rinnovo periodico IVASS',
                 'taskable' => 'fornitore',
                 'trigger_field' => 'ivass_section',
                 'trigger_state' => 'equals',

@@ -190,6 +190,7 @@ class Clienti extends Model
                 'clienti_id',  // La chiave esterna di questa tabella nella pivot
                 'oam_code_id'  // La chiave esterna del modello correlato nella pivot
             )
+            ->where('is_active', true)  // <-- FILTRO: Mostra solo gli OamCode attivi
             ->withPivot('dal', 'al')  // Recupera i campi extra della tabella pivot
             ->withTimestamps();  // Gestisce automaticamente created_at e updated_at nella pivot
     }

@@ -17,6 +17,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;  // Importante per il form nel modal
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -33,6 +34,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 // use Illuminate\Support\Collection;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 use BackedEnum;
 use UnitEnum;
@@ -203,7 +206,7 @@ class DocumentScheduleResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('inviaSollecito')
-                        ->label('Invia sollecito -SIMULAZIONE --')
+                        ->label('Invia sollecito')
                         ->icon('heroicon-o-envelope')
                         ->requiresConfirmation()
                         ->color('warning')
@@ -213,71 +216,81 @@ class DocumentScheduleResource extends Resource
                                 ->options(EmailTemplate::where('is_active', true)->pluck('name', 'id'))
                                 ->searchable()
                                 ->preload()
-                                ->required(),
-                            TextInput::make('custom_message')
-                                ->label('Messaggio personalizzato')
-                                ->placeholder("Inserisci un messaggio personalizzato da inviare con l'email")
-                                ->visible(fn(callable $get) => $get('email_template_id') === null),
+                                ->live()
+                                ->afterStateUpdated(function (Set $set, ?string $state) {
+                                    if ($state) {
+                                        $template = EmailTemplate::find($state);
+                                        $set('subject', $template?->subject);
+                                        $set('body', $template?->body);
+                                    } else {
+                                        $set('subject', null);
+                                        $set('body', null);
+                                    }
+                                }),
+                            TextInput::make('subject')
+                                ->label('Oggetto')
+                                ->required()
+                                ->visible(fn(Get $get) => filled($get('email_template_id'))),
+                            Textarea::make('body')
+                                ->label("Testo dell'email")
+                                ->rows(6)
+                                ->required()
+                                ->visible(fn(Get $get) => filled($get('email_template_id'))),
                             Toggle::make('is_demo')
                                 ->helperText("Se attivato, invia l'email di sollecito a te stesso invece di inviarla ai destinatari")
                                 ->default(true)
-                                ->label('Invio in modalità demo (nessuna email vera verrà inviata)')
-                                ->visible(fn(callable $get) => $get('email_template_id') === null),
+                                ->label('Invio in modalità demo (nessuna email vera verrà inviata)'),
                         ])
                         ->action(function (Collection $records, array $data): void {
-                            $emailTemplate = EmailTemplate::find($data['email_template_id']);
                             $emailUser = auth()->user()->email;
-
                             $sentCount = 0;
                             $nrecipients = 0;
                             $erroreIsCompany = false;
 
-                            $recipient = null;
-                            $documentNames = [];
-                            foreach ($records as $record) {
-                                $document = Document::find($record->document_id);
-                                if (!$document)
-                                    continue;
-                                if ($record->documentable_type <> 'fornitore') {
+                            // 1. Recupero l'oggetto e il testo modificati dall'utente
+                            $baseSubject = $data['subject'] ?? 'Sollecito Documenti';
+                            $baseBody = $data['body'] ?? '';
+
+                            // 2. Filtro i record validi e li raggruppo per email del destinatario
+                            $groupedRecords = $records->filter(function ($record) use (&$erroreIsCompany) {
+                                if ($record->documentable_type !== 'fornitore') {
                                     $erroreIsCompany = true;
-                                    continue;
+                                    return false;
                                 }
+                                return filled($record->entity?->email);
+                            })->groupBy(fn($record) => $record->entity->email);
 
-                                $documentNames[] = $document->name;
-                                // Tua logica di invio reale qui...
-                                $record->increment('reminders_count', 1);
-                                $record->update(['last_sent_at' => now()]);
-                                $sentCount++;
+                            // 3. Ciclo sui gruppi (un ciclo = un destinatario)
+                            foreach ($groupedRecords as $email => $userRecords) {
+                                $documentNames = [];
 
-                                $email = $record->entity?->email;
-                                if (!$email)
-                                    continue;
-
-                                if ($recipient <> $email) {
-                                    // Invia i documenti raccolti
-                                    $subject = $emailTemplate ? $emailTemplate->subject : 'Sollecito';
-                                    $body = $emailTemplate ? $emailTemplate->body : 'Devi inviare n. ' . count($documentNames) . ' documenti' . "\n" . implode("\n", $documentNames);
-                                    if ($data['is_demo']) {
-                                        $emailUser = $emailUser ?? auth()->user()->email;
-                                        mail($emailUser, $subject, $body);
-                                    } else {
-                                        mail($email, $subject, $body);
+                                // Raccolgo i documenti e aggiorno i contatori per questo destinatario
+                                foreach ($userRecords as $record) {
+                                    $document = Document::find($record->document_id);
+                                    if ($document) {
+                                        $documentNames[] = '- ' . $document->name;
+                                        $record->increment('reminders_count', 1);
+                                        $record->update(['last_sent_at' => now()]);
+                                        $sentCount++;
                                     }
-                                    $nrecipients++;
-                                    $recipient = $email;
-                                    $documentNames = [];
                                 }
-                            }
 
-                            Notification::make()
-                                ->title("Inviati a {$nrecipients} destinatari {$sentCount} solleciti")
-                                ->color('success')
-                                ->send();
-                            if ($erroreIsCompany) {
-                                Notification::make()
-                                    ->title('Alcuni documenti non sono stati inviati perché non sono associati ad un produttore')
-                                    ->color('warning')
-                                    ->send();
+                                if (empty($documentNames)) {
+                                    continue;
+                                }
+
+                                // 4. Unisco il testo del form con la lista dei documenti estratti
+                                $finalBody = $baseBody . "\n\nDocumenti richiesti:\n" . implode("\n", $documentNames);
+
+                                // 5. Invio email
+                                if ($data['is_demo']) {
+                                    $targetEmail = $emailUser ?? auth()->user()->email;
+                                    mail($targetEmail, $baseSubject, $finalBody);
+                                } else {
+                                    mail($email, $baseSubject, $finalBody);
+                                }
+
+                                $nrecipients++;
                             }
                         }),
                 ]),

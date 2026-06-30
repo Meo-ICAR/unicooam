@@ -34,6 +34,7 @@ class OamCode extends Model
                 'oam_code_id',  // Invertito: prima la chiave di questo modello nella pivot
                 'clienti_id'  // Poi la chiave del modello correlato
             )
+            ->where('is_active', true)  // <-- FILTRO: Mostra solo Client attivi
             ->withPivot('dal', 'al')
             ->withTimestamps();
     }

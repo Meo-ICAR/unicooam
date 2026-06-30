@@ -24,6 +24,9 @@ class MailAccountsTable
                 TextColumn::make('email_address')
                     ->label('Indirizzo email')
                     ->searchable(),
+                TextColumn::make('email_reply_to')
+                    ->label('Indirizzo email di risposta')
+                    ->searchable(),
                 IconColumn::make('is_pec')
                     ->label('PEC')
                     ->boolean(),
@@ -66,21 +69,6 @@ class MailAccountsTable
                 TextColumn::make('mailable_id')
                     ->label('ID entità collegata')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Creato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->label('Aggiornato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->label('Eliminato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

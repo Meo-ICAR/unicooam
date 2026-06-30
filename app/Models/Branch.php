@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\PROFORMA\Fornitore;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,6 +15,7 @@ class Branch extends Model
     use HasFactory, SoftDeletes;
 
     protected $connection = 'mysql';
+    protected $table = 'unicooam.branches';
     protected $orderBy = 'name';
     protected $orderDirection = 'asc';
 
@@ -66,5 +69,15 @@ class Branch extends Model
     public function branchable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function employee()
+    {
+        return $this->HasMany(Employee::class);
+    }
+
+    public function fornitore()
+    {
+        return $this->HasMany(Fornitore::class);
     }
 }

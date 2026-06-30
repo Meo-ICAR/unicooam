@@ -18,6 +18,7 @@ class MailAccount extends Model
     protected $fillable = [
         'name',
         'email_address',
+        'email_reply_to',
         'is_pec',
         'incoming_protocol',
         'incoming_host',

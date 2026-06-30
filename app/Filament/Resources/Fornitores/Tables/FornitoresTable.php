@@ -18,6 +18,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Mail;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class FornitoresTable
@@ -56,6 +57,14 @@ class FornitoresTable
                     ->label('Cessato')
                     ->date('d/m/Y')
                     ->sortable(),
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('pec')
+                    ->label('PEC')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('oam')
                     ->label('OAM')
                     ->searchable()
@@ -82,8 +91,8 @@ class FornitoresTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 // ALBI PROFESSIONALI (nascosti di default per non affollare la vista)
-                TextColumn::make('ivass')
-                    ->label('IVASS')
+                TextColumn::make('branch.name')
+                    ->label('Filiale')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 // DATE
@@ -127,8 +136,61 @@ class FornitoresTable
             ])
             ->bulkActions([
                 BulkActionGroup::make([
+                    BulkAction::make('CheckPEC')
+                        ->label('Invia PEC di check periodica')
+                        ->icon('heroicon-o-check-badge')  // Un'icona leggermente diversa per distinguerla dal sollecito
+                        ->requiresConfirmation()
+                        ->color('info')
+                        ->modalHeading('Invio Check PEC')
+                        ->modalDescription('Sei sicuro di voler inviare un messaggio di test agli indirizzi PEC dei fornitori selezionati per verificarne la validità?')
+                        ->action(function (Collection $records) {
+                            $sentCount = 0;
+                            $skippedCount = 0;
+
+                            foreach ($records as $record) {
+                                // Sostituisci 'pec_email' con il vero nome del campo nel tuo database
+                                // Se la PEC è su una relazione (es. $record->entity->pec), adatta di conseguenza.
+                                $pecAddress = $record->pec ?? null;
+
+                                // Salto il fornitore se non ha un indirizzo PEC salvato
+                                if (empty($pecAddress)) {
+                                    $skippedCount++;
+                                    continue;
+                                }
+
+                                $subject = 'Verifica periodica indirizzo PEC - Non rispondere';
+                                $body = "Buongiorno,\n\nla presente per verificare il corretto funzionamento e la validità del vostro indirizzo PEC presente nei nostri sistemi.\n\nVi preghiamo di ignorare questo messaggio. Non è necessario rispondere a questa email.\n\nCordiali saluti.";
+
+                                // È consigliato usare la Facade Mail di Laravel invece della funzione nativa mail() di PHP
+                                // FORZIAMO L'USO DEL MAILER 'pec' CONFIGURATO PRIMA
+                                Mail::mailer('pec')->raw($body, function ($message) use ($pecAddress, $subject) {
+                                    $message
+                                        ->to($pecAddress)
+                                        ->from(config('mail.mailers.pec.username'),
+                                            config('pec.from_name', 'Tua Azienda PEC'))
+                                        ->subject($subject);
+                                });
+
+                                // Opzionale ma consigliato: traccia quando hai fatto l'ultimo controllo su questo fornitore
+                                // $record->update(['last_pec_check_at' => now()]);
+
+                                $sentCount++;
+                            }
+
+                            // Costruisco un messaggio di notifica dinamico per sapere esattamente cosa è successo
+                            $notificationBody = "Inviate **{$sentCount}** email di check.";
+                            if ($skippedCount > 0) {
+                                $notificationBody .= " Saltati **{$skippedCount}** fornitori perché sprovvisti di indirizzo PEC.";
+                            }
+
+                            Notification::make()
+                                ->title('Check PEC Completato')
+                                ->body($notificationBody)
+                                ->success()
+                                ->send();
+                        }),
                     BulkAction::make('createDocumentationForFornitori')
-                        ->label('Crea plico documentazione')
+                        ->label('Aggiungi plico documentazione')
                         ->icon('heroicon-o-document-plus')
                         ->requiresConfirmation()
                         // 1. Definiamo il form all'interno del Modal della Bulk Action

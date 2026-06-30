@@ -41,7 +41,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('renewed_by_id')->nullable()->comment('ID del documento che lo rinnova');
             $table->string('document_url')->comment('URL pubblico o percorso del documento sul web/storage')->nullable();
             $table->integer('training_hours')->nullable()->comment('Ore di formazione richieste');
-            $table->enum('training_organization', ['interna', 'OAM', 'ISVASS', 'PRIVACY'])->nullable()->comment('Formazione per organizzazione');
+            $table->enum('training_organization', ['interna', 'OAM', 'IVASS', 'PRIVACY'])->nullable()->comment('Formazione per organizzazione');
             // Modifichiamo il commento di duration per renderlo generico
             $table->integer('duration')->nullable()->comment('Valore della validità');
             $table->string('duration_unit')->default('days')->comment('Unità di misura: hours, days, months, years');

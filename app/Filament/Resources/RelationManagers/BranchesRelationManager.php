@@ -51,7 +51,7 @@ class BranchesRelationManager extends RelationManager
                     ->label('Data di apertura della filiale'),
                 DateTimePicker::make('dismissed_at')
                     ->displayFormat('d/m/Y')
-                    ->label('Data dismissione della filiale'),
+                    ->label('Data chiusuradella filiale'),
                 TextInput::make('address')
                     ->label('Via / Piazza'),
                 TextInput::make('street_number')
@@ -107,24 +107,28 @@ class BranchesRelationManager extends RelationManager
                     ->label('Data chiusura')
                     ->dateTime()
                     ->sortable(),
+                TextColumn::make('fornitore_count')
+                    ->counts('fornitore')
+                    ->label('Condiviso con')
+                    ->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),
             ])
             ->headerActions([
                 CreateAction::make(),
-                AssociateAction::make(),
+                // AssociateAction::make(),
             ])
             ->recordActions([
                 EditAction::make(),
-                DissociateAction::make(),
+                //  DissociateAction::make(),
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DissociateBulkAction::make(),
+                    // DissociateBulkAction::make(),
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),

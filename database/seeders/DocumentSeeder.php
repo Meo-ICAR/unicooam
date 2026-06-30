@@ -30,21 +30,25 @@ class DocumentSeeder extends Seeder
 
         foreach ($tasks as $task) {
             // Caso AZIENDA: il record id coincide con il $company_id
-            if (($task->taskable === 'company') || ($task->name === 'OAM-Semestrale')) {
+            if ($task->taskable === 'company') {
                 $createdCount += $task->createDocumentation($company_id, $company_id, true);
             }
 
             // Caso FORNITORE: cicliamo sui fornitori e passiamo l'id del singolo fornitore
             if ($task->taskable === 'fornitore') {
                 foreach ($fornitori as $fornitore) {
-                    $createdCount += $task->createDocumentation($company_id, $fornitore->id, true);
+                    if (getAvailableFor($fornitore)->contains($task)) {
+                        $createdCount += $task->createDocumentation($company_id, $fornitore->id, true);
+                    }
                 }
             }
 
             // Caso DIPENDENTE: cicliamo sui dipendenti e passiamo l'id del singolo dipendente
             if (($task->taskable === 'employee')) {
                 foreach ($employees as $employee) {
-                    $createdCount += $task->createDocumentation($company_id, $employee->id, true);
+                    if (getAvailableFor($employee)->contains($task)) {
+                        $createdCount += $task->createDocumentation($company_id, $employee->id, true);
+                    }
                 }
             }
         }

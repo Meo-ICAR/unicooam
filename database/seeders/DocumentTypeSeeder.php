@@ -140,10 +140,10 @@ class DocumentTypeSeeder extends Seeder
                 'updated_at' => '2026-03-18 10:18:59',
             ],
             [
-                'name' => 'Formazione 30h aggiornamento ISVASS',
-                'slug' => 'formazione-30h-aggiornamento-isvass',
+                'name' => 'Formazione 30h aggiornamento IVASS',
+                'slug' => 'formazione-30h-aggiornamento-IVASS',
                 'training_hours' => 30,
-                'training_organization' => 'ISVASS',
+                'training_organization' => 'IVASS',
                 'priority' => 1,
                 'is_person' => 0,
                 'is_signed' => 0,

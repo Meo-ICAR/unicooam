@@ -15,7 +15,9 @@ return new class extends Migration {
 
             $table->id()->comment('ID univoco dell account');
             $table->string('name')->nullable()->comment('Nome descrittivo dell account (es. Amministrazione PEC)');
+
             $table->string('email_address')->unique()->comment('Indirizzo email completo');
+            $table->string('email_reply_to')->nullable()->comment('Indirizzo email di reply-to');
             $table->boolean('is_pec')->default(false)->comment('Indica se l account è una PEC (1) o una mail standard (0)');
 
             // Configurazione Posta in Entrata

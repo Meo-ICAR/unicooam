@@ -51,12 +51,12 @@ class TaskDocumentTypeSeeder extends Seeder
                 'formazione-30h-aggiornamento-oam',
                 'polizza-rc',  // Spesso richiesta per il rinnovo
             ],
-            'isvass-agenti' => [
+            'IVASS-agenti' => [
                 'casellario-giudiziale',
                 'carichi-pendenti',
                 'dichiarazione-sostitutiva-certificato-onorabilita',
                 'formazione-15h-aggiornamento-oam',
-                'formazione-30h-aggiornamento-isvass',
+                'formazione-30h-aggiornamento-IVASS',
                 'polizza-rc',  // Spesso richiesta per il rinnovo
             ],
             'oam-semestrale' => [

@@ -9,6 +9,7 @@ use App\Filament\Exports\Sheets\M510EconomicoBaseSheet;
 use App\Filament\Exports\Sheets\M510InformativoSheet;
 use App\Filament\Exports\Sheets\M510PrudenzialeSheet;
 use App\Filament\Exports\Sheets\M510SediSheet;
+use App\Filament\Exports\M510MasterExport;
 use App\Filament\Resources\OamSemestrales\OamSemestraleResource;
 use App\Models\PROFORMA\Fornitore;
 use App\Models\Audit;

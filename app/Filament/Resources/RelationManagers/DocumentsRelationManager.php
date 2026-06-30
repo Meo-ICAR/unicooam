@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\RelationManagers;
 
 use App\Enums\DocumentStatus;
+use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\Task;
@@ -33,6 +34,7 @@ use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\HtmlString;
+use pxlrbt\FilamentExcel\Actions\ExportAction;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class DocumentsRelationManager extends RelationManager
@@ -208,6 +210,12 @@ class DocumentsRelationManager extends RelationManager
 
                         return $data;
                     }),
+                ExportAction::make()
+                    ->exports([
+                        DynamicGroupExport::make(),
+                    ])
+                    ->label('Esporta Excel')
+                    ->color('success'),
             ])
             ->recordActions([
                 EditAction::make(),
