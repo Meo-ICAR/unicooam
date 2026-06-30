@@ -28,13 +28,37 @@ class Fornitore extends Model
     protected $orderDirection = 'asc';
 
     protected $fillable = [
+        'id',
+        'name',
+        'nome',
+        'stipulated_at',
+        'pec',
+        'description',
+        'email_private',
+        'supervisor_type',
+        'oam',
+        'oam_at',
+        'oam_name',
+        'numero_iscrizione_rui',
+        'ivass',
+        'ivass_at',
+        'dismissed_at',
+        'ivass_name',
+        'ivass_section',
+        'type',
+        'is_active',
+        'is_art108',
+        'company_branch_id',
+        'coordinated_type',
+        'coordinated_id',
+        'user_id',
+        'oam_dismissed_at',
+        'welcome_bonus',
+        'campagna',
+        'available_at',
+        'budget',
         'codice',
         'coge',
-        'name',
-        'email',
-        'pec',
-        'email_private',
-        'nome',
         'natoil',
         'indirizzo',
         'comune',
@@ -46,6 +70,7 @@ class Fornitore extends Model
         'cf',
         'nomecoge',
         'nomefattura',
+        'email',
         'anticipo',
         'enasarco',
         'anticipo_residuo',
@@ -59,26 +84,65 @@ class Fornitore extends Model
         'regione',
         'citta',
         'company_id',
-        'branch_id',
         'contributoperiodicita',
-        'contributodalmese'
+        'contributodalmese',
+        'branch_id',
     ];
 
-    protected $casts = [
-        'natoil' => 'date',
-        'anticipo' => 'decimal:2',
-        'anticipo_residuo' => 'decimal:2',
-        'contributo' => 'decimal:2',
-        'issubfornitore' => 'boolean',
-        'iscollaboratore' => 'boolean',
-        'isdipendente' => 'boolean',
-        'deleted_at' => 'datetime',
-    ];
+    /**
+     * I cast dei tipi di dato nativi di Laravel 13.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            // Date
+            'stipulated_at' => 'date',
+            'oam_at' => 'date',
+            'ivass_at' => 'date',
+            'dismissed_at' => 'date',
+            'oam_dismissed_at' => 'date',
+            'available_at' => 'date',
+            'natoil' => 'date',
+            'contributodalmese' => 'date',
+            'deleted_at' => 'datetime',
+            // Booleani (tinyint)
+            'is_active' => 'boolean',
+            'is_art108' => 'boolean',
+            'issubfornitore' => 'boolean',
+            'iscollaboratore' => 'boolean',
+            'isdipendente' => 'boolean',
+            // Decimali
+            'welcome_bonus' => 'decimal:2',
+            'budget' => 'decimal:2',
+            'anticipo' => 'decimal:2',
+            'anticipo_residuo' => 'decimal:2',
+            'contributo' => 'decimal:2',
+            // Interi
+            'company_branch_id' => 'integer',
+            'coordinated_type' => 'integer',
+            'coordinated_id' => 'integer',
+            'user_id' => 'integer',
+            'branch_id' => 'integer',
+            'contributoperiodicita' => 'integer',
+        ];
+    }
 
+    /**
+     * Valori predefiniti per gli attributi del Model basati sul database SQL.
+     *
+     * @var array<string, mixed>
+     */
     protected $attributes = [
+        'supervisor_type' => 'no',
+        'is_active' => true,
+        'is_art108' => false,
+        'enasarco' => 'plurimandatario',
         'contributo_description' => 'Contributo spese',
         'anticipo_description' => 'Anticipo attuale',
-        'issubfornitore' => false,
+        'isdipendente' => false,
+        'company_id' => '5c044917-15b3-4471-90c9-38061fcca754',
     ];
 
     /**

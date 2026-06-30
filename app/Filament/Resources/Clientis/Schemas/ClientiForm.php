@@ -43,7 +43,6 @@ class ClientiForm
                                         ->label('Partita IVA'),
                                 ]),
                                 Grid::make(3)->schema([]),
-                                Grid::make(3)->schema([]),
                                 Section::make('Stato Operativo')
                                     ->compact()
                                     ->schema([
@@ -94,14 +93,14 @@ class ClientiForm
                                         TextInput::make('mandate_number')
                                             ->maxLength(100)
                                             ->label('Protocollo/N° Mandato'),
+                                        DatePicker::make('stipulated_at')
+                                            ->label('Data Stipula Convenzione'),
                                         DatePicker::make('start_date')
                                             ->label('Data Decorrenza'),
                                         DatePicker::make('end_date')
-                                            ->label('Data Scadenza (Vuoto se indeterminato)'),
-                                        DatePicker::make('stipulated_at')
-                                            ->label('Data Stipula Convenzione'),
+                                            ->label('Data rinnovo (Vuoto se indeterminato)'),
                                         DatePicker::make('dismissed_at')
-                                            ->label('Data Cessazione Convenzione'),
+                                            ->label('Data Recesso'),
                                         Select::make('status')
                                             ->options([
                                                 'ATTIVO' => 'Attivo',

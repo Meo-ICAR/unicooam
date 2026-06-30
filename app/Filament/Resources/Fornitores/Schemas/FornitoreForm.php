@@ -21,15 +21,15 @@ class FornitoreForm
                     ->description("Informazioni personali e di contatto dell'agente o fornitore.")
                     ->schema([
                         Grid::make(3)->schema([
-                            TextInput::make('name')
-                                ->label('Denominazione')
-                                ->maxLength(255),
                             TextInput::make('nome')
                                 ->label('Ragione Sociale')
                                 ->maxLength(255),
                             TextInput::make('piva')
                                 ->label('Partita IVA')
                                 ->maxLength(20),
+                            TextInput::make('name')
+                                ->label('Nome Istruttoria')
+                                ->maxLength(255),
                             DatePicker::make('available_at')
                                 ->label('Data Disponibilità')
                                 ->displayFormat('d/m/Y'),
@@ -38,10 +38,10 @@ class FornitoreForm
                                 ->default(true)
                                 ->inline(false),
                             DatePicker::make('stipulated_at')
-                                ->label('Data Stipula')
+                                ->label('Stipula')
                                 ->displayFormat('d/m/Y'),
                             DatePicker::make('dismissed_at')
-                                ->label('Data Cessazione')
+                                ->label('Cessazione')
                                 ->displayFormat('d/m/Y'),
                             TextInput::make('cf')
                                 ->label('Codice Fiscale')

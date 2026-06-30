@@ -19,10 +19,10 @@ class DocumentSeeder extends Seeder
     public function run(): void
     {
         $company_id = Company::first()->id;
-        $tasks = Task::all();
+        $tasks = Task::where('is_active', true)->get();
 
-        $fornitori = Fornitore::all();
-        $employees = Employee::all();
+        $fornitori = Fornitore::where('is_active', true)->get();
+        $employees = Employee::where('is_active', true)->get();
 
         // Manteniamo l'Eager Loading per le performance
         $tasks = Task::with('documentTypes')->where('is_active', true)->get();

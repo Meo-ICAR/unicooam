@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -40,8 +41,8 @@ class FornitoresTable
             ->selectable('is_active = 1')
             ->columns([
                 // DATI PRINCIPALI
-                TextColumn::make('name')
-                    ->label('Ragione Sociale / Nome')
+                TextColumn::make('nome')
+                    ->label('Ragione Sociale')
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
@@ -120,6 +121,9 @@ class FornitoresTable
                     ->placeholder('Tutti')
                     ->trueLabel('Solo Dipendenti')
                     ->falseLabel('Solo P. IVA / Agenzie'),
+                Filter::make('dismessed_at')
+                    ->label('Cessati')
+                    ->query(fn($query) => $query->whereNotNull('dismessed_at')),
             ])
             ->recordActions([
                 EditAction::make(),

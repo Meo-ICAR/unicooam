@@ -62,11 +62,11 @@ class ClientisTable
                 TextColumn::make('stipulated_at')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->label('Data di stipula'),
+                    ->label('Stipula'),
                 TextColumn::make('dismissed_at')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->label('Data di revoca'),
+                    ->label('Recesso'),
             ])
             ->filters([
                 TernaryFilter::make('is_active')
