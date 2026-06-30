@@ -55,6 +55,10 @@ class ClientisTable
                     ->sortable()
                     ->badge()  // Opzionale: racchiude il numero in un badge grafico molto pulito
                     ->color('primary'),
+                TextColumn::make('piva')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Partita IVA'),
                 TextColumn::make('stipulated_at')
                     ->date('d/m/Y')
                     ->sortable()
