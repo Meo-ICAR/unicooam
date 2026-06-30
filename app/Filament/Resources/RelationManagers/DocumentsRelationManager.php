@@ -8,6 +8,7 @@ use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\Task;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;

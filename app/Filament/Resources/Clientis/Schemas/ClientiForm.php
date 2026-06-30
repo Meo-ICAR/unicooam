@@ -36,6 +36,7 @@ class ClientiForm
                                             'broker' => 'Broker',
                                             'captive' => 'Broker Captive',
                                             'assicurazione' => 'Assicurazione',
+                                            '--' => '--',
                                         ])
                                         ->label('Tipo Convenzionato'),
                                     TextInput::make('piva')
@@ -111,15 +112,6 @@ class ClientiForm
                                             ->default('ATTIVO')
                                             ->required()
                                             ->label('Stato Mandato'),
-                                        Select::make('principal_type')
-                                            ->options([
-                                                'banca' => 'Banca',
-                                                'agente_assicurativo' => 'Agente Assicurativo',
-                                                'agente_captive' => 'Agente Captive',
-                                            ])
-                                            ->default('banca')
-                                            ->required()
-                                            ->label('Tipologia Mandante'),
                                         Select::make('submission_type')
                                             ->options([
                                                 'accesso portale' => 'Accesso Portale',
