@@ -4,10 +4,12 @@ namespace App\Filament\Resources\DocumentSchedules;
 
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
+use App\Models\PROFORMA\Fornitore;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\DocumentSchedule;
 use App\Models\EmailTemplate;
+use App\Models\Employee;
 use App\Models\Task;
 use App\Services\DocumentReminderService;
 use Filament\Actions\Action;
@@ -16,6 +18,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;  // Importante per il form nel modal
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -36,6 +39,7 @@ use Illuminate\Database\Eloquent\Collection;
 // use Illuminate\Support\Collection;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Facades\Log;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 use BackedEnum;
 use UnitEnum;
@@ -231,9 +235,9 @@ class DocumentScheduleResource extends Resource
                                 ->label('Oggetto')
                                 ->required()
                                 ->visible(fn(Get $get) => filled($get('email_template_id'))),
-                            Textarea::make('body')
+                            RichEditor::make('body')
                                 ->label("Testo dell'email")
-                                ->rows(6)
+                                // ->rows(6)
                                 ->required()
                                 ->visible(fn(Get $get) => filled($get('email_template_id'))),
                             Toggle::make('is_demo')
@@ -242,7 +246,13 @@ class DocumentScheduleResource extends Resource
                                 ->label('Invio in modalità demo (nessuna email vera verrà inviata)'),
                         ])
                         ->action(function (Collection $records, array $data): void {
+                            // --- DEBUG: Inizio operazione ---
+                            Log::debug('=== INIZIO BULK ACTION: inviaSollecito ===');
+                            Log::debug('Dati ricevuti dal form:', $data);
+                            Log::debug("Totale record selezionati inizialmente: {$records->count()}");
+
                             $emailUser = auth()->user()->email;
+                            Log::debug('Email utente: ' . $emailUser);
                             $sentCount = 0;
                             $nrecipients = 0;
                             $erroreIsCompany = false;
@@ -253,8 +263,9 @@ class DocumentScheduleResource extends Resource
 
                             // 2. Filtro i record validi e li raggruppo per email del destinatario
                             $groupedRecords = $records->filter(function ($record) use (&$erroreIsCompany) {
-                                if ($record->documentable_type !== 'fornitore') {
+                                if ($record->documentable_type === 'company') {
                                     $erroreIsCompany = true;
+                                    Log::debug('ERRORE: documentable_type è company');
                                     return false;
                                 }
                                 return filled($record->entity?->email);
@@ -262,13 +273,17 @@ class DocumentScheduleResource extends Resource
 
                             // 3. Ciclo sui gruppi (un ciclo = un destinatario)
                             foreach ($groupedRecords as $email => $userRecords) {
+                                // FIX: Extract the actual name of the entity, not the string $email
+                                $agentName = $userRecords->first()->entity_name ?? 'Agente';
                                 $documentNames = [];
 
                                 // Raccolgo i documenti e aggiorno i contatori per questo destinatario
                                 foreach ($userRecords as $record) {
-                                    $document = Document::find($record->document_id);
-                                    if ($document) {
-                                        $documentNames[] = '- ' . $document->name;
+                                    $documentName = Document::renewedBy($record->document_id);
+                                    Log::debug('Document found: ' . ($documentName ? 'YES' : 'NO'));
+                                    if ($documentName) {
+                                        Log::debug('Document name: ' . $documentName);
+                                        $documentNames[] = '- ' . $documentName;
                                         $record->increment('reminders_count', 1);
                                         $record->update(['last_sent_at' => now()]);
                                         $sentCount++;
@@ -276,18 +291,33 @@ class DocumentScheduleResource extends Resource
                                 }
 
                                 if (empty($documentNames)) {
+                                    Log::debug("Nessun documento valido trovato per l'email: {$email}. Salto l'invio.");
+
                                     continue;
                                 }
+                                $documentCount = count($documentNames);
+
+                                Log::debug('Document count: ' . $documentCount);
+                                //  "[\"{agente_nome}\",\"{documento_nome}\",\"{data_scadenza}\",\"{elenco_documenti}\"]
+                                $finalSubject = str_replace('{agente_nome}', $agentName, $baseSubject);
+                                $finalSubject = str_replace('{n_documenti}', $documentCount, $finalSubject);
+                                $finalSubject = str_replace('{elenco_documenti}', implode("\n", $documentNames), $finalSubject);
+
+                                $finalBody = str_replace('{agente_nome}', $agentName, $baseBody);
+                                $finalBody = str_replace('{n_documenti}', $documentCount, $finalBody);
+                                $finalBody = str_replace('{elenco_documenti}', implode("\n", $documentNames), $finalBody);
 
                                 // 4. Unisco il testo del form con la lista dei documenti estratti
-                                $finalBody = $baseBody . "\n\nDocumenti richiesti:\n" . implode("\n", $documentNames);
-
+                                Log::debug('Final body: ' . $finalBody);
                                 // 5. Invio email
                                 if ($data['is_demo']) {
                                     $targetEmail = $emailUser ?? auth()->user()->email;
+                                    Log::debug('Target email: ' . $targetEmail);
                                     mail($targetEmail, $baseSubject, $finalBody);
+                                    Log::debug('Email inviata in modalità demo');
                                 } else {
                                     mail($email, $baseSubject, $finalBody);
+                                    Log::debug('Email inviata');
                                 }
 
                                 $nrecipients++;

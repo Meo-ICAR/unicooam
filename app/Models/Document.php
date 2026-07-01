@@ -141,6 +141,16 @@ class Document extends Model implements HasMedia
         return $this->hasMany(DocumentReminder::class);
     }
 
+    public function renewedBy($document_id): string
+    {
+        $nomeDocumento = $this->name;
+        $renewedById = $this->documentType()?->renewed_by_id;
+        if ($renewedById) {
+            $nomeDocumento = DocumentType::find($renewedById)->first()->name;
+        }
+        return $nomeDocumento;
+    }
+
     public function scopeExpiringWithin(Builder $query, int $days): Builder
     {
         return $query

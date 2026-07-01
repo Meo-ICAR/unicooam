@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\EmailTemplates\Schemas;
 
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -22,10 +23,9 @@ class EmailTemplateForm
                 TextInput::make('subject')
                     ->label('Oggetto')
                     ->required(),
-                Textarea::make('body')
+                RichEditor::make('body')
                     ->label('Corpo email')
-                    ->required()
-                    ->rows(10)
+                    // ->required()
                     ->columnSpanFull(),
                 TextInput::make('placeholders')
                     ->label('Segnaposto disponibili'),
