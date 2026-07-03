@@ -64,6 +64,7 @@ class DocumentTypeForm
                             ->label('Carica file (PDF, immagini, Word)')
                             ->multiple()
                             ->collection('documents')
+                            ->disk('public')
                             ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
                             ->maxSize(20480)
                             ->columnSpanFull(),

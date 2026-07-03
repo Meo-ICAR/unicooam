@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -18,6 +18,12 @@ class Document extends Model implements HasMedia
     use HasFactory, HasUuids, InteractsWithMedia, SoftDeletes;
 
     protected $connection = 'mysql';
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('documents')
+            ->useDisk('public');
+    }
 
     protected $orderBy = 'name';
 
@@ -97,7 +103,7 @@ class Document extends Model implements HasMedia
     protected static function booted(): void
     {
         static::updating(function (Document $document) {
-            if (empty($document->expires_at) && !empty($document->emitted_at)) {
+            if (empty($document->expires_at) && ! empty($document->emitted_at)) {
                 $document->expires_at = $document->documentType?->durationCalculate($document->emitted_at);
             }
         });
@@ -148,6 +154,7 @@ class Document extends Model implements HasMedia
         if ($renewedById) {
             $nomeDocumento = DocumentType::find($renewedById)->first()->name;
         }
+
         return $nomeDocumento;
     }
 

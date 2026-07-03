@@ -6,7 +6,6 @@ use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Document;
 use App\Models\DocumentType;
-use App\Models\Task;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\CreateAction;
@@ -14,7 +13,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -22,23 +20,18 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
+// CORRETTO
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\HtmlString;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class DocumentsRelationManager extends RelationManager
 {
@@ -60,11 +53,18 @@ class DocumentsRelationManager extends RelationManager
                         ->label('Tipo documento')
                         ->options(DocumentType::orderBy('name')->pluck('name', 'id'))
                         ->searchable()
+                        ->live()
+                        ->afterStateUpdated(function ($state, callable $set, $get): void {
+                            if (blank($get('name'))) {
+                                $documentType = DocumentType::find($state);
+                                $set('name', $documentType?->name);
+                            }
+                        })
                         //  ->required()
                         ->columnSpanFull(),
                     TextInput::make('name')
                         ->label('Nome / Titolo')
-                        ->default(fn($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->name : null)
+                        ->default(fn ($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->name : null)
                         ->required()
                         ->columnSpanFull(),
                     Select::make('status')
@@ -90,9 +90,9 @@ class DocumentsRelationManager extends RelationManager
                         ->live(),
                     DatePicker::make('expires_at')
                         ->label('Data scadenza')
-                        ->default(fn($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->durationCalculate($get('emitted_at')) : null)
+                        ->default(fn ($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->durationCalculate($get('emitted_at')) : null)
                         ->displayFormat('d/m/Y')
-                        ->visible(fn($get) => $get('is_monitored'))
+                        ->visible(fn ($get) => $get('is_monitored'))
                         ->afterOrEqual('emitted_at'),
                     TextInput::make('docnumber')
                         ->label('Numero documento')
@@ -110,11 +110,12 @@ class DocumentsRelationManager extends RelationManager
                 ->components([
                     TextInput::make('document_url')
                         ->label('URL documento')
-                        ->url(fn($record) => $record?->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
+                        ->url(fn ($record) => $record?->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
                     SpatieMediaLibraryFileUpload::make('attachments')
                         ->label('Carica file (PDF, immagini, Word)')
                         ->multiple()
                         ->collection('documents')
+                        ->disk('public')
                         ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
                         ->maxSize(20480)
                         ->columnSpanFull(),
@@ -129,10 +130,25 @@ class DocumentsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('name')
                     ->label('Documento')
-                    ->url(fn($record) => $record->getFirstMediaUrl('documents') ?: $record->document_url)
-                    ->openUrlInNewTab()
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->default('Senza documento')
+                    ->html()
+                    ->formatStateUsing(function ($state, Document $record) {
+                        $url = $record->getFirstMedia('documents')
+                            ? route('documents.download', $record)
+                            : (! empty($record->document_url) ? $record->document_url : null);
+
+                        if (! $url) {
+                            return $state;
+                        }
+
+                        return sprintf(
+                            '<a href="%s" target="_blank" style="color:#2563eb;text-decoration:underline;">%s</a>',
+                            e($url),
+                            e($state)
+                        );
+                    }),
                 TextColumn::make('status')
                     ->label('Stato')
                     ->badge()
@@ -146,14 +162,14 @@ class DocumentsRelationManager extends RelationManager
                     ->label('Scadenza')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->visible(fn($record) => $record?->is_monitored ?? false)
-                    ->color(fn($record) => $record?->expires_at?->isPast() ? 'danger' : 'gray')
-                    ->weight(fn($record) => $record?->expires_at?->isPast() ? 'bold' : 'normal'),
+                    ->visible(fn ($record) => $record?->is_monitored ?? false)
+                    ->color(fn ($record) => $record?->expires_at?->isPast() ? 'danger' : 'gray')
+                    ->weight(fn ($record) => $record?->expires_at?->isPast() ? 'bold' : 'normal'),
                 TextColumn::make('doctype')
                     ->sortable()
                     ->label('Tipo documento')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'modulo' => 'info',
                         'procedura' => 'warning',
                         'template' => 'success',
@@ -168,9 +184,9 @@ class DocumentsRelationManager extends RelationManager
                     ->searchable(),
                 TextColumn::make('document_url')
                     ->label('URL')
-                    ->url(fn($record) => $record->document_url)
+                    ->url(fn ($record) => $record->document_url)
                     ->openUrlInNewTab()
-                    ->visible(fn($record) => !empty($record->document_url))
+                    ->visible(fn ($record) => ! empty($record->document_url))
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -194,13 +210,13 @@ class DocumentsRelationManager extends RelationManager
                     ]),
                 Filter::make('is_monitored')
                     ->label('Monitorato')
-                    ->query(fn($query) => $query->where('is_monitored', true)),
+                    ->query(fn ($query) => $query->where('is_monitored', true)),
                 TernaryFilter::make('is_expired')
                     ->label('Scaduto')
                     ->default(false)
                     ->queries(
-                        true: fn($query) => $query->where('status', DocumentStatus::EXPIRED->value),
-                        false: fn($query) => $query->where('status', '!=', DocumentStatus::EXPIRED->value),
+                        true: fn ($query) => $query->where('status', DocumentStatus::EXPIRED->value),
+                        false: fn ($query) => $query->where('status', '!=', DocumentStatus::EXPIRED->value),
                     ),
                 // TrashedFilter::make(),
             ])
@@ -284,7 +300,7 @@ class DocumentsRelationManager extends RelationManager
                     }),
                 DeleteBulkAction::make(),
             ])
-            ->modifyQueryUsing(fn(Builder $query) => $query->withoutGlobalScopes([
+            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]))
             ->defaultSort('created_at', 'desc');
