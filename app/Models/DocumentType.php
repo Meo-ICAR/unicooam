@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Date;
 
 class DocumentType extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, SoftDeletes;
 
     protected $connection = 'mysql';
+
     protected $orderBy = 'name';
+
     protected $orderDirection = 'asc';
 
     protected $fillable = [
@@ -48,6 +50,7 @@ class DocumentType extends Model implements HasMedia
         'is_stored',
         'regex',
         'is_endMonth',
+        'document_typable',
         'is_AiAbstract',
         'is_AiCheck',
         'AiPattern',
@@ -84,10 +87,10 @@ class DocumentType extends Model implements HasMedia
         'retention_years' => 'integer',
     ];
 
-    public function durationCalculate(\Carbon\Carbon $emittedAt): ?\Carbon\Carbon
+    public function durationCalculate(Carbon $emittedAt): ?Carbon
     {
         // Calcola la data di scadenza
-        if (!$emittedAt) {
+        if (! $emittedAt) {
             return null;
         }
 
@@ -109,6 +112,7 @@ class DocumentType extends Model implements HasMedia
         if ($this->is_endMonth && $expirationDate) {
             $expirationDate = $expirationDate->endOfMonth();
         }
+
         return $expirationDate;
     }
 

@@ -2,18 +2,14 @@
 
 namespace App\Filament\Resources\DocumentTypes\Tables;
 
-use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class DocumentTypesTable
@@ -34,17 +30,21 @@ class DocumentTypesTable
                     ->label('Codice')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('document_typable')
+                    ->label('Modello')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 // Natura del documento (Flusso) con Badge dedicati
                 TextColumn::make('nature')
                     ->label('Natura Flusso')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'incoming' => 'info',
                         'template_fillable' => 'warning',
                         'compliance' => 'success',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'incoming' => 'Da Ricevere',
                         'template_fillable' => 'Modulo da Compilare',
                         'compliance' => 'Compliance / Regolamento',
@@ -55,7 +55,7 @@ class DocumentTypesTable
                 TextColumn::make('duration')
                     ->label('Validità')
                     ->formatStateUsing(function ($record) {
-                        if (!$record->duration) {
+                        if (! $record->duration) {
                             return 'Nessuna scadenza';
                         }
 
@@ -78,20 +78,28 @@ class DocumentTypesTable
                     ->color('gray')
                     ->state(function ($record): array {
                         $targets = [];
-                        if ($record->is_person)
+                        if ($record->is_person) {
                             $targets[] = 'Persona';
-                        if ($record->is_company)
+                        }
+                        if ($record->is_company) {
                             $targets[] = 'Azienda';
-                        if ($record->is_employee)
+                        }
+                        if ($record->is_employee) {
                             $targets[] = 'Dipendente';
-                        if ($record->is_agent)
+                        }
+                        if ($record->is_agent) {
                             $targets[] = 'Agente';
-                        if ($record->is_principal)
+                        }
+                        if ($record->is_principal) {
                             $targets[] = 'Mandante';
-                        if ($record->is_client)
+                        }
+                        if ($record->is_client) {
                             $targets[] = 'Cliente';
-                        if ($record->is_practice)
+                        }
+                        if ($record->is_practice) {
                             $targets[] = 'Pratica';
+                        }
+
                         return $targets;
                     })
                     ->placeholder('Nessun target'),
@@ -105,7 +113,7 @@ class DocumentTypesTable
                     ->label('Tipo documento')
                     ->sortable()
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'modulo' => 'info',
                         'procedura' => 'warning',
                         'informativa' => 'info',

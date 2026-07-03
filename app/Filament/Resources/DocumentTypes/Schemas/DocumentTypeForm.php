@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\DocumentTypes\Schemas;
 
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -11,9 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tab;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Str;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class DocumentTypeForm
 {
@@ -29,8 +26,7 @@ class DocumentTypeForm
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn(string $operation, $state, $set) =>
-                                $operation === 'create' ? $set('slug', Str::slug($state)) : null),
+                            ->afterStateUpdated(fn (string $operation, $state, $set) => $operation === 'create' ? $set('slug', Str::slug($state)) : null),
                         Textarea::make('description')
                             ->label('Descrizione Aggiuntiva')
                             ->maxLength(255)
@@ -42,14 +38,28 @@ class DocumentTypeForm
                                 'procedura' => 'Procedura',
                                 'template' => 'Template',
                             ]),
-                        TextInput::make('cellposition')
-                            ->label('Posizione cella'),
+                        Select::make('document_typable')
+                            ->label('Modello destinatario')
+                            ->options([
+                                'audit' => 'Audit',
+                                'branch' => 'Branch',
+                                'cliente' => 'Cliente',
+                                'company' => 'Company',
+                                'complaint' => 'Complaint',
+                                'document' => 'Document',
+                                'employee' => 'Employee',
+                                'fornitore' => 'Fornitore',
+                                'website' => 'Website',
+                            ])
+                            ->searchable()
+                            ->placeholder('Seleziona modello'),
+
                     ]),
                 Section::make('File Allegato')
                     ->components([
                         TextInput::make('document_url')
-                            ->label('URL documento')
-                            ->url(fn($record) => $record->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
+                            ->label('URL documento'),
+                        // ->url(fn($record) => $record->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
                         SpatieMediaLibraryFileUpload::make('attachments')
                             ->label('Carica file (PDF, immagini, Word)')
                             ->multiple()
@@ -61,7 +71,7 @@ class DocumentTypeForm
                 // TAB 2: DESTINATARI E FLUSSO
                 Section::make('Soggetti Interessati')
                     ->description('Indica a quali entità o ruoli si applica questo documento')
-                    ->columns(4)
+                    ->columns(6)
                     ->schema([
                         Toggle::make('is_person')->label('Persona')->default(true)->inline(false),
                         Toggle::make('is_company')->label('Azienda')->default(false)->inline(false),
@@ -88,7 +98,7 @@ class DocumentTypeForm
                             ->columnSpan(2)
                             ->disabled()
                             ->unique(ignoreRecord: true),
-                    ]),
+                    ])->columnSpanFull(),
                 Section::make('Caratteristiche scadenza e rinnovo')
                     ->columnSpanFull()
                     ->columns(5)
@@ -97,10 +107,14 @@ class DocumentTypeForm
                             ->label('Monitora Scadenza')
                             ->live()
                             ->inline(false),
+                        Toggle::make('is_versioned')
+                            ->label('Mantieni lo storico')
+                            ->live()
+                            ->inline(false),
                         TextInput::make('duration')
                             ->label('Durata Validità')
                             ->numeric()
-                            ->visible(fn($get) => $get('is_monitored')),
+                            ->visible(fn ($get) => $get('is_monitored')),
                         Select::make('duration_unit')
                             ->label('Unità di Misura')
                             ->options([
@@ -109,15 +123,15 @@ class DocumentTypeForm
                                 'years' => 'Anni',
                             ])
                             ->default('days')
-                            ->visible(fn($get) => $get('is_monitored')),
+                            ->visible(fn ($get) => $get('is_monitored')),
                         Toggle::make('is_endMonth')
                             ->label('Approssima a Fine Mese')
-                            ->visible(fn($get) => $get('is_monitored')),
+                            ->visible(fn ($get) => $get('is_monitored')),
                         Select::make('renewed_by_id')
                             ->label('Rinnovato da altro documento')
                             ->relationship('renewedBy', 'name')
                             ->searchable()
-                            ->visible(fn($get) => $get('is_monitored'))
+                            ->visible(fn ($get) => $get('is_monitored'))
                             ->placeholder('Seleziona tipo...'),
                     ]),
             ]);
