@@ -1,5 +1,6 @@
 <?php
 
+use AlizHarb\ActivityLog\Taps\SetActivityContextTap;
 use Spatie\Activitylog\Actions\CleanActivityLogAction;
 use Spatie\Activitylog\Actions\LogActivityAction;
 use Spatie\Activitylog\Models\Activity;
@@ -70,9 +71,9 @@ return [
         'log_activity' => LogActivityAction::class,
         'clean_log' => CleanActivityLogAction::class,
     ],
-/*
+
     'activity_logger_taps' => [
-    \AlizHarb\ActivityLog\Taps\SetActivityContextTap::class,
-],
-*/
+        SetActivityContextTap::class,
+    ],
+
 ];

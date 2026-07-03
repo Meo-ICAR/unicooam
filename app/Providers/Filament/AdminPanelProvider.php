@@ -3,7 +3,6 @@
 namespace App\Providers\Filament;
 
 use AlizHarb\ActivityLog\ActivityLogPlugin;
-use App\Models\User;
 use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
 use DutchCodingCompany\FilamentSocialite\Provider;
 use Filament\Http\Middleware\Authenticate;
@@ -17,14 +16,12 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Laravel\Socialite\Contracts\User as SocialiteUserContract;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -71,45 +68,29 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugin(
-
                 FilamentSocialitePlugin::make()
-
                     // (required) Add providers corresponding with providers in `config/services.php`.
                     ->providers([
-                        // Create a provider 'gitlab' corresponding to the Socialite driver with the same name.
                         Provider::make('microsoft')
                             ->label('Microsoft')
                             ->icon('fab-microsoft')
                             ->color(Color::hex('#0078D4'))
                             ->outlined(false)
                             ->stateless(false),
-                        //   ->scopes(['...'])
-                        //    ->with(['...']),
                         Provider::make('google')
                             ->label('Google')
                             ->icon('fab-google')
                             ->color(Color::hex('#4285F4'))
                             ->outlined(false)
                             ->stateless(false),
-                        //   ->scopes(['...'])
-                        //    ->with(['...']),
                     ])
-                    // (optional) Override the panel slug to be used in the oauth routes. Defaults to the panel's configured path.
-                    //   ->slug('admin')
-                    // (optional) Enable/disable registration of new (socialite-) users.
-                    ->registration(true),
-                // (optional) Enable/disable registration of new (socialite-) users using a callback.
-                // In this example, a login flow can only continue if there exists a user (Authenticatable) already.
-                //   ->registration(fn(string $provider, SocialiteUserContract $oauthUser, ?Authenticatable $user) => (bool) $user)
-                // (optional) Change the associated model class.
-                //    ->userModelClass(User::class)
-                // (optional) Change the associated socialite class (see below).
-                //   ->socialiteUserModelClass(SocialiteUser::class)
+                    ->registration(true)
+            )
+            ->plugin(
                 ActivityLogPlugin::make()
                     ->label('Log')
                     ->pluralLabel('Logs')
-                    ->navigationGroup('System'),
-
+                    ->navigationGroup('System')
             )
             ->authMiddleware([
                 Authenticate::class,

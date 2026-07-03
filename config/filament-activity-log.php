@@ -242,7 +242,7 @@ return [
     */
     'pages' => [
         'user_activities' => [
-            'enabled' => true,
+            'enabled' => false,
             'class' => UserActivitiesPage::class,
             'navigation_label' => null, // null uses translation key
             'navigation_group' => null, // null uses resource group
@@ -260,8 +260,8 @@ return [
     |
     */
     'widgets' => [
-        'enabled' => true,
-        'dashboard' => true,
+        'enabled' => false,
+        'dashboard' => false,
         'widgets' => [
             ActivityChartWidget::class,
             LatestActivityWidget::class,
