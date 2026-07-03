@@ -27,7 +27,7 @@ class RemediationResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Impostazioni';
+    protected static UnitEnum|string|null $navigationGroup = 'System';
 
     public static function form(Schema $schema): Schema
     {

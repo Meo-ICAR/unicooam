@@ -32,7 +32,7 @@ class AuditFindingResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Rilievi audit';
 
-    //     protected static string|\UnitEnum|null $navigationGroup = 'Impostazioni';
+    //     protected static string|\UnitEnum|null $navigationGroup = 'System';
 
     public static function form(Schema $schema): Schema
     {

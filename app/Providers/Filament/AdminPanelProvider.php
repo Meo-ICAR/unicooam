@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Models\User;
+use AlizHarb\ActivityLog\ActivityLogPlugin;
 use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
 use DutchCodingCompany\FilamentSocialite\Provider;
 use Filament\Http\Middleware\Authenticate;
@@ -35,7 +36,7 @@ class AdminPanelProvider extends PanelProvider
                 //  NavigationGroup::make()->label('Pratiche'),
                 //  NavigationGroup::make()->label('Contabilita'),
                 NavigationGroup::make()->label('Anagrafiche'),  // ->collapsed(),
-                NavigationGroup::make()->label('Impostazioni')->collapsed(),
+                NavigationGroup::make()->label('System')->collapsed(),
             ])
             ->brandLogo(asset('images/unicoOAM_banner.png'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
@@ -71,6 +72,11 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugin(
+                ActivityLogPlugin::make()
+                ->label('Log')
+                ->pluralLabel('Logs')
+                ->navigationGroup('System'),
+                
                 FilamentSocialitePlugin::make()
                     // (required) Add providers corresponding with providers in `config/services.php`.
                     ->providers([

@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Filament\Resources\Users\Schemas;
+
+use App\Models\User;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Schema;
+
+class UserInfolist
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                TextEntry::make('name'),
+                TextEntry::make('email')
+                    ->label('Email address'),
+                TextEntry::make('cf')
+                    ->placeholder('-'),
+                TextEntry::make('email_verified_at')
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('azure_id')
+                    ->placeholder('-'),
+                TextEntry::make('microsoft_id')
+                    ->placeholder('-'),
+                TextEntry::make('created_at')
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('updated_at')
+                    ->dateTime()
+                    ->placeholder('-'),
+            ]);
+    }
+}
