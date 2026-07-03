@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('document_types', function (Blueprint $table) {
-            $table->boolean('is_monitored')->default(false)
+            $table->boolean('is_versioned')->default(false)
                 ->comment('Mantieni lo storico')->nullable();
 
             $table->string('document_typable')
