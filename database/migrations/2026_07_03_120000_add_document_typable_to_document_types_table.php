@@ -27,6 +27,7 @@ return new class extends Migration
     {
         Schema::table('document_types', function (Blueprint $table) {
             $table->dropColumn('document_typable');
+            $table->dropColumn('is_versioned');
         });
     }
 };
