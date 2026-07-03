@@ -3,7 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Traits\LogsActivity as LogsActivityTrait;
 use Spatie\Activitylog\LogOptions;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -17,13 +17,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
 
 #[Fillable(['name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser, HasAvatar //, LogsActivity
  {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable; //, LogsActivity;
+    use HasFactory, Notifiable, LogsActivity;
 
     protected $connection = 'mysql';
     protected $orderBy = 'name';
@@ -79,7 +80,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar //, LogsAc
     {
         return $this->hasMany(SocialiteUser::class);
     }
-/*
+
+    /*
       public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -88,4 +90,5 @@ class User extends Authenticatable implements FilamentUser, HasAvatar //, LogsAc
             ->setDescriptionForEvent(fn (string $eventName) => "Utente {$this->name} ha effettuato l'evento: {$eventName}");
     }   
             */
+            
 }
