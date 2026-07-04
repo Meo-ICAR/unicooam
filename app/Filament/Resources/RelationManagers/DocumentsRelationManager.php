@@ -162,7 +162,7 @@ class DocumentsRelationManager extends RelationManager
                     ->label('Scadenza')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->visible(fn ($record) => $record?->is_monitored ?? false)
+                  //  ->visible(fn ($record) => $record?->is_monitored ?? false)
                     ->color(fn ($record) => $record?->expires_at?->isPast() ? 'danger' : 'gray')
                     ->weight(fn ($record) => $record?->expires_at?->isPast() ? 'bold' : 'normal'),
                 TextColumn::make('doctype')

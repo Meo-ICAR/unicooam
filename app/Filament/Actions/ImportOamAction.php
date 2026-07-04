@@ -35,7 +35,7 @@ class ImportOamAction extends Action
                         1 => '1° Semestre (Gennaio – Giugno)',
                         2 => '2° Semestre (Luglio – Dicembre)',
                     ])
-                    ->default(now()->month <= 6 ? 1 : 2)
+                    ->default((now()->month < 11) && (now()->month > 3) ? 1 : 2)
                     ->required(),
                 TextInput::make('anno')
                     ->label('Anno')
