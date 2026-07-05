@@ -40,7 +40,7 @@ class ImportOamAction extends Action
                 TextInput::make('anno')
                     ->label('Anno')
                     ->numeric()
-                    ->minValue(2020)
+                    ->minValue(2025)
                     ->maxValue(now()->year)
                     ->default(now()->year)
                     ->required(),
