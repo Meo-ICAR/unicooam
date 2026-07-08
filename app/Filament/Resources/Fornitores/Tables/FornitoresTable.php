@@ -11,7 +11,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;  // Importante per il form nel modal
 use Filament\Notifications\Notification;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
@@ -119,7 +118,7 @@ class FornitoresTable
                     ->falseLabel('Solo P. IVA / Agenzie'),
                 Filter::make('dismessed_at')
                     ->label('Cessati')
-                    ->query(fn($query) => $query->whereNotNull('dismessed_at')),
+                    ->query(fn ($query) => $query->whereNotNull('dismessed_at')),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -145,6 +144,7 @@ class FornitoresTable
                                 // Salto il fornitore se non ha un indirizzo PEC salvato
                                 if (empty($pecAddress)) {
                                     $skippedCount++;
+
                                     continue;
                                 }
 
@@ -186,8 +186,8 @@ class FornitoresTable
                         // 1. Definiamo il form all'interno del Modal della Bulk Action
                         ->form([
                             Select::make('task_id')
-                                ->label('Seleziona il Task')
-                                ->options(fn() => Task::where('taskable', 'fornitore')->pluck('name', 'id'))
+                                ->label('Seleziona il Plico Documentazione')
+                                ->options(fn () => Task::where('taskable', 'fornitore')->pluck('name', 'id'))
                                 ->searchable()
                                 ->required(),
                         ])
@@ -196,24 +196,26 @@ class FornitoresTable
                             // Recuperiamo l'azienda principale
                             $company = Company::first();
 
-                            if (!$company) {
+                            if (! $company) {
                                 Notification::make()
                                     ->title('Errore')
                                     ->body('Nessuna azienda trovata nel sistema.')
                                     ->danger()
                                     ->send();
+
                                 return;
                             }
 
                             // Recuperiamo il SINGOLO task selezionato dall'utente nel form
                             $task = Task::with('documentTypes')->find($data['task_id']);
 
-                            if (!$task) {
+                            if (! $task) {
                                 Notification::make()
                                     ->title('Errore')
                                     ->body('Task non trovato.')
                                     ->danger()
                                     ->send();
+
                                 return;
                             }
 
@@ -240,7 +242,7 @@ class FornitoresTable
                                     ->send();
                             }
                         }),
-                ])
+                ]),
             ])
             ->emptyStateHeading('Nessun fornitore trovato')
             ->emptyStateDescription('Crea un nuovo fornitore o agente per iniziare.');

@@ -2,11 +2,15 @@
 
 namespace App\Filament\Resources\Tasks\Schemas;
 
+use App\Filament\Utils\FormHelper;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder; // Importi il tuo helper
 
 class TaskForm
 {
@@ -14,26 +18,53 @@ class TaskForm
     {
         return $schema
             ->components([
+                // ==========================================
+                // ANAGRAFICA BASE
+                // ==========================================
                 TextInput::make('name')
                     ->label('Nome attività')
                     ->required()
                     ->maxLength(255),
+
                 TextInput::make('description')
                     ->label('Descrizione')
                     ->maxLength(255),
-                Select::make('taskable')
-                    ->label('Collegata a')
-                    ->options([
-                        'audit' => 'Audit',
-                        'company' => 'Azienda',
-                        'employee' => 'Dipendente',
-                        'clienti' => 'Mandante',
-                        'fornitore' => 'Produttore',
-                    ])
-                    ->searchable()
-                    ->required(),
+
                 // ==========================================
-                // NUOVA SEZIONE: FILTRI DI ATTIVAZIONE
+                // NUOVA SEZIONE: CONTESTO E STRUTTURA WORKFLOW
+                // ==========================================
+                Section::make('Inquadramento e Struttura')
+                    ->description('Definisci a quale entità si riferisce il task, l\'applicazione di pertinenza e l\'eventuale dipendenza gerarchica.')
+                    ->schema([
+                        // 1. RICHIAMO DEL SELECT DINAMICO DAL MORPHMAP
+                        FormHelper::polymorphicSelect(name: 'taskable', label: 'Collegata a'),
+
+                        // Relazione gerarchica per i task figli
+                        Select::make('parent_id')
+                            ->label('Attività precedente (Padre)')
+                            ->relationship(
+                                name: 'parent',
+                                titleAttribute: 'name',
+                                // Evitiamo che un task possa essere padre di se stesso in fase di modifica
+                                modifyQueryUsing: fn (Builder $query, $record) => $record
+                                    ? $query->where('id', '!=', $record->id)
+                                    : $query
+                            )
+                            ->placeholder('Nessuna (Questo è un task principale / Radice)')
+                            ->searchable()
+                            ->helperText('Seleziona un task padre se questa attività deve attivarsi solo al completamento di quella precedente.'),
+
+                        // Gestione multi-applicazione e task comuni
+                        TextInput::make('app_identifier')
+                            ->label('Codice Applicazione')
+                            ->placeholder('Lascia in bianco per rendere il task COMUNE a tutte le app')
+                            ->maxLength(50)
+                            ->helperText('Inserisci l\'identificativo dell\'app (es. app_oam) per limitarne la visibilità, oppure lascialo vuoto.'),
+                    ])
+                    ->columns(3),
+
+                // ==========================================
+                // SEZIONE: FILTRI DI ATTIVAZIONE
                 // ==========================================
                 Section::make('Regole di Attivazione Dinamica')
                     ->description('Configura le condizioni per cui questo task deve attivarsi in base ai dati del record.')
@@ -50,16 +81,17 @@ class TaskForm
                                 'filled' => 'Deve essere COMPILATO (Contiene un valore)',
                                 'equals' => 'Deve essere UGUALE a un valore specifico',
                             ])
-                            ->live(),  // Rende il campo reattivo per aggiornare la form al cambio
+                            ->live(),
                         TextInput::make('trigger_value')
                             ->label('Valore specifico richiesto')
                             ->placeholder('es. esterno, attivo')
-                            ->visible(fn($get) => $get('trigger_state') === 'equals')  // Visibile solo se selezioni 'equals'
-                            ->required(fn($get) => $get('trigger_state') === 'equals'),  // Obbligatorio solo se visibile
+                            ->visible(fn (Get $get) => $get('trigger_state') === 'equals')
+                            ->required(fn (Get $get) => $get('trigger_state') === 'equals'),
                     ])
                     ->columns(3),
+
                 // ==========================================
-                // NUOVA SEZIONE: FILTRI DI Esclusione
+                // SEZIONE: FILTRI DI ESCLUSIONE
                 // ==========================================
                 Section::make('Regole di Esclusione Dinamica')
                     ->description('Configura le condizioni per cui questo task deve essere escluso in base ai dati del record.')
@@ -76,25 +108,40 @@ class TaskForm
                                 'filled' => 'Deve essere COMPILATO (Contiene un valore)',
                                 'equals' => 'Deve essere UGUALE a un valore specifico',
                             ])
-                            ->live(),  // Rende il campo reattivo per aggiornare la form al cambio
+                            ->live(),
                         TextInput::make('exclude_value')
                             ->label('Valore specifico richiesto')
                             ->placeholder('es. esterno, attivo')
-                            ->visible(fn($get) => $get('exclude_state') === 'equals')  // Visibile solo se selezioni 'equals'
-                            ->required(fn($get) => $get('exclude_state') === 'equals'),  // Obbligatorio solo se visibile
+                            ->visible(fn (Get $get) => $get('exclude_state') === 'equals')
+                            ->required(fn (Get $get) => $get('exclude_state') === 'equals'),
                     ])
                     ->columns(3),
+
                 // ==========================================
                 // SEZIONE DOCUMENTI (Esistente)
                 // ==========================================
                 Section::make('Associazione documenti')
                     ->description("Seleziona i tipi documento da associare all'attività.")
                     ->schema([
+                        Toggle::make('show_only_checked_documents')
+                            ->label('Mostra solo i documenti selezionati')
+                            ->live()
+                            ->columnSpanFull(),
+
                         CheckboxList::make('documentTypes')
                             ->label('Tipi documento')
                             ->relationship(
                                 name: 'documentTypes',
-                                titleAttribute: 'name'
+                                titleAttribute: 'name',
+                                modifyQueryUsing: function (Builder $query, Get $get) {
+                                    if ($get('show_only_checked_documents')) {
+                                        $selectedIds = $get('documentTypes') ?? [];
+
+                                        return $query->whereIn($query->qualifyColumn('id'), $selectedIds);
+                                    }
+
+                                    return $query;
+                                }
                             )
                             ->searchable()
                             ->bulkToggleable()

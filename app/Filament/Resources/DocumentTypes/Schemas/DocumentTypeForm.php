@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\DocumentTypes\Schemas;
 
+use App\Filament\Utils\FormHelper; // Importi il tuo helper
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -38,6 +39,8 @@ class DocumentTypeForm
                                 'procedura' => 'Procedura',
                                 'template' => 'Template',
                             ]),
+                        FormHelper::polymorphicSelect(name: 'taskable', label: 'Collegata a (Entità)'),
+                        /*
                         Select::make('document_typable')
                             ->label('Modello destinatario')
                             ->options([
@@ -52,7 +55,7 @@ class DocumentTypeForm
                                 'website' => 'Website',
                             ])
                             ->searchable()
-                            ->placeholder('Seleziona modello'),
+                            ->placeholder('Seleziona modello'), */
 
                     ]),
                 Section::make('File Allegato')

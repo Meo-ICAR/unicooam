@@ -23,6 +23,6 @@ class ListTasks extends ListRecords
     {
         // $record = $this->getRecord();
 
-        return new HtmlString('Raccoglitore documenti per le varie attivita');
+        return new HtmlString('Plico:  Raccoglitore documenti per le varie attivita');
     }
 }

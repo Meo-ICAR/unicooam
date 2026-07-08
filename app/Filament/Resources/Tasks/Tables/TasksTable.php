@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources\Tasks\Tables;
 
-use App\Models\PROFORMA\Fornitore;
+use App\Filament\Utils\TableHelper;
 use App\Models\Company;
-use App\Models\Document;
+use App\Models\PROFORMA\Fornitore;
 use App\Models\Task;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -33,6 +33,8 @@ class TasksTable
                     ->label('Descrizione')
                     ->searchable()
                     ->limit(50),  // Evita che descrizioni lunghe rompano il layout
+                TableHelper::polymorphicColumn('taskable', 'Entità Assegnata'),
+                /*
                 TextColumn::make('taskable')
                     ->label('Entità collegata')
                     ->badge()  // Trasforma il testo in un comodo Badge
@@ -53,6 +55,7 @@ class TasksTable
                         default => ucfirst($state),
                     })
                     ->searchable(),
+                    */
                 // ==========================================
                 // NUOVE COLONNE PER LE REGOLE DI ATTIVAZIONE
                 // ==========================================
@@ -63,13 +66,13 @@ class TasksTable
                 TextColumn::make('trigger_state')
                     ->label('Condizione')
                     ->badge()
-                    ->color(fn(?string $state): string => match ($state) {
+                    ->color(fn (?string $state): string => match ($state) {
                         'empty' => 'danger',
                         'filled' => 'success',
                         'equals' => 'info',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(?string $state): string => match ($state) {
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'empty' => 'Deve essere vuoto',
                         'filled' => 'Deve essere pieno',
                         'equals' => 'Deve essere uguale a...',
@@ -81,7 +84,7 @@ class TasksTable
                     ->placeholder('-')
                     ->badge()
                     ->color('gray')
-                    ->visible(fn($record) => $record?->trigger_state === 'equals'),  // Nasconde la cella se non serve
+                    ->visible(fn ($record) => $record?->trigger_state === 'equals'),  // Nasconde la cella se non serve
                 // ==========================================
                 // NUOVE COLONNE PER LE REGOLE DI ESCLUSIONE
                 // ==========================================
@@ -92,13 +95,13 @@ class TasksTable
                 TextColumn::make('exclude_state')
                     ->label('Condizione')
                     ->badge()
-                    ->color(fn(?string $state): string => match ($state) {
+                    ->color(fn (?string $state): string => match ($state) {
                         'empty' => 'danger',
                         'filled' => 'success',
                         'equals' => 'info',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(?string $state): string => match ($state) {
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'empty' => 'Deve essere vuoto',
                         'filled' => 'Deve essere pieno',
                         'equals' => 'Deve essere uguale a...',
@@ -110,7 +113,7 @@ class TasksTable
                     ->placeholder('-')
                     ->badge()
                     ->color('gray')
-                    ->visible(fn($record) => $record?->exclude_state === 'equals'),  // Nasconde la cella se non serve
+                    ->visible(fn ($record) => $record?->exclude_state === 'equals'),  // Nasconde la cella se non serve
             ])
             ->filters([
                 // 1. Filtro per isolare l'entità (Azienda, Produttore, ecc.)
@@ -130,8 +133,8 @@ class TasksTable
                     ->trueLabel('Solo task con regole dinamiche')
                     ->falseLabel('Solo task sempre attivi')
                     ->queries(
-                        true: fn($query) => $query->whereNotNull('trigger_field'),
-                        false: fn($query) => $query->whereNull('trigger_field'),
+                        true: fn ($query) => $query->whereNotNull('trigger_field'),
+                        false: fn ($query) => $query->whereNull('trigger_field'),
                     ),
             ])
             ->recordActions([
@@ -149,7 +152,7 @@ class TasksTable
                         $clonedTask = $record->replicate();
 
                         // Opzionale: Modifica il nome per distinguere il clone
-                        $clonedTask->name = $clonedTask->name . ' (Copia)';
+                        $clonedTask->name = $clonedTask->name.' (Copia)';
                         $clonedTask->save();
 
                         // 2. Clona i DocumentType associati
@@ -171,7 +174,7 @@ class TasksTable
                             ->title('Task clonato con successo!')
                             ->success()
                             ->send();
-                    })
+                    }),
             ])
             ->headerActions([
                 Action::make('create')
@@ -180,8 +183,9 @@ class TasksTable
                     ->action(function () {
                         $company = Company::first();
 
-                        if (!$company) {
+                        if (! $company) {
                             Notification::make()->title('Errore')->body('Nessuna azienda trovata.')->danger()->send();
+
                             return;
                         }
 
@@ -196,13 +200,13 @@ class TasksTable
                             // Caso AZIENDA: il record id coincide con il $company_id
                             if ($task->taskable === 'company') {
                                 // Verifica se il task ha un filtro sul campo del modello
-                                if (!empty($task->trigger_field)) {
+                                if (! empty($task->trigger_field)) {
                                     $fieldValue = $company->{$task->trigger_field};
 
                                     // Centralizziamo i controlli
                                     $shouldSkip =
                                         ($task->trigger_state === 'filled' && empty($fieldValue)) ||
-                                        ($task->trigger_state === 'empty' && !empty($fieldValue)) ||
+                                        ($task->trigger_state === 'empty' && ! empty($fieldValue)) ||
                                         ($task->trigger_state === 'equals' && $fieldValue != $task->trigger_value);
 
                                     if ($shouldSkip) {
@@ -216,13 +220,13 @@ class TasksTable
                             if ($task->taskable === 'fornitore') {
                                 foreach ($fornitori as $fornitore) {
                                     // Verifica il filtro dinamico sul SINGOLO fornitore corrente
-                                    if (!empty($task->trigger_field)) {
+                                    if (! empty($task->trigger_field)) {
                                         $fieldValue = $fornitore->{$task->trigger_field};
 
                                         // Controlliamo lo stato del singolo fornitore
                                         $shouldSkip =
                                             ($task->trigger_state === 'filled' && empty($fieldValue)) ||
-                                            ($task->trigger_state === 'empty' && !empty($fieldValue)) ||
+                                            ($task->trigger_state === 'empty' && ! empty($fieldValue)) ||
                                             ($task->trigger_state === 'equals' && $fieldValue != $task->trigger_value);  // <-- Controllo del valore esatto
 
                                         if ($shouldSkip) {

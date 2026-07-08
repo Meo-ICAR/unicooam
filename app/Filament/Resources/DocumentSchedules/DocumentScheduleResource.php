@@ -4,44 +4,38 @@ namespace App\Filament\Resources\DocumentSchedules;
 
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
-use App\Models\PROFORMA\Fornitore;
-use App\Models\Company;
+use App\Filament\Utils\TableHelper;
 use App\Models\Document;
 use App\Models\DocumentSchedule;
 use App\Models\EmailTemplate;
-use App\Models\Employee;
-use App\Models\Task;
 use App\Services\DocumentReminderService;
+use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Select;  // Importante per il form nel modal
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;  // Importante per il form nel modal
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Grouping\Group;
+// use Illuminate\Support\Collection;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-// use Illuminate\Support\Collection;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Log;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
-use BackedEnum;
 use UnitEnum;
 
 class DocumentScheduleResource extends Resource
@@ -71,7 +65,7 @@ class DocumentScheduleResource extends Resource
                 Group::make('documentable_group_key')
                     ->label('Destinatario')
                     ->titlePrefixedWithLabel(false)
-                    ->getTitleFromRecordUsing(fn(DocumentSchedule $record): string => $record->entity_name)
+                    ->getTitleFromRecordUsing(fn (DocumentSchedule $record): string => $record->entity_name)
                     ->collapsible(),
             ])
             ->defaultGroup('documentable_group_key')
@@ -95,12 +89,12 @@ class DocumentScheduleResource extends Resource
                     ->label('Scadenza')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->color(fn(DocumentSchedule $record): string => $record->expires_at?->isPast() ? 'danger' : 'gray'),
+                    ->color(fn (DocumentSchedule $record): string => $record->expires_at?->isPast() ? 'danger' : 'gray'),
                 TextColumn::make('days_until_expiry')
                     ->label('Giorni')
                     ->badge()
                     ->sortable()
-                    ->color(fn(DocumentSchedule $record): string => match (true) {
+                    ->color(fn (DocumentSchedule $record): string => match (true) {
                         $record->days_until_expiry < 0 => 'danger',
                         $record->days_until_expiry <= 7 => 'warning',
                         default => 'gray',
@@ -123,17 +117,19 @@ class DocumentScheduleResource extends Resource
             ->filters([
                 Filter::make('scaduti')
                     ->label('Già scaduti')
-                    ->query(fn(Builder $query): Builder => $query->whereDate('expires_at', '<', now()->toDateString())),
+                    ->query(fn (Builder $query): Builder => $query->whereDate('expires_at', '<', now()->toDateString())),
                 Filter::make('in_scadenza_7')
                     ->label('In scadenza imminente (7 gg)')
-                    ->query(fn(Builder $query): Builder => $query
+                    ->query(fn (Builder $query): Builder => $query
                         ->whereDate('expires_at', '>=', now()->toDateString())
                         ->whereDate('expires_at', '<=', now()->addDays(7)->toDateString())),
                 Filter::make('in_scadenza')
                     ->label('In scadenza (30 gg)')
-                    ->query(fn(Builder $query): Builder => $query
+                    ->query(fn (Builder $query): Builder => $query
                         ->whereDate('expires_at', '>=', now()->toDateString())
                         ->whereDate('expires_at', '<=', now()->addDays(30)->toDateString())),
+                TableHelper::polymorphicFilter('documentable_type', 'Destinatari'),
+                /*
                 SelectFilter::make('documentable_type')
                     ->label('Destinatari')
                     ->options([
@@ -144,6 +140,7 @@ class DocumentScheduleResource extends Resource
                         'complaint' => 'Reclamo',
                         'cliente' => 'Istituto',
                     ]),
+                    */
             ])
             ->recordActions([
                 //  EditAction::make(),
@@ -177,7 +174,7 @@ class DocumentScheduleResource extends Resource
 
                             $rows[] = [
                                 'document_id' => $doc->id,
-                                'documentable_group_key' => $doc->documentable_type . '|' . $doc->documentable_id,
+                                'documentable_group_key' => $doc->documentable_type.'|'.$doc->documentable_id,
                                 'document_name' => $doc->name,
                                 'document_type_name' => $doc->documentType?->name ?? '-',
                                 'entity_name' => $entityName,
@@ -234,12 +231,12 @@ class DocumentScheduleResource extends Resource
                             TextInput::make('subject')
                                 ->label('Oggetto')
                                 ->required()
-                                ->visible(fn(Get $get) => filled($get('email_template_id'))),
+                                ->visible(fn (Get $get) => filled($get('email_template_id'))),
                             RichEditor::make('body')
                                 ->label("Testo dell'email")
                                 // ->rows(6)
                                 ->required()
-                                ->visible(fn(Get $get) => filled($get('email_template_id'))),
+                                ->visible(fn (Get $get) => filled($get('email_template_id'))),
                             Toggle::make('is_demo')
                                 ->helperText("Se attivato, invia l'email di sollecito a te stesso invece di inviarla ai destinatari")
                                 ->default(true)
@@ -252,7 +249,7 @@ class DocumentScheduleResource extends Resource
                             Log::debug("Totale record selezionati inizialmente: {$records->count()}");
 
                             $emailUser = auth()->user()->email;
-                            Log::debug('Email utente: ' . $emailUser);
+                            Log::debug('Email utente: '.$emailUser);
                             $sentCount = 0;
                             $nrecipients = 0;
                             $erroreIsCompany = false;
@@ -266,10 +263,12 @@ class DocumentScheduleResource extends Resource
                                 if ($record->documentable_type === 'company') {
                                     $erroreIsCompany = true;
                                     Log::debug('ERRORE: documentable_type è company');
+
                                     return false;
                                 }
+
                                 return filled($record->entity?->email);
-                            })->groupBy(fn($record) => $record->entity->email);
+                            })->groupBy(fn ($record) => $record->entity->email);
 
                             // 3. Ciclo sui gruppi (un ciclo = un destinatario)
                             foreach ($groupedRecords as $email => $userRecords) {
@@ -280,10 +279,10 @@ class DocumentScheduleResource extends Resource
                                 // Raccolgo i documenti e aggiorno i contatori per questo destinatario
                                 foreach ($userRecords as $record) {
                                     $documentName = Document::renewedBy($record->document_id);
-                                    Log::debug('Document found: ' . ($documentName ? 'YES' : 'NO'));
+                                    Log::debug('Document found: '.($documentName ? 'YES' : 'NO'));
                                     if ($documentName) {
-                                        Log::debug('Document name: ' . $documentName);
-                                        $documentNames[] = '- ' . $documentName;
+                                        Log::debug('Document name: '.$documentName);
+                                        $documentNames[] = '- '.$documentName;
                                         $record->increment('reminders_count', 1);
                                         $record->update(['last_sent_at' => now()]);
                                         $sentCount++;
@@ -297,7 +296,7 @@ class DocumentScheduleResource extends Resource
                                 }
                                 $documentCount = count($documentNames);
 
-                                Log::debug('Document count: ' . $documentCount);
+                                Log::debug('Document count: '.$documentCount);
                                 //  "[\"{agente_nome}\",\"{documento_nome}\",\"{data_scadenza}\",\"{elenco_documenti}\"]
                                 $finalSubject = str_replace('{agente_nome}', $agentName, $baseSubject);
                                 $finalSubject = str_replace('{n_documenti}', $documentCount, $finalSubject);
@@ -308,11 +307,11 @@ class DocumentScheduleResource extends Resource
                                 $finalBody = str_replace('{elenco_documenti}', implode("\n", $documentNames), $finalBody);
 
                                 // 4. Unisco il testo del form con la lista dei documenti estratti
-                                Log::debug('Final body: ' . $finalBody);
+                                Log::debug('Final body: '.$finalBody);
                                 // 5. Invio email
                                 if ($data['is_demo']) {
                                     $targetEmail = $emailUser ?? auth()->user()->email;
-                                    Log::debug('Target email: ' . $targetEmail);
+                                    Log::debug('Target email: '.$targetEmail);
                                     mail($targetEmail, $baseSubject, $finalBody);
                                     Log::debug('Email inviata in modalità demo');
                                 } else {

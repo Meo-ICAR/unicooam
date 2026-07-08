@@ -3,17 +3,14 @@
 namespace App\Filament\Resources\SuspiciousActivityReports\Tables;
 
 use App\Filament\Exports\DynamicGroupExport;
-use App\Models\Company;
+use App\Filament\Utils\TableHelper;
 use App\Models\Employee;
-use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
@@ -47,14 +44,14 @@ class SuspiciousActivityReportsTable
                 TextColumn::make('status')
                     ->label('Stato')
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'pending' => 'warning',
                         'investigated' => 'info',
                         'reported' => 'danger',
                         'archived' => 'success',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'pending' => 'In Attesa',
                         'investigated' => 'In Investigazione',
                         'reported' => 'Segnalata a UIF',
@@ -63,6 +60,8 @@ class SuspiciousActivityReportsTable
                     })
                     ->sortable(),
                 // Risoluzione della polimorfica "reportable" (Chi ha fatto la segnalazione?)
+                TableHelper::polymorphicColumn('reportable mi', 'Soggetto Controllato'),
+                /*
                 TextColumn::make('reportable')
                     ->label('Segnalatore')
                     ->state(function ($record) {
@@ -77,6 +76,7 @@ class SuspiciousActivityReportsTable
                         'fornitore', 'agent' => '💼 Agente / Produttore',
                         default => '🔗 Altro',
                     }),
+                    */
                 // ==========================================
                 // 2. DETTAGLI E CONTENUTO
                 // ==========================================
@@ -95,7 +95,7 @@ class SuspiciousActivityReportsTable
                     ->label('Descrizione Segnalazione')
                     ->limit(40)  // Taglia il testo per non spaccare il layout della tabella
                     ->searchable()
-                    ->tooltip(fn($record) => $record->description),  // Mostra il testo completo al passaggio del mouse
+                    ->tooltip(fn ($record) => $record->description),  // Mostra il testo completo al passaggio del mouse
             ])
             ->filters([
                 // Filtro per lo Stato della pratica

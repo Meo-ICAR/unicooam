@@ -2,21 +2,42 @@
 
 namespace App\Models;
 
-use App\Models\Document;
+use App\Events\TaskActivated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Pivot;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Task extends Model
 {
     use HasFactory;
 
     protected $connection = 'mysql';
+
     protected $orderBy = 'name';
+
     protected $orderDirection = 'asc';
-    protected $fillable = ['name', 'description', 'taskable', 'trigger_field', 'trigger_state', 'trigger_value', 'exclude_field', 'exclude_state', 'exclude_value', 'is_active'];
+
+    protected $fillable = ['name', 'description', 'taskable', 'trigger_field', 'trigger_state', 'trigger_value', 'exclude_field', 'exclude_state',
+        'exclude_value', 'is_active', 'parent_id', 'app_identifier'];
+
+    /**
+     * 1. GLOBAL SCOPE ISOLAMENTO E TASK COMUNI
+     * Caricato automaticamente su tutte le query dell'applicazione.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('app_isolation', function (Builder $builder) {
+            // Recupera l'identificativo dell'app corrente dal file .env (es. APP_IDENTIFIER=app_oam)
+            $currentApp = config('app.identifier', 'core_app');
+
+            $builder->where(function (Builder $query) use ($currentApp) {
+                $query->where('app_identifier', $currentApp)
+                    ->orWhereNull('app_identifier')
+                    ->orWhere('app_identifier', ''); // Gestisce anche stringhe vuote
+            });
+        });
+    }
 
     /**
      * I tipi di documento associati a questo Task
@@ -33,9 +54,9 @@ class Task extends Model
     /**
      * Crea la documentazione mancante per questo specifico task.
      *
-     * @param int $companyId ID dell'azienda principale
-     * @param int $documentableId ID del record di destinazione (ID Azienda o ID Fornitore)
-     * @param bool $is_debug Abilita il debug
+     * @param  int  $companyId  ID dell'azienda principale
+     * @param  int  $documentableId  ID del record di destinazione (ID Azienda o ID Fornitore)
+     * @param  bool  $is_debug  Abilita il debug
      * @return int Numero di documenti creati
      */
     public function createDocumentation(string $companyId, string $documentableId, bool $is_debug = false): int
@@ -53,7 +74,7 @@ class Task extends Model
                     'is_template',
                     'is_signed',
                     'is_monitored',
-                    'doctype'
+                    'doctype',
                 ])
                 ->toArray();
 
@@ -90,65 +111,110 @@ class Task extends Model
         return $createdCount;
     }
 
+    /**
+     * 1. METODO ESISTENTE AGGIORNATO
+     * Sfrutta il refactoring e pesca solo i task "Radice" (senza padre).
+     */
     public static function getAvailableFor($record)
     {
-        // Trova il tipo (es. "App\Models\Fornitore" diventa "fornitore")
         $taskableType = strtolower(class_basename($record));
 
-        // 1. Prendi tutti i task legati a quel tipo di modello
-        $tasks = self::where('taskable', $taskableType)->where('is_active', true)->get();
+        // Prendiamo solo i task attivi che NON hanno un padre (i task figli aspetteranno il loro turno)
+        $rootTasks = self::where('taskable', $taskableType)
+            ->where('is_active', true)
+            ->whereNull('parent_id')
+            ->get();
 
-        // 2. Filtra i task in base allo stato dei campi del record
-        return $tasks->filter(function ($task) use ($record) {
-            // Verifica condizioni di esclusione
-            if (!empty($task->exclude_field)) {
-                $excludeValue = $record->{$task->exclude_field};
-
-                // Condizione di esclusione: il campo deve essere valorizzato
-                if ($task->exclude_state === 'filled') {
-                    if (!empty($excludeValue)) {
-                        return false;
-                    }
-                }
-
-                // Condizione di esclusione: il campo deve essere vuoto
-                if ($task->exclude_state === 'empty') {
-                    if (empty($excludeValue)) {
-                        return false;
-                    }
-                }
-
-                // Condizione di esclusione: il campo deve essere uguale a un valore specifico
-                if ($task->exclude_state === 'equals') {
-                    if ($excludeValue == $task->exclude_value) {
-                        return false;
-                    }
-                }
-            }
-
-            // Se il task non ha condizioni di attivazione particolari, è sempre valido
-            if (empty($task->trigger_field)) {
-                return true;
-            }
-
-            $fieldValue = $record->{$task->trigger_field};
-
-            // Condizione: il campo deve essere valorizzato (NOT NULL)
-            if ($task->trigger_state === 'filled') {
-                return !empty($fieldValue);
-            }
-
-            // Condizione: il campo deve essere vuoto (NULL)
-            if ($task->trigger_state === 'empty') {
-                return empty($fieldValue);
-            }
-
-            // Condizione: il campo deve essere uguale a un valore specifico
-            if ($task->trigger_state === 'equals') {
-                return $fieldValue == $task->trigger_value;
-            }
-
-            return true;
+        // Filtriamo usando il nuovo metodo di istanza
+        return $rootTasks->filter(function ($task) use ($record) {
+            return $task->matchesConditions($record);
         });
+    }
+
+    /**
+     * 2. NUOVO METODO: ATTIVAZIONE DEI TASK FIGLI
+     * Da invocare quando il task corrente (padre) viene completato.
+     */
+    public function activateChildrenFor(Model $record): void
+    {
+        // Recuperiamo i soli figli attivi di questo task
+        $children = $this->children()->where('is_active', true)->get();
+
+        // Filtriamo i figli in base alle loro condizioni di trigger/esclusione sul record
+        $activatableChildren = $children->filter(function ($childTask) use ($record) {
+            return $childTask->matchesConditions($record);
+        });
+
+        foreach ($activatableChildren as $childTask) {
+            // --- LOGICA DI ATTIVAZIONE ---
+            // Esegui l'azione specifica della tua architettura, ad esempio:
+            // - Creare un record nella tabella pivot dei task completabili per quel fornitore/utente
+            // - Lanciare un evento di attivazione
+            event(new TaskActivated($childTask, $record));
+        }
+    }
+
+    /**
+     * 3. LOGICA DI CONTROLLO CONDIZIONI (Estratta dal tuo metodo originale)
+     * Verifica se il task è compatibile con lo stato attuale del record.
+     */
+    public function matchesConditions(Model $record): bool
+    {
+        // Verifica condizioni di esclusione
+        if (! empty($this->exclude_field)) {
+            $excludeValue = $record->{$this->exclude_field};
+
+            if ($this->exclude_state === 'filled' && ! empty($excludeValue)) {
+                return false;
+            }
+
+            if ($this->exclude_state === 'empty' && empty($excludeValue)) {
+                return false;
+            }
+
+            if ($this->exclude_state === 'equals' && $excludeValue == $this->exclude_value) {
+                return false;
+            }
+        }
+
+        // Se il task non ha condizioni di attivazione particolari, è valido
+        if (empty($this->trigger_field)) {
+            return true;
+        }
+
+        $fieldValue = $record->{$this->trigger_field};
+
+        // Condizione: il campo deve essere valorizzato (NOT NULL)
+        if ($this->trigger_state === 'filled') {
+            return ! empty($fieldValue);
+        }
+
+        // Condizione: il campo deve essere vuoto (NULL)
+        if ($this->trigger_state === 'empty') {
+            return empty($fieldValue);
+        }
+
+        // Condizione: il campo deve essere uguale a un valore specifico
+        if ($this->trigger_state === 'equals') {
+            return $fieldValue == $this->trigger_value;
+        }
+
+        return true;
+    }
+
+    /**
+     * Relazione per i task figli
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(Task::class, 'parent_id');
+    }
+
+    /**
+     * Relazione per il task padre
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Task::class, 'parent_id');
     }
 }

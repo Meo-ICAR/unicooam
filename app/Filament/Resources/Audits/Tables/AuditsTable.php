@@ -4,11 +4,10 @@ namespace App\Filament\Resources\Audits\Tables;
 
 use App\Enums\AuditStatus;
 use App\Filament\Exports\DynamicGroupExport;
-use App\Models\PROFORMA\Fornitore;
+use App\Filament\Utils\TableHelper;
 use App\Models\Company;
-use Filament\Forms\Components\Select;
-use App\Models\Employee;
 use App\Models\Task;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -16,10 +15,9 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
-use Filament\Tables\Columns\TextareaColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -40,22 +38,7 @@ class AuditsTable
             //  ->contentFooter(fn($records) => new HtmlString($records?->count() > 0 ? 'Totale record: ' . $records->count() : 'Nessun record trovato'))
             ->columns([
                 // 2. Soggetto Controllato (Risolve il polimorfismo mostrando il nome reale dell'agente/impiegato)
-                TextColumn::make('auditable')
-                    ->label('Soggetto Controllato')
-                    ->state(fn($record) => $record->auditable?->full_name ?? $record->auditable?->name ?? 'N/D')
-                    ->description(fn($record) => match ($record->auditable_type) {
-                        'fornitore' => 'Collaboratore / Agente',
-                        'employee' => 'Impiegato Interno',
-                        default => 'fornitore',
-                    })
-                    ->searchable(query: function ($query, string $search) {
-                        // Permette di cercare nella tabella per nome/cognome del polimorfico
-                        $query->whereHasMorph('auditable', ['fornitore', 'employee'], function ($q) use ($search) {
-                            $q
-                                ->where('full_name', 'like', "%{$search}%")
-                                ->orWhere('name', 'like', "%{$search}%");
-                        });
-                    }),
+                TableHelper::polymorphicColumn('auditable', 'Soggetto Controllato'),
                 // 3. Organismo di Vigilanza (Relazione con la tabella organizations)
                 TextColumn::make('organization.acronym')
                     ->label('Ente Vigilante')
@@ -110,7 +93,7 @@ class AuditsTable
                 // 7. Campi secondari nascosti di default (Toggleable) per non intasare lo schermo
                 TextColumn::make('origin_type')
                     ->label('Origine')
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
                         'internal' => 'Interno',
                         'external_incoming' => 'Ispezione Esterna',
                         default => $state,
@@ -144,22 +127,22 @@ class AuditsTable
                         return $query
                             ->when(
                                 $data['execution_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('executed_at', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('executed_at', '>=', $date),
                             )
                             ->when(
                                 $data['execution_to'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('executed_at', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('executed_at', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
 
                         if ($data['execution_from'] ?? null) {
-                            $indicators[] = 'Esecuzione dal: ' . \Carbon\Carbon::parse($data['execution_from'])->format('d/m/Y');
+                            $indicators[] = 'Esecuzione dal: '.Carbon::parse($data['execution_from'])->format('d/m/Y');
                         }
 
                         if ($data['execution_to'] ?? null) {
-                            $indicators[] = 'Esecuzione al: ' . \Carbon\Carbon::parse($data['execution_to'])->format('d/m/Y');
+                            $indicators[] = 'Esecuzione al: '.Carbon::parse($data['execution_to'])->format('d/m/Y');
                         }
 
                         return $indicators;
@@ -189,7 +172,7 @@ class AuditsTable
                         ->form([
                             Select::make('task_id')
                                 ->label('Seleziona il Task')
-                                ->options(fn() => Task::where('taskable', 'audit')->pluck('name', 'id'))
+                                ->options(fn () => Task::where('taskable', 'audit')->pluck('name', 'id'))
                                 ->searchable()
                                 ->required(),
                         ])
@@ -198,24 +181,26 @@ class AuditsTable
                             // Recuperiamo l'azienda principale
                             $company = Company::first();
 
-                            if (!$company) {
+                            if (! $company) {
                                 Notification::make()
                                     ->title('Errore')
                                     ->body('Nessuna azienda trovata nel sistema.')
                                     ->danger()
                                     ->send();
+
                                 return;
                             }
 
                             // Recuperiamo il SINGOLO task selezionato dall'utente nel form
                             $task = Task::with('documentTypes')->find($data['task_id']);
 
-                            if (!$task) {
+                            if (! $task) {
                                 Notification::make()
                                     ->title('Errore')
                                     ->body('Task non trovato.')
                                     ->danger()
                                     ->send();
+
                                 return;
                             }
 
