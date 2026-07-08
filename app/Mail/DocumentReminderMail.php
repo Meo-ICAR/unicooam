@@ -14,7 +14,9 @@ class DocumentReminderMail extends Mailable
     use Queueable, SerializesModels;
 
     public string $bodyContent;
+
     public string $subjectLine;
+
     public array $fileAttachments;
 
     public function __construct(string $subjectLine, string $bodyContent, array $fileAttachments = [])
@@ -49,6 +51,7 @@ class DocumentReminderMail extends Mailable
                 $attachments[] = Attachment::fromPath($path);
             }
         }
+
         return $attachments;
     }
 }

@@ -416,7 +416,7 @@ class DocumentScheduleResource extends Resource
 
         Mail::to($targetEmail)->send(new DocumentReminderMail($subject, $body, $attachments));
 
-        Log::info("Email di sollecito inviata a {$targetEmail} con ".count($attachments).' allegati.'.(! empty($data['is_demo']) ? ' [MODALITÀ DEMO]' : ''));
+        // Log::info("Email di sollecito inviata a {$targetEmail} con ".count($attachments).' allegati.'.(! empty($data['is_demo']) ? ' [MODALITÀ DEMO]' : ''));
     }
 
     public static function getPages(): array
