@@ -1,31 +1,35 @@
 <?php
+
 // app/Models/Fornitore.php
+
 namespace App\Models\PROFORMA;
 
-use App\Models\PROFORMA\Provvigione;
 use App\Models\Branch;
 use App\Models\ComplaintRegistry;
 use App\Models\Document;
-use App\Models\TrainingRecord;
 use App\Models\Website;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 
 class Fornitore extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
     protected $connection = 'mysql_proforma';
-    protected $table = 'fornitoris';
+
+    protected $table = 'proforma.fornitoris';
+
     protected $primaryKey = 'id';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
+
     protected $orderBy = 'name';
+
     protected $orderDirection = 'asc';
 
     protected $fillable = [
@@ -149,9 +153,6 @@ class Fornitore extends Model
     /**
      * Cerca un cliente per name, prende la piva, cerca il fornitore con la stessa piva
      * e flag is_dummy = false, e ritorna il campo nome del fornitore.
-     *
-     * @param string $name
-     * @return string|null
      */
     public static function getFornitoreNomeByName(string $name): ?string
     {

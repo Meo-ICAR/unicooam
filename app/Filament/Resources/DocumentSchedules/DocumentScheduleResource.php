@@ -5,11 +5,10 @@ namespace App\Filament\Resources\DocumentSchedules;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
 use App\Filament\Utils\TableHelper;
-use App\Models\DocumentType; // Assicurati di importare questo!
-use Illuminate\Support\Facades\Mail;
-use App\Mail\DocumentReminderMail; // Importa la tua nuova Mailable
+use App\Mail\DocumentReminderMail; // Assicurati di importare questo!
 use App\Models\Document;
-use App\Models\DocumentSchedule;
+use App\Models\DocumentSchedule; // Importa la tua nuova Mailable
+use App\Models\DocumentType;
 use App\Models\EmailTemplate;
 use App\Services\DocumentReminderService;
 use BackedEnum;
@@ -38,6 +37,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 use UnitEnum;
 
@@ -63,6 +63,7 @@ class DocumentScheduleResource extends Resource
     {
         return $table
             // ->recordTitleAttribute('name')
+            ->reorderableColumns()
             ->defaultSort('expires_at')
             ->groups([
                 Group::make('documentable_group_key')
@@ -118,6 +119,26 @@ class DocumentScheduleResource extends Resource
                     ->searchable(),
             ])
             ->filters([
+                // FILTRO 2: Selezione per Tipo Documento (Relazione)
+                SelectFilter::make('document_type_name')
+                    ->label('Tipo Documento')
+    // Carica dinamicamente solo i nomi unici realmente presenti nella tabella
+                    ->options(function () {
+                        return DocumentSchedule::query()
+                            ->whereNotNull('document_type_name')
+                            ->where('document_type_name', '!=', '-') // Esclude eventuali placeholder vuoti
+                            ->distinct()
+                            ->pluck('document_type_name', 'document_type_name')
+                            ->toArray();
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            fn (Builder $query, $value) => $query->where('document_type_name', $value)
+                        );
+                    }),
                 Filter::make('scaduti')
                     ->label('Già scaduti')
                     ->query(fn (Builder $query): Builder => $query->whereDate('expires_at', '<', now()->toDateString())),
@@ -255,8 +276,10 @@ class DocumentScheduleResource extends Resource
                             $groupedRecords = $records->filter(function ($record) use (&$erroreIsCompany) {
                                 if ($record->documentable_type === 'company') {
                                     $erroreIsCompany = true;
+
                                     return false;
                                 }
+
                                 return filled($record->entity?->email);
                             })->groupBy(fn ($record) => $record->entity->email);
 
@@ -270,7 +293,7 @@ class DocumentScheduleResource extends Resource
                                 );
                                 $sentCount++;
                             }
-                            
+
                             Notification::make()
                                 ->title("Solleciti inviati a {$sentCount} destinatari")
                                 ->success()
@@ -280,75 +303,74 @@ class DocumentScheduleResource extends Resource
             ]);
     }
 
-
-     /**
+    /**
      * FUNZIONE ESTERNA: Gestisce l'elaborazione dei documenti e l'invio della mail
      */
     protected static function processAndSendEmailForUserGroup(string $email, $userRecords, array $data, string $fallbackEmail): void
     {
         $agentName = $userRecords->first()->entity_name ?? 'Agente';
-    $documentNames = [];
-    $attachments = [];
+        $documentNames = [];
+        $attachments = [];
 
-    // 1. Estrazione Documenti e Allegati
-    foreach ($userRecords as $record) {
-        $documentName = Document::renewedBy($record->document_id);
+        // 1. Estrazione Documenti e Allegati
+        foreach ($userRecords as $record) {
+            $documentName = Document::renewedBy($record->document_id);
 
-        if ($documentName) {
-            $documentNames[] = '- ' . $documentName;
-            
-            // Aggiorna contatori sul database
-            $record->increment('reminders_count', 1);
-            $record->update(['last_sent_at' => now()]);
+            if ($documentName) {
+                $documentNames[] = '- '.$documentName;
 
-            // Estrazione allegati dal DocumentType
-            if ($documentType = $record->document_type_name) {
-                $docType = DocumentType::where('name', $documentType)->first();
-                
-                if ($docType) {
-                    // 1. Controlla se ci sono media nella collection corretta ('documents')
-                    if ($docType->hasMedia('documents')) {
-                        // Essendo una relazione multipla, prendiamo tutti i file caricati
-                        foreach ($docType->getMedia('documents') as $media) {
-                            $attachments[] = $media->getPath();
+                // Aggiorna contatori sul database
+                $record->increment('reminders_count', 1);
+                $record->update(['last_sent_at' => now()]);
+
+                // Estrazione allegati dal DocumentType
+                if ($documentType = $record->document_type_name) {
+                    $docType = DocumentType::where('name', $documentType)->first();
+
+                    if ($docType) {
+                        // 1. Controlla se ci sono media nella collection corretta ('documents')
+                        if ($docType->hasMedia('documents')) {
+                            // Essendo una relazione multipla, prendiamo tutti i file caricati
+                            foreach ($docType->getMedia('documents') as $media) {
+                                $attachments[] = $media->getPath();
+                            }
                         }
-                    } 
-                    // 2. Fallback sul campo di testo 'document_url' se valorizzato
-                    elseif (filled($docType->document_url)) {
-                        $attachments = $docType->document_url;
+                        // 2. Fallback sul campo di testo 'document_url' se valorizzato
+                        elseif (filled($docType->document_url)) {
+                            $attachments = $docType->document_url;
+                        }
                     }
                 }
             }
         }
+
+        if (empty($documentNames)) {
+            return; // Salta se nessun documento valido trovato
+        }
+
+        // 2. Sostituzione Variabili Template
+        $documentCount = count($documentNames);
+        $documentListString = implode('<br>', $documentNames);
+
+        $subject = str_replace(
+            ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
+            [$agentName, $documentCount, implode(' | ', $documentNames)],
+            $data['subject'] ?? 'Sollecito'
+        );
+
+        $body = str_replace(
+            ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
+            [$agentName, $documentCount, $documentListString],
+            $data['body'] ?? ''
+        );
+
+        // 3. Invio effettivo tramite la Mailable di Laravel
+        $targetEmail = $data['is_demo'] ? $fallbackEmail : $email;
+
+        Mail::to($targetEmail)->send(new DocumentReminderMail($subject, $body, $attachments));
+
+        Log::info("Email di sollecito inviata a {$targetEmail} con ".count($attachments).' allegati.');
     }
-
-    if (empty($documentNames)) {
-        return; // Salta se nessun documento valido trovato
-    }
-
-    // 2. Sostituzione Variabili Template
-    $documentCount = count($documentNames);
-    $documentListString = implode("<br>", $documentNames);
-
-    $subject = str_replace(
-        ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
-        [$agentName, $documentCount, implode(" | ", $documentNames)],
-        $data['subject'] ?? 'Sollecito'
-    );
-
-    $body = str_replace(
-        ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
-        [$agentName, $documentCount, $documentListString],
-        $data['body'] ?? ''
-    );
-
-    // 3. Invio effettivo tramite la Mailable di Laravel
-    $targetEmail = $data['is_demo'] ? $fallbackEmail : $email;
-    
-    Mail::to($targetEmail)->send(new DocumentReminderMail($subject, $body, $attachments));
-    
-    Log::info("Email di sollecito inviata a {$targetEmail} con " . count($attachments) . " allegati.");
-}
 
     public static function getPages(): array
     {

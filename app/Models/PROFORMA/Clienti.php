@@ -8,9 +8,9 @@ use App\Models\OamCode;
 use App\Models\Website;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -162,7 +162,7 @@ class Clienti extends Model
     public static function getClienteNomeByName(string $name): ?string
     {
         $cliente = static::where('name', $name)->first();
-        if (!$cliente) {
+        if (! $cliente) {
             return null;
         }
         $nome = $cliente->nome;

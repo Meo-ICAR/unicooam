@@ -3,19 +3,21 @@
 namespace App\Filament\Resources\Documents\Tables;
 
 use App\Filament\Exports\DynamicGroupExport;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class DocumentsTable
@@ -23,6 +25,7 @@ class DocumentsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->reorderableColumns()
             ->headerActions([
                 ExportAction::make()
                     ->exports([
@@ -66,10 +69,9 @@ class DocumentsTable
                     ->weight('bold'),
                 // 4. DATE E SCADENZE
                 // Sostituisci il vecchio TextColumn con questo:
-                TextInputColumn::make('emitted_at')
-                    ->label('Data Emissione')
-                    ->type('date') // Attiva il selettore di date nativo
-                    ->rules(['required', 'date']) // Forza la validazione del dato inserito
+                TextColumn::make('emitted_at')
+                    ->label('Emissione')
+                    ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('expires_at')
@@ -77,11 +79,6 @@ class DocumentsTable
                     ->date('d/m/Y')
                     ->sortable()
                     ->color(fn ($record) => $record->expires_at && $record->expires_at->isPast() ? 'danger' : 'gray'),
-
-                TextColumn::make('documentType.name')
-                    ->label('Tipo')
-                    ->searchable()
-                    ->sortable(),
 
                 // 5. STATO E UTILITY
                 TextColumn::make('status')
@@ -94,23 +91,37 @@ class DocumentsTable
                         default => 'warning',
                     })
                     ->searchable(),
+                TextColumn::make('documentType.name')
+                    ->label('Tipo')
+                    ->searchable()
+                    ->sortable(),
 
             ])
             ->filters([
                 // FILTRO 1: Selezione per Tipo Entità (Polimorfica)
                 SelectFilter::make('documentable_type')
-                    ->label('Tipo Entità Collegata')
+                    ->label('Collegato a')
+                    ->searchable()
+                    ->preload()
                     ->options([
-                        'App\Models\User' => 'Utenti',
-                        'App\Models\Company' => 'Aziende',
-                        'App\Models\Project' => 'Progetti',
-                        // Aggiungi qui le altre classi del tuo progetto
-                    ]),
+                        'fornitore' => 'Produttori',
+                        'audit' => 'Audit',
+                        'complaint' => 'Registri Reclami',
+
+                        'cliente' => 'Clienti',
+                        'company' => 'Aziende',
+
+                        'employee' => 'Dipendenti',
+
+                        'website' => 'Siti Web',
+                    ])->default('fornitore'),
 
                 // FILTRO 2: Selezione per Tipo Documento (Relazione)
                 SelectFilter::make('document_type_id')
                     ->label('Tipo Documento')
                     ->relationship('documentType', 'name')
+                    ->searchable()
+
                     ->preload(),
 
                 // FILTRO 3: Selezione per Categoria (Doctype)
@@ -140,9 +151,55 @@ class DocumentsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('setEmittedAt')
+                        ->label('Imposta Data Emissione')
+                        ->icon('heroicon-o-calendar')
+                        ->color('success')
+                        ->form([
+                            DatePicker::make('emitted_at')
+                                ->label('Data di Emissione')
+                                ->required()
+                                ->default(now()), // Imposta la data odierna come default
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $records->each(function ($record) use ($data) {
+                                $dataForced = $data['emitted_at'] ?? now(); // Usa la data fornita o la data odierna come fallback
+
+                                $record->update([
+                                    'emitted_at' => $dataForced,
+                                ]);
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion() // Deseleziona i record dopo l'operazione
+                        ->requiresConfirmation()
+                        ->modalHeading('Imposta data di emissione per i record selezionati')
+                        ->modalSubmitActionLabel('Salva'),
+                    BulkAction::make('setExpiredAt')
+                        ->label('Imposta Data Scadenza')
+                        ->icon('heroicon-o-calendar')
+                        ->color('success')
+                        ->form([
+                            DatePicker::make('expired_at')
+                                ->label('Data di Scadenza')
+                                ->required()
+                                ->default(now()), // Imposta la data odierna come default
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $records->each(function ($record) use ($data) {
+                                $record->update([
+                                    'expired_at' => $data['expired_at'],
+                                ]);
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion() // Deseleziona i record dopo l'operazione
+                        ->requiresConfirmation()
+                        ->modalHeading('Imposta data di emissione per i record selezionati')
+                        ->modalSubmitActionLabel('Salva'),
+
                     DeleteBulkAction::make(),
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),

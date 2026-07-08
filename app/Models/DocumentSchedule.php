@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Database\Eloquent\Model;
 
 class DocumentSchedule extends Model
 {
@@ -37,6 +37,14 @@ class DocumentSchedule extends Model
         return $this->belongsTo(Document::class);
     }
 
+    /**
+     * Relazione: Tipo di documento
+     */
+    public function documentType(): BelongsTo
+    {
+        return $this->belongsTo(DocumentType::class);  // Presume l'esistenza del model DocumentType
+    }
+
     public function documentable(): MorphTo
     {
         return $this->morphTo('documentable', 'documentable_type', 'documentable_id');
@@ -46,7 +54,7 @@ class DocumentSchedule extends Model
     {
         return Attribute::make(
             get: function () {
-                if (!$this->documentable_type || !$this->documentable_id) {
+                if (! $this->documentable_type || ! $this->documentable_id) {
                     return null;
                 }
 
