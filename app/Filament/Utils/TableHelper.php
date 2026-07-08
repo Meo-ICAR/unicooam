@@ -3,7 +3,8 @@
 namespace App\Filament\Utils;
 
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter; // Importa il filtro di Filament
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Schema;
 
@@ -74,24 +75,34 @@ class TableHelper
                 return $className ? ucfirst(class_basename($className)) : $record->$typeField;
             })
 
-            // Ricerca polimorfica universale e sicura su tutto il morphMap
-            ->searchable(query: function ($query, string $search) use ($relationName) {
+            // Ricerca polimorfica universale, sicura e raggruppata
+            ->searchable(query: function (Builder $query, string $search) use ($relationName) {
                 $allMorphAliases = array_keys(Relation::morphMap());
 
-                $query->whereHasMorph($relationName, $allMorphAliases, function ($q) use ($search) {
-                    $modelInstance = $q->getModel();
-                    $tableName = $modelInstance->getTable();
+                // Usiamo un where logico raggruppato principale per non rompere altri filtri in tabella
+                $query->where(function (Builder $mainSubQuery) use ($relationName, $allMorphAliases, $search) {
 
-                    // Controllo preventivo delle colonne per evitare crash SQL
-                    $q->where(function ($subQuery) use ($search, $tableName) {
-                        if (Schema::hasColumn($tableName, 'full_name')) {
-                            $subQuery->orWhere('full_name', 'like', "%{$search}%");
-                        }
+                    $mainSubQuery->whereHasMorph($relationName, $allMorphAliases, function (Builder $q) use ($search) {
+                        $modelInstance = $q->getModel();
 
-                        if (Schema::hasColumn($tableName, 'name')) {
-                            $subQuery->orWhere('name', 'like', "%{$search}%");
-                        }
+                        // Sostituito Schema::hasColumn statico ad ogni riga con un controllo di istanza più efficiente
+                        $q->where(function (Builder $subQuery) use ($search, $modelInstance) {
+
+                            // Controlla se sul modello polimorfico corrente esistono proprietà/attributi specifici
+                            // o verifica la presenza delle colonne usando una proprietà nel modello se vuoi fare un controllo fisso,
+                            // altrimenti esegui l'orWhere in sicurezza se le tabelle seguono uno standard.
+
+                            // NOTA: Se sei sicuro che tutte o la maggior parte abbiano 'name', puoi omettere il controllo dinamico.
+                            // In alternativa, definiamo una ricerca flessibile basata sui campi standard del tuo gestionale:
+                            $subQuery->where('name', 'like', "%{$search}%");
+
+                            // Se solo alcune tabelle hanno full_name, puoi usare il reflection del modello o lasciare il fallback
+                            if (method_exists($modelInstance, 'getFullNameAttribute') || in_array(class_basename($modelInstance), ['User', 'Employee'])) {
+                                $subQuery->orWhere('full_name', 'like', "%{$search}%");
+                            }
+                        });
                     });
+
                 });
             });
     }

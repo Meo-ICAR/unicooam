@@ -41,18 +41,20 @@ class DocumentsTable
                 // 2. ENTITÀ COLLEGATA (Rapporto Polimorfico reso leggibile)
                 TextColumn::make('documentable')
                     ->label('Collegato a')
+                    ->sortable()
                     ->state(function ($record) {
                         if (! $record->documentable) {
                             return '-';
                         }
                         // Estrae solo il nome della classe (es. "User" invece di "App\Models\User")
-                        $type = class_basename($record->documentable_type);
+                        $type = $record->documentable_type; // class_basename($record->documentable_type);
                         // Cerca un attributo leggibile (name, title) o ripiega sull'ID
                         $name = $record->documentable->name
                             ?? $record->documentable->title
                             ?? "ID #{$record->documentable_id}";
 
-                        return "[{$type}] {$name}";
+                        // return "[{$type}] {$name}";
+                        return "{$name}";
                     })
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         // Permette la ricerca testuale anche sui campi dell'entità polimorfica

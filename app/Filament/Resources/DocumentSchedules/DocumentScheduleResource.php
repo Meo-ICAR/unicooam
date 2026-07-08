@@ -233,6 +233,31 @@ class DocumentScheduleResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('deleteDocument')
+                        ->label('Elimina documenti')
+                        ->requiresConfirmation() // Opzionale: aggiunge una conferma per sicurezza
+                        ->action(function (Collection $records): void {
+                            Log::debug('=== INIZIO BULK ACTION ===');
+
+                            $recordsCount = $records->count();
+                            $deletedCount = 0;
+
+                            foreach ($records as $record) {
+                                // Verifica se la relazione esiste prima di eliminare per evitare errori
+                                if ($record->document) {
+                                    $record->document->delete();
+                                    $deletedCount++;
+                                }
+                            }
+
+                            Log::debug("=== FINE BULK ACTION: Eliminati $deletedCount di $recordsCount ===");
+
+                            // Opzionale: notifica a schermo l'avvenuta eliminazione
+                            Notification::make()
+                                ->title('Documenti eliminati con successo')
+                                ->success()
+                                ->send();
+                        }),
                     BulkAction::make('inviaSollecito')
                         ->label('Invia sollecito')
                         ->icon('heroicon-o-envelope')

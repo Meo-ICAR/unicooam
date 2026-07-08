@@ -47,7 +47,7 @@ class DocumentForm
                         ->default(DocumentStatus::PENDING)
                         ->required(),
                     Select::make('doctype')
-                        ->label('Tipo documento')
+                        ->label('Tipologia documento')
                         ->options([
                             'modulo' => 'Modulo',
                             'procedura' => 'Procedura',
