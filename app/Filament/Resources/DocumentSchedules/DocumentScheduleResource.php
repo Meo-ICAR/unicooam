@@ -355,8 +355,8 @@ class DocumentScheduleResource extends Resource
         // 1. Estrazione Documenti e Allegati
         foreach ($userRecords as $record) {
             // Chiamata corretta sull'istanza della relazione per evitare l'errore non-static
-            $documentName = $record->document?->renewedBy()?->name ?? $record->document_name;
-
+            // $documentName = $record->document?->renewedBy()?->name ?? $record->document_name;
+            $documentName = $record->document_name; // Fallback se il nome del documento non è disponibile
             if ($documentName) {
                 $documentNames[] = '- '.$documentName;
 
