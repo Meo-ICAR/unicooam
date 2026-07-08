@@ -8,10 +8,14 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Tables\Columns\IconColumn;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class DocumentsTable
@@ -28,152 +32,109 @@ class DocumentsTable
                     ->color('success'),
             ])
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable(),
-                TextColumn::make('documentable_type')
-                    ->label('Tipo entità collegata')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('documentable_id')
-                    ->label('ID entità collegata')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('documentType.name')
-                    ->label('Tipo documento')
-                    ->searchable(),
-                TextColumn::make('doctype')
-                    ->label('Tipo documento')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'modulo' => 'info',
-                        'procedura' => 'warning',
-                        'template' => 'success',
-                        default => 'gray',
+                // 1. IDENTIFICATIVI PRINCIPALI
+
+                // 2. ENTITÀ COLLEGATA (Rapporto Polimorfico reso leggibile)
+                TextColumn::make('documentable')
+                    ->label('Collegato a')
+                    ->state(function ($record) {
+                        if (! $record->documentable) {
+                            return '-';
+                        }
+                        // Estrae solo il nome della classe (es. "User" invece di "App\Models\User")
+                        $type = class_basename($record->documentable_type);
+                        // Cerca un attributo leggibile (name, title) o ripiega sull'ID
+                        $name = $record->documentable->name
+                            ?? $record->documentable->title
+                            ?? "ID #{$record->documentable_id}";
+
+                        return "[{$type}] {$name}";
                     })
-                    ->toggleable(),
-                TextColumn::make('cellposition')
-                    ->label('Posizione cella')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        // Permette la ricerca testuale anche sui campi dell'entità polimorfica
+                        return $query->whereHasMorph('documentable', '*', function (Builder $q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%")
+                                ->orWhere('id', 'like', "%{$search}%");
+                        });
+                    }),
+
+                // 3. TIPI DI DOCUMENTO
                 TextColumn::make('name')
-                    ->label('Nome')
-                    ->searchable(),
-                TextColumn::make('docnumber')
-                    ->label('Numero documento')
-                    ->searchable(),
-                TextColumn::make('spatie_collection')
-                    ->label('Collection media')
+                    ->label('Nome Documento')
+                    ->sortable()
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('document_url')
-                    ->label('URL documento')
+                    ->weight('bold'),
+                // 4. DATE E SCADENZE
+                // Sostituisci il vecchio TextColumn con questo:
+                TextInputColumn::make('emitted_at')
+                    ->label('Data Emissione')
+                    ->type('date') // Attiva il selettore di date nativo
+                    ->rules(['required', 'date']) // Forza la validazione del dato inserito
+                    ->sortable(),
+
+                TextColumn::make('expires_at')
+                    ->label('Scadenza')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->color(fn ($record) => $record->expires_at && $record->expires_at->isPast() ? 'danger' : 'gray'),
+
+                TextColumn::make('documentType.name')
+                    ->label('Tipo')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
+
+                // 5. STATO E UTILITY
                 TextColumn::make('status')
                     ->label('Stato')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'approvato', 'attivo' => 'success',
+                        'bozza' => 'gray',
+                        'scaduto' => 'danger',
+                        default => 'warning',
+                    })
                     ->searchable(),
-                TextColumn::make('sync_status')
-                    ->label('Stato sincronizzazione')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('source_app')
-                    ->label('Applicazione origine')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('app_id')
-                    ->label('ID applicazione')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('app_drive_id')
-                    ->label('ID drive cloud')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('app_etag')
-                    ->label('ETag cloud')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('ai_confidence_score')
-                    ->label('Affidabilità AI (%)')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_template')
-                    ->label('Modello')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_signed')
-                    ->label('Firmato')
-                    ->boolean(),
-                IconColumn::make('is_unique')
-                    ->label('Unico')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                IconColumn::make('is_endMonth')
-                    ->label('Scadenza a fine mese')
-                    ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('emitted_by')
-                    ->label('Emesso da')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('emitted_at')
-                    ->label('Data emissione')
-                    ->date('d/m/Y')
-                    ->sortable(),
-                TextColumn::make('expires_at')
-                    ->label('Data scadenza')
-                    ->date('d/m/Y')
-                    ->sortable(),
-                TextColumn::make('delivered_at')
-                    ->label('Consegnato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('signed_at')
-                    ->label('Firmato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('user.name')
-                    ->label('Intestatario')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('uploaded_by')
-                    ->label('Caricato da')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('verified_by')
-                    ->label('Verificato da')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('verified_at')
-                    ->label('Verificato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('file_hash')
-                    ->label('Hash file')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Creato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->label('Aggiornato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('deleted_at')
-                    ->label('Eliminato il')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
             ])
             ->filters([
+                // FILTRO 1: Selezione per Tipo Entità (Polimorfica)
+                SelectFilter::make('documentable_type')
+                    ->label('Tipo Entità Collegata')
+                    ->options([
+                        'App\Models\User' => 'Utenti',
+                        'App\Models\Company' => 'Aziende',
+                        'App\Models\Project' => 'Progetti',
+                        // Aggiungi qui le altre classi del tuo progetto
+                    ]),
+
+                // FILTRO 2: Selezione per Tipo Documento (Relazione)
+                SelectFilter::make('document_type_id')
+                    ->label('Tipo Documento')
+                    ->relationship('documentType', 'name')
+                    ->preload(),
+
+                // FILTRO 3: Selezione per Categoria (Doctype)
+                SelectFilter::make('doctype')
+                    ->label('Categoria')
+                    ->options([
+                        'modulo' => 'Modulo',
+                        'procedura' => 'Procedura',
+                        'template' => 'Template',
+                    ]),
+
+                // FILTRO 4: Selezione Intervallo di Scadenza
+                Filter::make('expires_at')
+                    ->label('Data Scadenza')
+                    ->form([
+                        DatePicker::make('expires_from')->label('Scadenza da'),
+                        DatePicker::make('expires_until')->label('Scadenza a'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['expires_from'], fn ($q, $date) => $q->whereDate('expires_at', '>=', $date))
+                            ->when($data['expires_until'], fn ($q, $date) => $q->whereDate('expires_at', '<=', $date));
+                    }),
+
                 TrashedFilter::make()
                     ->label('Eliminati'),
             ])

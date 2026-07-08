@@ -9,13 +9,12 @@ use App\Filament\Resources\ComplaintRegistries\Schemas\ComplaintRegistryForm;
 use App\Filament\Resources\ComplaintRegistries\Tables\ComplaintRegistriesTable;
 use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Models\ComplaintRegistry;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BackedEnum;
 
 class ComplaintRegistryResource extends Resource
 {
@@ -23,9 +22,9 @@ class ComplaintRegistryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
-    protected static ?string $recordTitleAttribute = 'protocol_number';
-
     protected static ?string $navigationLabel = 'Reclami';
+
+    protected static ?string $recordTitleAttribute = 'protocol_number';
 
     protected static ?string $modelLabel = 'Reclamo';
 

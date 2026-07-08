@@ -5,6 +5,9 @@ namespace App\Filament\Resources\DocumentSchedules;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
 use App\Filament\Utils\TableHelper;
+use App\Models\DocumentType; // Assicurati di importare questo!
+use Illuminate\Support\Facades\Mail;
+use App\Mail\DocumentReminderMail; // Importa la tua nuova Mailable
 use App\Models\Document;
 use App\Models\DocumentSchedule;
 use App\Models\EmailTemplate;
@@ -234,7 +237,6 @@ class DocumentScheduleResource extends Resource
                                 ->visible(fn (Get $get) => filled($get('email_template_id'))),
                             RichEditor::make('body')
                                 ->label("Testo dell'email")
-                                // ->rows(6)
                                 ->required()
                                 ->visible(fn (Get $get) => filled($get('email_template_id'))),
                             Toggle::make('is_demo')
@@ -243,88 +245,110 @@ class DocumentScheduleResource extends Resource
                                 ->label('Invio in modalità demo (nessuna email vera verrà inviata)'),
                         ])
                         ->action(function (Collection $records, array $data): void {
-                            // --- DEBUG: Inizio operazione ---
-                            Log::debug('=== INIZIO BULK ACTION: inviaSollecito ===');
-                            Log::debug('Dati ricevuti dal form:', $data);
-                            Log::debug("Totale record selezionati inizialmente: {$records->count()}");
+                            Log::debug('=== INIZIO BULK ACTION ===');
 
                             $emailUser = auth()->user()->email;
-                            Log::debug('Email utente: '.$emailUser);
                             $sentCount = 0;
-                            $nrecipients = 0;
                             $erroreIsCompany = false;
 
-                            // 1. Recupero l'oggetto e il testo modificati dall'utente
-                            $baseSubject = $data['subject'] ?? 'Sollecito Documenti';
-                            $baseBody = $data['body'] ?? '';
-
-                            // 2. Filtro i record validi e li raggruppo per email del destinatario
+                            // Filtra e raggruppa
                             $groupedRecords = $records->filter(function ($record) use (&$erroreIsCompany) {
                                 if ($record->documentable_type === 'company') {
                                     $erroreIsCompany = true;
-                                    Log::debug('ERRORE: documentable_type è company');
-
                                     return false;
                                 }
-
                                 return filled($record->entity?->email);
                             })->groupBy(fn ($record) => $record->entity->email);
 
-                            // 3. Ciclo sui gruppi (un ciclo = un destinatario)
                             foreach ($groupedRecords as $email => $userRecords) {
-                                // FIX: Extract the actual name of the entity, not the string $email
-                                $agentName = $userRecords->first()->entity_name ?? 'Agente';
-                                $documentNames = [];
-
-                                // Raccolgo i documenti e aggiorno i contatori per questo destinatario
-                                foreach ($userRecords as $record) {
-                                    $documentName = Document::renewedBy($record->document_id);
-                                    Log::debug('Document found: '.($documentName ? 'YES' : 'NO'));
-                                    if ($documentName) {
-                                        Log::debug('Document name: '.$documentName);
-                                        $documentNames[] = '- '.$documentName;
-                                        $record->increment('reminders_count', 1);
-                                        $record->update(['last_sent_at' => now()]);
-                                        $sentCount++;
-                                    }
-                                }
-
-                                if (empty($documentNames)) {
-                                    Log::debug("Nessun documento valido trovato per l'email: {$email}. Salto l'invio.");
-
-                                    continue;
-                                }
-                                $documentCount = count($documentNames);
-
-                                Log::debug('Document count: '.$documentCount);
-                                //  "[\"{agente_nome}\",\"{documento_nome}\",\"{data_scadenza}\",\"{elenco_documenti}\"]
-                                $finalSubject = str_replace('{agente_nome}', $agentName, $baseSubject);
-                                $finalSubject = str_replace('{n_documenti}', $documentCount, $finalSubject);
-                                $finalSubject = str_replace('{elenco_documenti}', implode("\n", $documentNames), $finalSubject);
-
-                                $finalBody = str_replace('{agente_nome}', $agentName, $baseBody);
-                                $finalBody = str_replace('{n_documenti}', $documentCount, $finalBody);
-                                $finalBody = str_replace('{elenco_documenti}', implode("\n", $documentNames), $finalBody);
-
-                                // 4. Unisco il testo del form con la lista dei documenti estratti
-                                Log::debug('Final body: '.$finalBody);
-                                // 5. Invio email
-                                if ($data['is_demo']) {
-                                    $targetEmail = $emailUser ?? auth()->user()->email;
-                                    Log::debug('Target email: '.$targetEmail);
-                                    mail($targetEmail, $baseSubject, $finalBody);
-                                    Log::debug('Email inviata in modalità demo');
-                                } else {
-                                    mail($email, $baseSubject, $finalBody);
-                                    Log::debug('Email inviata');
-                                }
-
-                                $nrecipients++;
+                                // Richiama il nuovo metodo separato!
+                                self::processAndSendEmailForUserGroup(
+                                    $email,
+                                    $userRecords,
+                                    $data,
+                                    $emailUser
+                                );
+                                $sentCount++;
                             }
+                            
+                            Notification::make()
+                                ->title("Solleciti inviati a {$sentCount} destinatari")
+                                ->success()
+                                ->send();
                         }),
                 ]),
             ]);
     }
+
+
+     /**
+     * FUNZIONE ESTERNA: Gestisce l'elaborazione dei documenti e l'invio della mail
+     */
+    protected static function processAndSendEmailForUserGroup(string $email, $userRecords, array $data, string $fallbackEmail): void
+    {
+        $agentName = $userRecords->first()->entity_name ?? 'Agente';
+    $documentNames = [];
+    $attachments = [];
+
+    // 1. Estrazione Documenti e Allegati
+    foreach ($userRecords as $record) {
+        $documentName = Document::renewedBy($record->document_id);
+
+        if ($documentName) {
+            $documentNames[] = '- ' . $documentName;
+            
+            // Aggiorna contatori sul database
+            $record->increment('reminders_count', 1);
+            $record->update(['last_sent_at' => now()]);
+
+            // Estrazione allegati dal DocumentType
+            if ($documentType = $record->document_type_name) {
+                $docType = DocumentType::where('name', $documentType)->first();
+                
+                if ($docType) {
+                    // 1. Controlla se ci sono media nella collection corretta ('documents')
+                    if ($docType->hasMedia('documents')) {
+                        // Essendo una relazione multipla, prendiamo tutti i file caricati
+                        foreach ($docType->getMedia('documents') as $media) {
+                            $attachments[] = $media->getPath();
+                        }
+                    } 
+                    // 2. Fallback sul campo di testo 'document_url' se valorizzato
+                    elseif (filled($docType->document_url)) {
+                        $attachments = $docType->document_url;
+                    }
+                }
+            }
+        }
+    }
+
+    if (empty($documentNames)) {
+        return; // Salta se nessun documento valido trovato
+    }
+
+    // 2. Sostituzione Variabili Template
+    $documentCount = count($documentNames);
+    $documentListString = implode("<br>", $documentNames);
+
+    $subject = str_replace(
+        ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
+        [$agentName, $documentCount, implode(" | ", $documentNames)],
+        $data['subject'] ?? 'Sollecito'
+    );
+
+    $body = str_replace(
+        ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
+        [$agentName, $documentCount, $documentListString],
+        $data['body'] ?? ''
+    );
+
+    // 3. Invio effettivo tramite la Mailable di Laravel
+    $targetEmail = $data['is_demo'] ? $fallbackEmail : $email;
+    
+    Mail::to($targetEmail)->send(new DocumentReminderMail($subject, $body, $attachments));
+    
+    Log::info("Email di sollecito inviata a {$targetEmail} con " . count($attachments) . " allegati.");
+}
 
     public static function getPages(): array
     {

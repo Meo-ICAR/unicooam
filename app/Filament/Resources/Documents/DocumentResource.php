@@ -8,13 +8,13 @@ use App\Filament\Resources\Documents\Pages\ListDocuments;
 use App\Filament\Resources\Documents\Schemas\DocumentForm;
 use App\Filament\Resources\Documents\Tables\DocumentsTable;
 use App\Models\Document;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BackedEnum;
 
 class DocumentResource extends Resource
 {
@@ -26,7 +26,11 @@ class DocumentResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static ?string $modelLabel = 'Documento';
+
+    protected static ?string $pluralModelLabel = 'Documenti';
+
+    //  protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $schema): Schema
     {
