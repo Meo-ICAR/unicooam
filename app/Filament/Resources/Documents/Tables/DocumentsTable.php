@@ -99,7 +99,7 @@ class DocumentsTable
 
             ])
             ->filters([
-                Filter('emitted_at')
+                Filter::make('emitted_at')
                     ->label('Ha data emissione')
                     ->query(fn (Builder $query): Builder => $query->whereNotNull('emitted_at')),
                 // FILTRO 1: Selezione per Tipo Entità (Polimorfica)
