@@ -71,6 +71,8 @@ class Document extends Model implements HasMedia
         'updated_by',
         'deleted_by',
         'file_hash',
+        'last_sent_at',
+        'reminders_count',
     ];
 
     protected $casts = [
@@ -86,6 +88,8 @@ class Document extends Model implements HasMedia
         'signed_at' => 'datetime',
         'verified_at' => 'datetime',
         'ai_confidence_score' => 'integer',
+        'last_sent_at' => 'datetime',
+        'reminders_count' => 'integer',
     ];
 
     /**

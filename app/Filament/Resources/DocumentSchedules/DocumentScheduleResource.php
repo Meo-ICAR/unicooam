@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\DocumentSchedules;
 
+use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
-use App\Filament\Utils\TableHelper;
-use App\Mail\DocumentReminderMail; // Assicurati di importare questo!
-use App\Models\Document;
-use App\Models\DocumentSchedule; // Importa la tua nuova Mailable
+use App\Filament\Utils\TableHelper; // Assicurati di importare questo!
+use App\Mail\DocumentReminderMail; // Importa la tua nuova Mailable
+use App\Models\DocumentSchedule;
 use App\Models\DocumentType;
 use App\Models\EmailTemplate;
 use App\Services\DocumentReminderService;
@@ -17,12 +17,14 @@ use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\RichEditor;  // Importante per il form nel modal
+use Filament\Forms\Components\DatePicker;  // Importante per il form nel modal
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
+// use Illuminate\Support\Collection;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -32,12 +34,12 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
-// use Illuminate\Support\Collection;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\HtmlString;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 use UnitEnum;
 
@@ -120,6 +122,7 @@ class DocumentScheduleResource extends Resource
             ])
             ->filters([
                 // FILTRO 2: Selezione per Tipo Documento (Relazione)
+
                 SelectFilter::make('document_type_name')
                     ->label('Tipo Documento')
     // Carica dinamicamente solo i nomi unici realmente presenti nella tabella
@@ -252,6 +255,18 @@ class DocumentScheduleResource extends Resource
                                         $set('body', null);
                                     }
                                 }),
+                            // LEGENDA DELLE VARIABILI DISPONIBILI
+                            Placeholder::make('legend')
+                                ->label('Tag disponibili per il template')
+                                ->visible(fn (Get $get) => filled($get('email_template_id')))
+                                ->content(new HtmlString('
+        <div class="flex flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs text-primary-600"><code>{agente_nome}</code></span>
+            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs text-primary-600"><code>{n_documenti}</code></span>
+            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs text-primary-600"><code>{elenco_documenti}</code></span>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">Puoi copiare e incollare questi tag nell\'oggetto o nel testo dell\'email; verranno sostituiti automaticamente all\'invio.</p>
+    ')),
                             TextInput::make('subject')
                                 ->label('Oggetto')
                                 ->required()
@@ -314,14 +329,21 @@ class DocumentScheduleResource extends Resource
 
         // 1. Estrazione Documenti e Allegati
         foreach ($userRecords as $record) {
-            $documentName = Document::renewedBy($record->document_id);
+            // Chiamata corretta sull'istanza della relazione per evitare l'errore non-static
+            $documentName = $record->document?->renewedBy()?->name ?? $record->document_name;
 
             if ($documentName) {
                 $documentNames[] = '- '.$documentName;
 
-                // Aggiorna contatori sul database
-                $record->increment('reminders_count', 1);
-                $record->update(['last_sent_at' => now()]);
+                // AGGIORNAMENTO CONTATORI SUL DOCUMENTO REALE (Solo se NON è un invio DEMO)
+                if (empty($data['is_demo']) && $record->document) {
+                    // Aggiorna tutto in un colpo solo direttamente sul database tramite query builder
+                    $record->document->update([
+                        'reminders_count' => $record->document->reminders_count + 1,
+                        'last_sent_at' => now(),
+                        'status' => DocumentStatus::PENDING->value, // .value assicura di salvare la stringa 'pending' nel DB
+                    ]);
+                }
 
                 // Estrazione allegati dal DocumentType
                 if ($documentType = $record->document_type_name) {
@@ -365,11 +387,11 @@ class DocumentScheduleResource extends Resource
         );
 
         // 3. Invio effettivo tramite la Mailable di Laravel
-        $targetEmail = $data['is_demo'] ? $fallbackEmail : $email;
+        $targetEmail = ! empty($data['is_demo']) ? $fallbackEmail : $email;
 
         Mail::to($targetEmail)->send(new DocumentReminderMail($subject, $body, $attachments));
 
-        Log::info("Email di sollecito inviata a {$targetEmail} con ".count($attachments).' allegati.');
+        Log::info("Email di sollecito inviata a {$targetEmail} con ".count($attachments).' allegati.'.(! empty($data['is_demo']) ? ' [MODALITÀ DEMO]' : ''));
     }
 
     public static function getPages(): array

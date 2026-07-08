@@ -10,8 +10,8 @@ use App\Models\EmailTemplate;
 use App\Support\DocumentRecipientResolver;
 use App\Support\EmailTemplateRenderer;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class DocumentReminderService
@@ -27,19 +27,20 @@ class DocumentReminderService
         $until = now()->addDays($windowDays)->toDateString();
 
         return Document::query()
-            //  ->with(['documentType', 'documentable', 'company'])
+            ->with(['documentType', 'documentable']) // Ottimizzazione caricamento relazioni
             ->where('is_monitored', true)
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', $until)
             ->whereNotIn('status', [
                 DocumentStatus::REJECTED->value,
-                DocumentStatus::REVOKED->value,
+                DocumentStatus::NA->value,
+                //  DocumentStatus::APPROVED->value, // Escludiamo anche quelli già approvati
             ])
-            //
-            //     ->whereDoesntHave('reminders', function (Builder $query) {
-            //       $query->where('sent_at', '>=', now()->subDay(5)->toDateString());
-            //    })
-            //
+            ->where(function (Builder $query) {
+                // Evita di inviare solleciti continui se ne è già stato mandato uno negli ultimi 5 giorni
+                $query->whereNull('last_sent_at')
+                    ->orWhere('last_sent_at', '<', now()->subDays(5));
+            })
             ->orderBy('expires_at');
     }
 
@@ -51,7 +52,7 @@ class DocumentReminderService
         $documents = ($query ?? $this->scheduleQuery())->get();
 
         return $documents->groupBy(
-            fn(Document $document): string => $document->documentable_type . '|' . $document->documentable_id
+            fn (Document $document): string => $document->documentable_type.'|'.$document->documentable_id
         );
     }
 
@@ -79,7 +80,7 @@ class DocumentReminderService
 
         foreach ($groups as $documents) {
             $dueDocuments = $documents
-                ->filter(fn(Document $document): bool => $this->shouldRemind($document, $onlyDueToday))
+                ->filter(fn (Document $document): bool => $this->shouldRemind($document, $onlyDueToday))
                 ->values();
 
             if ($dueDocuments->isEmpty()) {
@@ -130,11 +131,11 @@ class DocumentReminderService
         $daysUntilExpiry = $this->daysUntilExpiry($document);
 
         if ($onlyDueToday) {
-            if (!in_array($daysUntilExpiry, $this->notifyThresholds($document), true)) {
+            if (! in_array($daysUntilExpiry, $this->notifyThresholds($document), true)) {
                 return false;
             }
 
-            return !$this->reminderAlreadySent($document, $daysUntilExpiry);
+            return ! $this->reminderAlreadySent($document, $daysBefore = $daysUntilExpiry);
         }
 
         return true;
@@ -184,20 +185,20 @@ class DocumentReminderService
             '{agente_nome}' => $recipientName,
             '{documento_nome}' => $documents->count() === 1
                 ? (string) $firstDocument?->name
-                : $documents->count() . ' documenti',
+                : $documents->count().' documenti',
             '{data_scadenza}' => $documents->count() === 1
                 ? ($firstDocument?->expires_at?->format('d/m/Y') ?? '—')
                 : 'vedi elenco',
         ]);
 
-        if (!Str::contains($rendered['body'], '{elenco_documenti}')) {
-            $rendered['body'] .= '<ul>' . $listItems . '</ul>';
+        if (! Str::contains($rendered['body'], '{elenco_documenti}')) {
+            $rendered['body'] .= '<ul>'.$listItems.'</ul>';
         } else {
-            $rendered['body'] = str_replace('{elenco_documenti}', '<ul>' . $listItems . '</ul>', $rendered['body']);
+            $rendered['body'] = str_replace('{elenco_documenti}', '<ul>'.$listItems.'</ul>', $rendered['body']);
         }
 
         if ($documents->count() > 1) {
-            $rendered['subject'] = 'Sollecito scadenze documenti (' . $documents->count() . ')';
+            $rendered['subject'] = 'Sollecito scadenze documenti ('.$documents->count().')';
         }
 
         return $rendered;
@@ -214,6 +215,7 @@ class DocumentReminderService
 
     protected function recordReminder(Document $document, int $daysBefore, string $email): void
     {
+        // 1. Registra lo storico del reminder inviato
         DocumentReminder::query()->updateOrCreate(
             [
                 'document_id' => $document->id,
@@ -226,6 +228,13 @@ class DocumentReminderService
                 'sent_at' => now(),
             ]
         );
+
+        // 2. Aggiorna contatori e stato sul documento principale in una sola query atomica
+        $document->update([
+            'reminders_count' => $document->reminders_count + 1,
+            'last_sent_at' => now(),
+            'status' => DocumentStatus::PROVISIONAL->value, // Impostato a provvisorio/in attesa dopo il sollecito
+        ]);
     }
 
     protected function recordFailedReminder(Document $document, int $daysBefore, string $email, string $message): void

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Documents\Tables;
 
+use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -98,6 +99,9 @@ class DocumentsTable
 
             ])
             ->filters([
+                Filter('emitted_at')
+                    ->label('Ha data emissione')
+                    ->query(fn (Builder $query): Builder => $query->whereNotNull('emitted_at')),
                 // FILTRO 1: Selezione per Tipo Entità (Polimorfica)
                 SelectFilter::make('documentable_type')
                     ->label('Collegato a')
@@ -125,13 +129,12 @@ class DocumentsTable
                     ->preload(),
 
                 // FILTRO 3: Selezione per Categoria (Doctype)
-                SelectFilter::make('doctype')
-                    ->label('Categoria')
-                    ->options([
-                        'modulo' => 'Modulo',
-                        'procedura' => 'Procedura',
-                        'template' => 'Template',
-                    ]),
+                SelectFilter::make('status')
+                    ->label('Stati Documento')
+                    ->multiple() // Abilita la selezione multipla
+                    ->options(DocumentStatus::class) // Mappa automaticamente l'Enum
+                    ->searchable() // Permette di cercare tra gli stati se la lista si allunga
+                    ->preload(), // Carica subito le opzioni nel frontend per una risposta immediata
 
                 // FILTRO 4: Selezione Intervallo di Scadenza
                 Filter::make('expires_at')
