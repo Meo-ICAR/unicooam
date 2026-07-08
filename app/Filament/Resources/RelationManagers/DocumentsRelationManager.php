@@ -218,7 +218,7 @@ class DocumentsRelationManager extends RelationManager
                         true: fn ($query) => $query->where('status', DocumentStatus::EXPIRED->value),
                         false: fn ($query) => $query->where('status', '!=', DocumentStatus::EXPIRED->value),
                     ),
-                // TrashedFilter::make(),
+                TrashedFilter::make(),
             ])
             ->headerActions([
                 CreateAction::make()
