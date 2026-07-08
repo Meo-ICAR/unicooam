@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use App\Events\TaskActivated;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory; // <-- Add this line!
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Pivot;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,13 +22,14 @@ class Task extends Model
     protected $fillable = ['name', 'description', 'taskable', 'trigger_field', 'trigger_state', 'trigger_value', 'exclude_field', 'exclude_state',
         'exclude_value', 'is_active', 'parent_id', 'app_identifier'];
 
-    /**
+    /*
      * 1. GLOBAL SCOPE ISOLAMENTO E TASK COMUNI
      * Caricato automaticamente su tutte le query dell'applicazione.
-     */
+*/
     protected static function booted(): void
     {
-        static::addGlobalScope('app_isolation', function (Builder $builder) {
+
+        static::addGlobalScope('app_isolation', function ($builder) {
             // Recupera l'identificativo dell'app corrente dal file .env (es. APP_IDENTIFIER=app_oam)
             $currentApp = config('app.identifier', 'core_app');
 
@@ -37,6 +39,7 @@ class Task extends Model
                     ->orWhere('app_identifier', ''); // Gestisce anche stringhe vuote
             });
         });
+
     }
 
     /**

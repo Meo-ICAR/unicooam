@@ -101,6 +101,9 @@ class FornitoresTable
                     ->trueLabel('Solo Attivi')
                     ->falseLabel('Solo Inattivi')
                     ->default(true),
+                Filter::make('stipulated_at')
+                    ->label('Mandato antecedente 6 mesi')
+                    ->query(fn($query) => $query->whereDate('stipulated_at', '<=', now()->subMonth(6))),
                 // Filtro per tipologia di mandato Enasarco
                 SelectFilter::make('enasarco')
                     ->label('Mandato Enasarco')
