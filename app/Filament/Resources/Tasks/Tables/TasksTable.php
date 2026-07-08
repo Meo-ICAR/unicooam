@@ -27,10 +27,12 @@ class TasksTable
             ->columns([
                 TextColumn::make('name')
                     ->label('Nome attività')
+                    ->sortable()
                     ->searchable()
                     ->weight('bold'),  // Rende il titolo più visibile
                 TextColumn::make('description')
                     ->label('Descrizione')
+                    ->sortable()
                     ->searchable()
                     ->limit(50),  // Evita che descrizioni lunghe rompano il layout
                 TableHelper::polymorphicColumn('taskable', 'Entità Assegnata'),

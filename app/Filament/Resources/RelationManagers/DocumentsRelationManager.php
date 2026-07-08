@@ -303,7 +303,7 @@ class DocumentsRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]))
-            ->defaultSort(['name', 'expires_at' => 'desc']);
+            ->defaultSort('expires_at', 'desc');
 
     }
 }

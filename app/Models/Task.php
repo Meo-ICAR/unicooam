@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory; // <-- Add this line!
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Pivot;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Task extends Model
 {
@@ -21,6 +23,14 @@ class Task extends Model
 
     protected $fillable = ['name', 'description', 'taskable', 'trigger_field', 'trigger_state', 'trigger_value', 'exclude_field', 'exclude_state',
         'exclude_value', 'is_active', 'parent_id', 'app_identifier'];
+
+    /**
+     * Get the parent taskable model (Project, User, etc.).
+     */
+    public function taskable(): MorphTo
+    {
+        return $this->morphTo();
+    }
 
     /*
      * 1. GLOBAL SCOPE ISOLAMENTO E TASK COMUNI
