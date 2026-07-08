@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Tasks\Tables;
 
-use App\Filament\Utils\TableHelper;
 use App\Models\Company;
 use App\Models\PROFORMA\Fornitore;
 use App\Models\Task;
@@ -35,12 +34,11 @@ class TasksTable
                     ->sortable()
                     ->searchable()
                     ->limit(50),  // Evita che descrizioni lunghe rompano il layout
-                TableHelper::polymorphicColumn('taskable', 'Entità Assegnata'),
-                /*
+
                 TextColumn::make('taskable')
-                    ->label('Entità collegata')
+                    ->label('Collegato a')
                     ->badge()  // Trasforma il testo in un comodo Badge
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'company' => 'info',
                         'fornitore' => 'warning',
                         'employee' => 'success',
@@ -48,16 +46,9 @@ class TasksTable
                         'audit' => 'danger',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'company' => 'Azienda',
-                        'fornitore' => 'Produttore',
-                        'employee' => 'Dipendente',
-                        'clienti' => 'Mandante',
-                        'audit' => 'Audit',
-                        default => ucfirst($state),
-                    })
+                    ->sortable()
                     ->searchable(),
-                    */
+
                 // ==========================================
                 // NUOVE COLONNE PER LE REGOLE DI ATTIVAZIONE
                 // ==========================================
