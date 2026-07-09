@@ -403,6 +403,11 @@ class DocumentScheduleResource extends Resource
         // 2. Sostituzione Variabili Template
         $documentCount = count($documentNames);
         $documentListString = implode('<br>', $documentNames);
+        // Aggiungiamo l'header personalizzato 'In-Reply-To' se è presente un $documentId
+        $documentId = null;
+        if ($documentCount > 0) {
+            $documentId = $documentListString->first(); // Prendiamo il primo documento come riferimento per l'header
+        }
 
         $subject = str_replace(
             ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
@@ -440,7 +445,6 @@ class DocumentScheduleResource extends Resource
         // Creiamo l'istanza della Mailable passando i dati necessari
         $mailable = new DocumentReminderMail($subject, $body, $attachments);
 
-        // Aggiungiamo l'header personalizzato 'In-Reply-To' se è presente un $documentId
         if (! empty($documentId)) {
             $mailable->withSymfonyMessage(function ($message) use ($documentId) {
                 $message->getHeaders()->addTextHeader('In-Reply-To', $documentId);
