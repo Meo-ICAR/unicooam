@@ -58,6 +58,8 @@ class DocumentsRelationManager extends RelationManager
                             if (blank($get('name'))) {
                                 $documentType = DocumentType::find($state);
                                 $set('name', $documentType?->name);
+                                $set('is_monitored', $documentType?->is_monitored);
+                                $set('doctype', $documentType?->doctype);
                             }
                         })
                         //  ->required()
@@ -72,13 +74,7 @@ class DocumentsRelationManager extends RelationManager
                         ->options(DocumentStatus::class)
                         ->default(DocumentStatus::PENDING)
                         ->required(),
-                    Select::make('doctype')
-                        ->label('Tipo documento')
-                        ->options([
-                            'modulo' => 'Modulo',
-                            'procedura' => 'Procedura',
-                            'template' => 'Template',
-                        ]),
+
                     DatePicker::make('emitted_at')
                         ->label('Data emissione')
                         ->live()
@@ -86,7 +82,8 @@ class DocumentsRelationManager extends RelationManager
                         ->displayFormat('d/m/Y'),
                     Toggle::make('is_monitored')
                         ->label('Controlla scadenza')
-                        ->default(false)
+                        ->default(fn ($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->is_monitored : false)
+
                         ->live(),
                     DatePicker::make('expires_at')
                         ->label('Data scadenza')
@@ -95,8 +92,17 @@ class DocumentsRelationManager extends RelationManager
                         ->visible(fn ($get) => $get('is_monitored'))
                         ->afterOrEqual('emitted_at'),
                     TextInput::make('docnumber')
-                        ->label('Numero documento')
+                        ->label('Protocollo documento')
                         ->placeholder('es. CI-2024-001'),
+                    /*
+                    Select::make('doctype')
+                        ->label('Tipo documento')
+                        ->options([
+                            'modulo' => 'Modulo',
+                            'procedura' => 'Procedura',
+                            'template' => 'Template',
+                        ]),
+
                     Textarea::make('description')
                         ->label('Descrizione supplementare')
                         ->rows(2)
@@ -105,6 +111,7 @@ class DocumentsRelationManager extends RelationManager
                         ->label('Note interne')
                         ->rows(2)
                         ->columnSpanFull(),
+                        */
                 ]),
             Section::make('File Allegato')
                 ->components([

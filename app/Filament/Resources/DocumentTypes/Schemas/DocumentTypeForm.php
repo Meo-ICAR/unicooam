@@ -40,8 +40,8 @@ class DocumentTypeForm
                                 'template' => 'Template',
                                 'comunicazione' => 'Comunicazione',
                             ]),
-                        FormHelper::polymorphicSelect(name: 'taskable', label: 'Collegata a (Entità)'),
-                        /*
+                        //   FormHelper::polymorphicSelect(name: 'document_typable', label: 'Collegata a (Entità)'),
+
                         Select::make('document_typable')
                             ->label('Modello destinatario')
                             ->options([
@@ -56,7 +56,7 @@ class DocumentTypeForm
                                 'website' => 'Website',
                             ])
                             ->searchable()
-                            ->placeholder('Seleziona modello'), */
+                            ->placeholder('Seleziona modello'),
 
                     ]),
                 Section::make('File Allegato')
