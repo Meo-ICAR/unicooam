@@ -16,16 +16,15 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\DatePicker;  // Importante per il form nel modal
-use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;  // Importante per il form nel modal
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
-// use Illuminate\Support\Collection;
 use Filament\Resources\Resource;
+// use Illuminate\Support\Collection;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -76,6 +75,12 @@ class DocumentScheduleResource extends Resource
             ])
          //   ->defaultGroup('documentable_group_key')
             ->columns([
+                TextColumn::make('expires_at')
+                    ->label('Scadenza')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->color(fn (DocumentSchedule $record): string => $record->expires_at?->isPast() ? 'danger' : 'gray'),
+
                 TextColumn::make('entity_name')
                     ->label('Soggetto / Entità')
                     ->searchable()
@@ -91,11 +96,6 @@ class DocumentScheduleResource extends Resource
                  *     ->badge()
                  *     ->sortable(),
                  */
-                TextColumn::make('expires_at')
-                    ->label('Scadenza')
-                    ->date('d/m/Y')
-                    ->sortable()
-                    ->color(fn (DocumentSchedule $record): string => $record->expires_at?->isPast() ? 'danger' : 'gray'),
                 TextColumn::make('days_until_expiry')
                     ->label('Giorni')
                     ->badge()
@@ -174,9 +174,43 @@ class DocumentScheduleResource extends Resource
                     */
             ])
             ->recordActions([
-                //  EditAction::make(),
+                Action::make('renew')
+                    ->label('Aggiorna')
+                    ->icon('heroicon-o-pencil-square')
+                    ->action(function (DocumentSchedule $record, array $data): void {
+                        // Aggiorna i campi del record
+                        $document = $record->document;
+
+                        // 2. Assegniamo il valore del form alla colonna del documento
+                        $document->emitted_at = $data['emitted_at'];
+
+                        // Se la scadenza (expires_at) deve essere calcolata qui (es. + 1 anno):
+                        // $document->expires_at = Carbon::parse($data['emitted_at'])->addYear();
+
+                        // 3. Salviamo esplicitamente il documento
+                        $document->save();
+                        $record->document->refresh();
+
+                        // 2. FIX: Aggiorna il record di DocumentSchedule passando un array corretto
+                        $record->update([
+                            'expires_at' => $record->document->expires_at,
+                        ]);
+                        //   $record->update('expires_at', $record->document->expires_at); // Aggiorna anche il record di DocumentSchedule se necessario
+                        Notification::make()
+                            ->title('Documento aggiornato')
+                            ->success()
+                            ->send();
+                    })
+                    ->form([
+                        DatePicker::make('emitted_at')
+                            ->label('Nuova data di emissione')
+                            ->default(now())
+                            ->maxDate(now())
+                            ->required(),
+
+                    ]),
                 //  DeleteAction::make(),
-            ])
+            ])->recordAction('renew')
             ->headerActions([
                 ExportAction::make()
                     ->exports([

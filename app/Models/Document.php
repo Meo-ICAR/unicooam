@@ -108,7 +108,7 @@ class Document extends Model implements HasMedia
     protected static function booted(): void
     {
         static::updating(function (Document $document) {
-            if (empty($document->expires_at) && ! empty($document->emitted_at)) {
+            if (! empty($document->emitted_at)) {
                 $document->expires_at = $document->documentType?->durationCalculate($document->emitted_at);
             }
             if (($document->status === DocumentStatus::PENDING) && ! empty($document->emitted_at)) {
