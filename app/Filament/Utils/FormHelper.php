@@ -30,8 +30,9 @@ class FormHelper
                     $alias => $labels[$alias] ?? ucfirst(class_basename($className)),
                 ])->toArray();
             })
-            ->searchable()
-            ->required();
+            ->default('fornitore') // Imposta il valore predefinito su 'fornitore'
+            ->searchable();
+
     }
 
     /**

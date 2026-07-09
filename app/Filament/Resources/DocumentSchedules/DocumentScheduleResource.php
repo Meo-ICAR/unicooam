@@ -324,13 +324,13 @@ class DocumentScheduleResource extends Resource
                                 ->label('Tag disponibili per il template')
                                 ->visible(fn (Get $get) => filled($get('email_template_id')))
                                 ->content(new HtmlString('
-        <div class="flex flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs text-primary-600"><code>{agente_nome}</code></span>
-            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs text-primary-600"><code>{n_documenti}</code></span>
-            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs text-primary-600"><code>{elenco_documenti}</code></span>
-        </div>
-        <p class="text-xs text-gray-500 mt-1">Puoi copiare e incollare questi tag nell\'oggetto o nel testo dell\'email; verranno sostituiti automaticamente all\'invio.</p>
-    ')),
+                <div class="flex flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs text-primary-600"><code>{agente_nome}</code></span>
+                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs text-primary-600"><code>{n_documenti}</code></span>
+                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 font-mono text-xs text-primary-600"><code>{elenco_documenti}</code></span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Puoi copiare e incollare questi tag nell\'oggetto o nel testo dell\'email; verranno sostituiti automaticamente all\'invio.</p>
+            ')),
                             TextInput::make('subject')
                                 ->label('Oggetto')
                                 ->required()
@@ -363,7 +363,6 @@ class DocumentScheduleResource extends Resource
                             })->groupBy(fn ($record) => $record->entity->email);
 
                             foreach ($groupedRecords as $email => $userRecords) {
-                                // Richiama il nuovo metodo separato!
                                 self::processAndSendEmailForUserGroup(
                                     $email,
                                     $userRecords,
@@ -393,19 +392,16 @@ class DocumentScheduleResource extends Resource
 
         // 1. Estrazione Documenti e Allegati
         foreach ($userRecords as $record) {
-            // Chiamata corretta sull'istanza della relazione per evitare l'errore non-static
-            // $documentName = $record->document?->renewedBy()?->name ?? $record->document_name;
-            $documentName = $record->document_name; // Fallback se il nome del documento non è disponibile
+            $documentName = $record->document_name;
             if ($documentName) {
                 $documentNames[] = '- '.$documentName;
 
                 // AGGIORNAMENTO CONTATORI SUL DOCUMENTO REALE (Solo se NON è un invio DEMO)
                 if (empty($data['is_demo']) && $record->document) {
-                    // Aggiorna tutto in un colpo solo direttamente sul database tramite query builder
                     $record->document->update([
                         'reminders_count' => $record->document->reminders_count + 1,
                         'last_sent_at' => now(),
-                        'status' => DocumentStatus::PENDING->value, // .value assicura di salvare la stringa 'pending' nel DB
+                        'status' => DocumentStatus::PENDING->value,
                     ]);
                 }
 
@@ -416,14 +412,15 @@ class DocumentScheduleResource extends Resource
                     if ($docType) {
                         // 1. Controlla se ci sono media nella collection corretta ('documents')
                         if ($docType->hasMedia('documents')) {
-                            // Essendo una relazione multipla, prendiamo tutti i file caricati
                             foreach ($docType->getMedia('documents') as $media) {
-                                $attachments[] = $media->getPath();
+                                // FIX: Passiamo l'intero oggetto Media, non più solo il path stringa!
+                                $attachments[] = $media;
                             }
                         }
                         // 2. Fallback sul campo di testo 'document_url' se valorizzato
                         elseif (filled($docType->document_url)) {
-                            $attachments = $docType->document_url;
+                            // FIX: Aggiunto le parentesi quadre per evitare di sovrascrivere l'intero array
+                            $attachments[] = $docType->document_url;
                         }
                     }
                 }
@@ -437,11 +434,9 @@ class DocumentScheduleResource extends Resource
         // 2. Sostituzione Variabili Template
         $documentCount = count($documentNames);
         $documentListString = implode('<br>', $documentNames);
-        // Aggiungiamo l'header personalizzato 'In-Reply-To' se è presente un $documentId
-        $documentId = null;
-        if ($documentCount > 0) {
-            $documentId = $documentListString->first(); // Prendiamo il primo documento come riferimento per l'header
-        }
+
+        // FIX: Preso l'ID dal primo record della Relation Collection (prima faceva ->first() su una stringa)
+        $documentId = $userRecords->first()?->id;
 
         $subject = str_replace(
             ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
@@ -457,7 +452,10 @@ class DocumentScheduleResource extends Resource
 
         // 3. Invio effettivo tramite la Mailable di Laravel
         $isDemo = ! empty($data['is_demo']);
-        $targetEmail = ! $isDemo ? $fallbackEmail : $email;
+
+        // FIX: Corretta la logica ternaria speculare (Se è demo va a te stesso, altrimenti al cliente)
+        $targetEmail = $isDemo ? $fallbackEmail : $email;
+
         if ($isDemo) {
             $subject = '[DEMO] '.$subject;
             $body = '<p><strong>Modalità demo attiva:</strong> l\'email di sollecito sarebbe stata inviata a <em>'.$email.'</em>, ma verrà inviata a <em>'.$fallbackEmail.'</em> invece.</p><hr>'.$body;
@@ -469,21 +467,18 @@ class DocumentScheduleResource extends Resource
 
         // Se NON è demo, aggiungiamo il CC e configuriamo il Reply-To
         if (empty($data['is_demo'])) {
-            $mail->cc($fallbackEmail)
-                ->replyTo('segreteria@races.it');
+            $mail->cc($fallbackEmail)->replyTo('segreteria@races.it');
         } else {
-            // Opzionale: se anche in modalità demo vuoi il reply_to impostato
             $mail->replyTo('segreteria@races.it');
         }
 
-        // Creiamo l'istanza della Mailable passando i dati necessari
+        // Creiamo l'istanza della Mailable passando gli allegati (che ora contengono gli oggetti Spatie Media)
         $mailable = new DocumentReminderMail($subject, $body, $attachments);
 
         if (! empty($documentId)) {
             $mailable->withSymfonyMessage(function ($message) use ($documentId) {
-                $message->getHeaders()->addTextHeader('In-Reply-To', $documentId);
-                // Spesso è consigliato aggiungere anche References per mantenere il thread
-                $message->getHeaders()->addTextHeader('References', $documentId);
+                $message->getHeaders()->addTextHeader('In-Reply-To', "<doc-{$documentId}@races.it>");
+                $message->getHeaders()->addTextHeader('References', "<doc-{$documentId}@races.it>");
             });
         }
 

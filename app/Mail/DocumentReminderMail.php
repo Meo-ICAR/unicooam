@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Spatie\MediaLibrary\MediaCollections\Models\Media; // <-- Importante: permette di riconoscere l'oggetto Spatie
 
 class DocumentReminderMail extends Mailable
 {
@@ -23,7 +24,7 @@ class DocumentReminderMail extends Mailable
     {
         $this->subjectLine = $subjectLine;
         $this->bodyContent = $bodyContent;
-        $this->fileAttachments = $fileAttachments;
+        $this->fileAttachments = $fileAttachments; // Ora può ricevere stringhe o oggetti Media
     }
 
     public function envelope(): Envelope
@@ -36,7 +37,7 @@ class DocumentReminderMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.blank', // Creeremo questa vista a breve
+            view: 'emails.blank',
             with: ['bodyContent' => $this->bodyContent]
         );
     }
@@ -44,11 +45,19 @@ class DocumentReminderMail extends Mailable
     public function attachments(): array
     {
         $attachments = [];
-        foreach ($this->fileAttachments as $path) {
-            if (filter_var($path, FILTER_VALIDATE_URL)) {
-                $attachments[] = Attachment::fromUrl($path);
-            } elseif (file_exists($path)) {
-                $attachments[] = Attachment::fromPath($path);
+
+        foreach ($this->fileAttachments as $file) {
+            // 1. Se l'allegato è un oggetto Media di Spatie, usiamo il suo metodo nativo
+            if ($file instanceof Media) {
+                $attachments[] = $file->mailAttachment();
+            }
+            // 2. Se è una stringa ed è un URL valido
+            elseif (is_string($file) && filter_var($file, FILTER_VALIDATE_URL)) {
+                $attachments[] = Attachment::fromUrl($file);
+            }
+            // 3. Se è una stringa ed è un percorso file locale esistente
+            elseif (is_string($file) && file_exists($file)) {
+                $attachments[] = Attachment::fromPath($file);
             }
         }
 

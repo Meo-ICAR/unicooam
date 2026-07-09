@@ -44,6 +44,7 @@ class DocumentType extends Model implements HasMedia
         'cellposition',
         'renewed_by_id',
         'duration',
+        'duration_unit',
         'emitted_by',
         'is_sensible',
         'is_template',
