@@ -453,7 +453,7 @@ class DocumentScheduleResource extends Resource
         // 3. Invio effettivo tramite la Mailable di Laravel
         $isDemo = ! empty($data['is_demo']);
 
-        // FIX: Corretta la logica ternaria speculare (Se è demo va a te stesso, altrimenti al cliente)
+        // Corretta la logica ternaria speculare (Se è demo va a te stesso, altrimenti al cliente)
         $targetEmail = $isDemo ? $fallbackEmail : $email;
 
         if ($isDemo) {
@@ -462,18 +462,23 @@ class DocumentScheduleResource extends Resource
             Log::info("Modalità demo attiva: l'email di sollecito sarebbe stata inviata a {$email}, ma verrà inviata a {$fallbackEmail} invece.");
         }
 
-        // Prepariamo l'istanza della Mail
+        // Prepariamo l'istanza della Mail (PendingMail accetta to e cc)
         $mail = Mail::to($targetEmail);
 
-        // Se NON è demo, aggiungiamo il CC e configuriamo il Reply-To
+        // Se NON è demo, aggiungiamo il CC
         if (empty($data['is_demo'])) {
-            $mail->cc($fallbackEmail)->replyTo('segreteria@races.it');
-        } else {
-            $mail->replyTo('segreteria@races.it');
+            $mail->cc($fallbackEmail);
         }
 
-        // Creiamo l'istanza della Mailable passando gli allegati (che ora contengono gli oggetti Spatie Media)
+        // Creiamo l'istanza della Mailable
         $mailable = new DocumentReminderMail($subject, $body, $attachments);
+
+        // MODIFICATO: Ora legge dinamicamente dal file .env tramite la configurazione
+
+        $mailable->replyTo(
+            config('mail.reply_to.address'),
+            config('mail.reply_to.name')
+        );
 
         if (! empty($documentId)) {
             $mailable->withSymfonyMessage(function ($message) use ($documentId) {

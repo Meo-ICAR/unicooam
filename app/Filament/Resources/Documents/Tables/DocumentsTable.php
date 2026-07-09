@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Documents\Tables;
 
 use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
+use App\Filament\Utils\TableHelper;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -39,30 +40,7 @@ class DocumentsTable
                 // 1. IDENTIFICATIVI PRINCIPALI
 
                 // 2. ENTITÀ COLLEGATA (Rapporto Polimorfico reso leggibile)
-                TextColumn::make('documentable')
-                    ->label('Collegato a')
-                    ->sortable()
-                    ->state(function ($record) {
-                        if (! $record->documentable) {
-                            return '-';
-                        }
-                        // Estrae solo il nome della classe (es. "User" invece di "App\Models\User")
-                        $type = $record->documentable_type; // class_basename($record->documentable_type);
-                        // Cerca un attributo leggibile (name, title) o ripiega sull'ID
-                        $name = $record->documentable->name
-                            ?? $record->documentable->title
-                            ?? "ID #{$record->documentable_id}";
-
-                        // return "[{$type}] {$name}";
-                        return "{$name}";
-                    })
-                    ->searchable(query: function (Builder $query, string $search): Builder {
-                        // Permette la ricerca testuale anche sui campi dell'entità polimorfica
-                        return $query->whereHasMorph('documentable', '*', function (Builder $q) use ($search) {
-                            $q->where('name', 'like', "%{$search}%")
-                                ->orWhere('id', 'like', "%{$search}%");
-                        });
-                    }),
+                TableHelper::polymorphicColumn('documentable', 'Collegato'),
 
                 // 3. TIPI DI DOCUMENTO
                 TextColumn::make('name')

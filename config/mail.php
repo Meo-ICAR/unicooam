@@ -111,4 +111,10 @@ return [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
+
+    // ABBIAMO AGGIUNTO QUESTA SEZIONE:
+    'reply_to' => [
+        'address' => env('MAIL_REPLY_TO_ADDRESS', 'segreteria@races.it'),
+        'name' => env('MAIL_REPLY_TO_NAME', 'Segreteria Races'),
+    ],
 ];

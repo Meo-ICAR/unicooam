@@ -6,7 +6,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\Schema;
 
 class TableHelper
 {
@@ -37,73 +36,95 @@ class TableHelper
     }
 
     /**
-     * Genera un TextColumn polimorfico dinamico con ricerca automatica
-     * e descrizione intelligente basata sul MorphMap.
+     * Genera un TextColumn polimorfico dinamico con ricerca e ordinamento automatico,
+     * mostrando esclusivamente il nome del soggetto controllato.
      */
-    public static function polymorphicColumn(string $relationName = 'auditable', string $label = 'Soggetto Controllato'): TextColumn
+    public static function polymorphicColumn(string $relationName = 'documentable', string $label = 'Soggetto Controllato'): TextColumn
     {
         $typeField = $relationName.'_type';
+        $idField = $relationName.'_id';
 
         return TextColumn::make($relationName)
             ->label($label)
             // Cerca dinamicamente full_name o name sul record polimorfico collegato
             ->state(fn ($record) => $record->$relationName?->full_name ?? $record->$relationName?->name ?? 'N/D')
 
-            // Gestione automatica della descrizione sottostante
-            ->description(function ($record) use ($typeField) {
-                if (empty($record->$typeField)) {
-                    return null;
-                }
-
-                // Traduzioni commerciali personalizzate
-                $labels = [
-                    'fornitore' => 'Collaboratore / Agente',
-                    'employee' => 'Impiegato Interno',
-                    'cliente' => 'Mandante',
-                    'company' => 'Azienda',
-                    'audit' => 'Audit',
-                    'branch' => 'Filiale',
-                ];
-
-                if (array_key_exists($record->$typeField, $labels)) {
-                    return $labels[$record->$typeField];
-                }
-
-                // Fallback automatico sul nome della classe se non tradotto
-                $className = Relation::morphMap()[$record->$typeField] ?? null;
-
-                return $className ? ucfirst(class_basename($className)) : $record->$typeField;
-            })
-
-            // Ricerca polimorfica universale, sicura e raggruppata
+            // 1. RICERCA POLIMORFICA UNIVERSALE
             ->searchable(query: function (Builder $query, string $search) use ($relationName) {
                 $allMorphAliases = array_keys(Relation::morphMap());
 
-                // Usiamo un where logico raggruppato principale per non rompere altri filtri in tabella
                 $query->where(function (Builder $mainSubQuery) use ($relationName, $allMorphAliases, $search) {
-
                     $mainSubQuery->whereHasMorph($relationName, $allMorphAliases, function (Builder $q) use ($search) {
                         $modelInstance = $q->getModel();
+                        $schema = $modelInstance->getConnection()->getSchemaBuilder();
+                        $table = $modelInstance->getTable();
 
-                        // Sostituito Schema::hasColumn statico ad ogni riga con un controllo di istanza più efficiente
-                        $q->where(function (Builder $subQuery) use ($search, $modelInstance) {
+                        $q->where(function (Builder $subQuery) use ($search, $schema, $table) {
+                            $hasName = $schema->hasColumn($table, 'name');
+                            $hasFullName = $schema->hasColumn($table, 'full_name');
 
-                            // Controlla se sul modello polimorfico corrente esistono proprietà/attributi specifici
-                            // o verifica la presenza delle colonne usando una proprietà nel modello se vuoi fare un controllo fisso,
-                            // altrimenti esegui l'orWhere in sicurezza se le tabelle seguono uno standard.
+                            if ($hasName) {
+                                $subQuery->where('name', 'like', "%{$search}%");
+                            }
 
-                            // NOTA: Se sei sicuro che tutte o la maggior parte abbiano 'name', puoi omettere il controllo dinamico.
-                            // In alternativa, definiamo una ricerca flessibile basata sui campi standard del tuo gestionale:
-                            $subQuery->where('name', 'like', "%{$search}%");
+                            if ($hasFullName) {
+                                if ($hasName) {
+                                    $subQuery->orWhere('full_name', 'like', "%{$search}%");
+                                } else {
+                                    $subQuery->where('full_name', 'like', "%{$search}%");
+                                }
+                            }
 
-                            // Se solo alcune tabelle hanno full_name, puoi usare il reflection del modello o lasciare il fallback
-                            if (method_exists($modelInstance, 'getFullNameAttribute') || in_array(class_basename($modelInstance), ['User', 'Employee'])) {
-                                $subQuery->orWhere('full_name', 'like', "%{$search}%");
+                            if (! $hasName && ! $hasFullName) {
+                                $subQuery->whereRaw('1 = 0');
                             }
                         });
                     });
-
                 });
+            })
+
+            // 2. ORDINAMENTO POLIMORFICO DINAMICO CORRETTO
+            ->sortable(query: function (Builder $query, string $direction) use ($typeField, $idField) {
+                $cases = [];
+                $bindings = [];
+
+                foreach (Relation::morphMap() as $alias => $class) {
+                    $modelInstance = new $class;
+                    $schema = $modelInstance->getConnection()->getSchemaBuilder();
+                    $table = $modelInstance->getTable();
+
+                    // Identifichiamo la colonna testuale migliore su cui fare l'ordinamento
+                    $sortColumn = null;
+                    if ($schema->hasColumn($table, 'name')) {
+                        $sortColumn = 'name';
+                    } elseif ($schema->hasColumn($table, 'full_name')) {
+                        $sortColumn = 'full_name';
+                    }
+
+                    if ($sortColumn) {
+                        // Gestione dei nomi tabella che contengono già il database (es. proforma.clientis)
+                        if (str_contains($table, '.')) {
+                            $parts = explode('.', $table);
+                            $qualifiedTable = '`'.implode('`.`', $parts).'`';
+                        } else {
+                            $dbName = $modelInstance->getConnection()->getDatabaseName();
+                            $qualifiedTable = "`{$dbName}`.`{$table}`";
+                        }
+
+                        // Generiamo il pezzo di query condizionale con i backtick posizionati chirurgicamente
+                        $cases[] = "WHEN `{$typeField}` = ? THEN (SELECT `{$sortColumn}` FROM {$qualifiedTable} WHERE {$qualifiedTable}.`id` = `{$idField}`)";
+                        $bindings[] = $alias;
+                    }
+                }
+
+                // Se abbiamo almeno una tabella valida su cui ordinare, compiliamo il CASE expression
+                if (! empty($cases)) {
+                    $caseSql = 'CASE '.implode(' ', $cases).' ELSE NULL END';
+
+                    // Applichiamo l'ordinamento raw passando i bindings in totale sicurezza
+                    $query->orderByRaw("({$caseSql}) {$direction}", $bindings);
+                }
+
             });
     }
 }

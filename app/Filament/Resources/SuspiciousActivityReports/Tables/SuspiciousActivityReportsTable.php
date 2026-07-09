@@ -60,7 +60,7 @@ class SuspiciousActivityReportsTable
                     })
                     ->sortable(),
                 // Risoluzione della polimorfica "reportable" (Chi ha fatto la segnalazione?)
-                TableHelper::polymorphicColumn('reportable mi', 'Soggetto Controllato'),
+                TableHelper::polymorphicColumn('reportable', 'Soggetto Controllato'),
                 /*
                 TextColumn::make('reportable')
                     ->label('Segnalatore')
