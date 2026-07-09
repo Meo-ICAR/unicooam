@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DocumentStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -109,6 +110,12 @@ class Document extends Model implements HasMedia
         static::updating(function (Document $document) {
             if (empty($document->expires_at) && ! empty($document->emitted_at)) {
                 $document->expires_at = $document->documentType?->durationCalculate($document->emitted_at);
+            }
+            if (($document->status === DocumentStatus::PENDING) && ! empty($document->emitted_at)) {
+                $document->status = DocumentStatus::APPROVED;
+            }
+            if ($document->status === DocumentStatus::REJECTED) {
+                $document->rejection_note = $document->rejection_note ?? 'Nessuna nota fornita.';
             }
         });
     }

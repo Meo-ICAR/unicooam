@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Task extends Model
+class Task extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $connection = 'mysql';
 
@@ -90,7 +92,7 @@ class Task extends Model
                     'doctype',
                 ])
                 ->toArray();
-
+            // ** check trigger fields */
             if ($is_debug) {
                 $emesso = now()->subDays(rand(3, 400));
                 $templateData['emitted_at'] = $emesso;

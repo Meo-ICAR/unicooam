@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Tasks\Schemas;
 use App\Filament\Utils\FormHelper;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
@@ -116,6 +117,17 @@ class TaskForm
                             ->required(fn (Get $get) => $get('exclude_state') === 'equals'),
                     ])
                     ->columns(3),
+                Section::make('File Allegato')
+                    ->components([
+                        SpatieMediaLibraryFileUpload::make('attachments')
+                            ->label('Carica file (PDF, immagini, Word)')
+                            ->multiple()
+                            ->collection('documents')
+                            ->disk('public')
+                            ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                            ->maxSize(20480)
+                            ->columnSpanFull(),
+                    ]),
 
                 // ==========================================
                 // SEZIONE DOCUMENTI (Esistente)

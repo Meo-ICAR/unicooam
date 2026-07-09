@@ -74,7 +74,7 @@ class DocumentScheduleResource extends Resource
                     ->getTitleFromRecordUsing(fn (DocumentSchedule $record): string => $record->entity_name)
                     ->collapsible(),
             ])
-            ->defaultGroup('documentable_group_key')
+         //   ->defaultGroup('documentable_group_key')
             ->columns([
                 TextColumn::make('entity_name')
                     ->label('Soggetto / Entità')
@@ -156,6 +156,10 @@ class DocumentScheduleResource extends Resource
                         ->whereDate('expires_at', '>=', now()->toDateString())
                         ->whereDate('expires_at', '<=', now()->addDays(30)->toDateString())),
                 TableHelper::polymorphicFilter('documentable_type', 'Destinatari'),
+                Filter::make('last_sent_at')
+                    ->label('Ultimo sollecito prima 7gg')
+                    ->query(fn (Builder $query): Builder => $query->whereDate('expires_at', '<', now()->subtractDays(7)->toDateString())),
+
                 /*
                 SelectFilter::make('documentable_type')
                     ->label('Destinatari')
@@ -246,6 +250,7 @@ class DocumentScheduleResource extends Resource
                                 // Verifica se la relazione esiste prima di eliminare per evitare errori
                                 if ($record->document) {
                                     $record->document->delete();
+                                    $record->delete(); // Elimina anche il record di DocumentSchedule associato
                                     $deletedCount++;
                                 }
                             }
@@ -412,11 +417,41 @@ class DocumentScheduleResource extends Resource
         );
 
         // 3. Invio effettivo tramite la Mailable di Laravel
-        $targetEmail = ! empty($data['is_demo']) ? $fallbackEmail : $email;
+        $isDemo = ! empty($data['is_demo']);
+        $targetEmail = ! $isDemo ? $fallbackEmail : $email;
+        if ($isDemo) {
+            $subject = '[DEMO] '.$subject;
+            $body = '<p><strong>Modalità demo attiva:</strong> l\'email di sollecito sarebbe stata inviata a <em>'.$email.'</em>, ma verrà inviata a <em>'.$fallbackEmail.'</em> invece.</p><hr>'.$body;
+            Log::info("Modalità demo attiva: l'email di sollecito sarebbe stata inviata a {$email}, ma verrà inviata a {$fallbackEmail} invece.");
+        }
 
-        Mail::to($targetEmail)->send(new DocumentReminderMail($subject, $body, $attachments));
+        // Prepariamo l'istanza della Mail
+        $mail = Mail::to($targetEmail);
 
-        // Log::info("Email di sollecito inviata a {$targetEmail} con ".count($attachments).' allegati.'.(! empty($data['is_demo']) ? ' [MODALITÀ DEMO]' : ''));
+        // Se NON è demo, aggiungiamo il CC e configuriamo il Reply-To
+        if (empty($data['is_demo'])) {
+            $mail->cc($fallbackEmail)
+                ->replyTo('segreteria@races.it');
+        } else {
+            // Opzionale: se anche in modalità demo vuoi il reply_to impostato
+            $mail->replyTo('segreteria@races.it');
+        }
+
+        // Creiamo l'istanza della Mailable passando i dati necessari
+        $mailable = new DocumentReminderMail($subject, $body, $attachments);
+
+        // Aggiungiamo l'header personalizzato 'In-Reply-To' se è presente un $documentId
+        if (! empty($documentId)) {
+            $mailable->withSymfonyMessage(function ($message) use ($documentId) {
+                $message->getHeaders()->addTextHeader('In-Reply-To', $documentId);
+                // Spesso è consigliato aggiungere anche References per mantenere il thread
+                $message->getHeaders()->addTextHeader('References', $documentId);
+            });
+        }
+
+        // Invio definitivo
+        $mail->send($mailable);
+        Log::info("Email di sollecito inviata a {$targetEmail} con ".count($attachments).' allegati.'.(! empty($data['is_demo']) ? ' [MODALITÀ DEMO]' : ''));
     }
 
     public static function getPages(): array

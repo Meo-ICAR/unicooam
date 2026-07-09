@@ -38,6 +38,7 @@ class DocumentTypeForm
                                 'modulo' => 'Modulo',
                                 'procedura' => 'Procedura',
                                 'template' => 'Template',
+                                'comunicazione' => 'Comunicazione',
                             ]),
                         FormHelper::polymorphicSelect(name: 'taskable', label: 'Collegata a (Entità)'),
                         /*

@@ -27,19 +27,24 @@ class DocumentReminderService
         $until = now()->addDays($windowDays)->toDateString();
 
         return Document::query()
-            ->with(['documentType', 'documentable']) // Ottimizzazione caricamento relazioni
-            ->where('is_monitored', true)
-            ->whereNotNull('expires_at')
-            ->where('expires_at', '<=', $until)
-            ->whereNotIn('status', [
-                DocumentStatus::REJECTED->value,
-                DocumentStatus::NA->value,
-                //  DocumentStatus::APPROVED->value, // Escludiamo anche quelli già approvati
-            ])
-            ->where(function (Builder $query) {
-                // Evita di inviare solleciti continui se ne è già stato mandato uno negli ultimi 5 giorni
-                $query->whereNull('last_sent_at')
-                    ->orWhere('last_sent_at', '<', now()->subDays(5));
+            ->with(['documentType', 'documentable'])
+            ->where(function (Builder $query) use ($until) {
+                // Opzione 1: Tutte le tue regole attuali raggruppate
+                $query->where(function (Builder $subQuery) use ($until) {
+                    $subQuery->where('is_monitored', true)
+                        ->whereNotNull('expires_at')
+                        ->where('expires_at', '<=', $until)
+                        ->whereNotIn('status', [
+                            DocumentStatus::REJECTED->value,
+                            DocumentStatus::NA->value,
+                        ])
+                        ->where(function (Builder $reminderQuery) {
+                            $reminderQuery->whereNull('last_sent_at')
+                                ->orWhere('last_sent_at', '<', now()->subDays(5));
+                        });
+                })
+                // Opzione 2: OPPURE qualsiasi documento che sia semplicemente PENDING
+                    ->orWhere('status', DocumentStatus::PENDING->value);
             })
             ->orderBy('expires_at');
     }

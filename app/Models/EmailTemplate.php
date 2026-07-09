@@ -30,6 +30,7 @@ class EmailTemplate extends Model
         'body',
         'placeholders',
         'is_active',
+        'app_identifier',
     ];
 
     /**

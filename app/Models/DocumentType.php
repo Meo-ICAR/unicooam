@@ -61,6 +61,9 @@ class DocumentType extends Model implements HasMedia
         'created_by',
         'updated_by',
         'deleted_by',
+        'trigger_field', 'trigger_state', 'trigger_value', 'exclude_field', 'exclude_state',
+        'exclude_value',
+
     ];
 
     protected $casts = [
