@@ -28,7 +28,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\MaxWidth;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -304,7 +303,7 @@ class DocumentScheduleResource extends Resource
                         ->icon('heroicon-o-envelope')
                         ->requiresConfirmation()
                         ->color('warning')
-                        ->modalWidth(MaxWidth::FourExtraLarge) // <--- AGGIUNGI QUESTA RIGA
+                        ->modalWidth(Width::FourExtraLarge)// <--- AGGIUNGI QUESTA RIGA
                         ->form([
                             Select::make('email_template_id')
                                 ->label('Template Email')
