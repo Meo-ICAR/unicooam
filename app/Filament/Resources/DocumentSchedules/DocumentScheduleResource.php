@@ -303,7 +303,7 @@ class DocumentScheduleResource extends Resource
                         ->icon('heroicon-o-envelope')
                         ->requiresConfirmation()
                         ->color('warning')
-                        ->modalWidth(Width::FourExtraLarge)// <--- AGGIUNGI QUESTA RIGA
+                   //     ->modalWidth(Width::FourExtraLarge)// <--- AGGIUNGI QUESTA RIGA
                         ->form([
                             Select::make('email_template_id')
                                 ->label('Template Email')
