@@ -476,13 +476,12 @@ class DocumentScheduleResource extends Resource
         // Creiamo l'istanza della Mailable
         $mailable = new DocumentReminderMail($subject, $body, $attachments);
 
-        // MODIFICATO: Ora legge dinamicamente dal file .env tramite la configurazione
-
-        $mailable->replyTo(
-            config('mail.reply_to.address'),
-            config('mail.reply_to.name')
-        );
-
+        if (filled(config('mail.reply_to.address'))) {
+            $mailable->replyTo(
+                config('mail.reply_to.address'),
+                config('mail.reply_to.name') // Il nome può anche essere null, l'importante è l'indirizzo
+            );
+        }
         if (! empty($documentId)) {
             $mailable->withSymfonyMessage(function ($message) use ($documentId) {
                 $message->getHeaders()->addTextHeader('In-Reply-To', "<doc-{$documentId}@races.it>");
