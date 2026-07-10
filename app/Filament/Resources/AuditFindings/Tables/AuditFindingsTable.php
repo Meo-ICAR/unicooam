@@ -32,7 +32,7 @@ class AuditFindingsTable
                     ->boolean(),
                 TextColumn::make('investigation_deadline')
                     ->label('Scadenza istruttoria')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 IconColumn::make('requires_corrective_action')
                     ->label('Richiede azione correttiva')
@@ -43,14 +43,14 @@ class AuditFindingsTable
                     ->sortable(),
                 TextColumn::make('corrective_action_deadline')
                     ->label('Scadenza risoluzione')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('status')
                     ->label('Stato')
                     ->badge(),
                 TextColumn::make('resolved_at')
                     ->label('Risolto il')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Creato il')

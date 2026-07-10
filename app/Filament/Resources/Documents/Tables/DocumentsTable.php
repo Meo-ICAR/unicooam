@@ -52,12 +52,12 @@ class DocumentsTable
                 // Sostituisci il vecchio TextColumn con questo:
                 TextColumn::make('emitted_at')
                     ->label('Emissione')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
 
                 TextColumn::make('expires_at')
                     ->label('Scadenza')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable()
                     ->color(fn ($record) => $record->expires_at && $record->expires_at->isPast() ? 'danger' : 'gray'),
 

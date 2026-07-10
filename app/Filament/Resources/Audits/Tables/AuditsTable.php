@@ -53,11 +53,11 @@ class AuditsTable
                 // 5. Date critiche (Formattate in formato italiano)
                 TextColumn::make('scheduled_at')
                     ->label('Pianificata')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('executed_at')
                     ->label('Eseguita')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable()
                     ->toggleable(),
                 // 6. Stati ed Esiti (Visualizzazione a Badge avanzata)
@@ -77,7 +77,7 @@ class AuditsTable
                     ->placeholder('In attesa di esito'),
                 TextColumn::make('followup_date')
                     ->label('Follow-up')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 //  ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('remediation_plan')
@@ -138,11 +138,11 @@ class AuditsTable
                         $indicators = [];
 
                         if ($data['execution_from'] ?? null) {
-                            $indicators[] = 'Esecuzione dal: '.Carbon::parse($data['execution_from'])->format('d/m/Y');
+                            $indicators[] = 'Esecuzione dal: '.Carbon::parse($data['execution_from'])->format('d/m/y');
                         }
 
                         if ($data['execution_to'] ?? null) {
-                            $indicators[] = 'Esecuzione al: '.Carbon::parse($data['execution_to'])->format('d/m/Y');
+                            $indicators[] = 'Esecuzione al: '.Carbon::parse($data['execution_to'])->format('d/m/y');
                         }
 
                         return $indicators;

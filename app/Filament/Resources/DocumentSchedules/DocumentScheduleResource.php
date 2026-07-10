@@ -28,6 +28,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -64,6 +65,7 @@ class DocumentScheduleResource extends Resource
     {
         return $table
             // ->recordTitleAttribute('name')
+            ->defaultPaginationPageOption(50)
             ->reorderableColumns()
             ->defaultSort('expires_at')
             ->groups([
@@ -77,7 +79,7 @@ class DocumentScheduleResource extends Resource
             ->columns([
                 TextColumn::make('expires_at')
                     ->label('Scadenza')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable()
                     ->color(fn (DocumentSchedule $record): string => $record->expires_at?->isPast() ? 'danger' : 'gray'),
 
@@ -302,6 +304,7 @@ class DocumentScheduleResource extends Resource
                         ->icon('heroicon-o-envelope')
                         ->requiresConfirmation()
                         ->color('warning')
+                        ->modalWidth(MaxWidth::FourExtraLarge) // <--- AGGIUNGI QUESTA RIGA
                         ->form([
                             Select::make('email_template_id')
                                 ->label('Template Email')

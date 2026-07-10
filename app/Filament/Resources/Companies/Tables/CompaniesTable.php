@@ -31,7 +31,7 @@ class CompaniesTable
                     ->searchable(),
                 TextColumn::make('oam_at')
                     ->label('Data iscrizione OAM')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('oam_name')
                     ->label('Nome OAM')
@@ -44,7 +44,7 @@ class CompaniesTable
                     ->searchable(),
                 TextColumn::make('ivass_at')
                     ->label('Data iscrizione IVASS')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('ivass_name')
                     ->label('Nome IVASS')

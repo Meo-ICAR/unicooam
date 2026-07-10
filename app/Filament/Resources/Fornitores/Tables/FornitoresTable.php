@@ -55,15 +55,15 @@ class FornitoresTable
                     ->toggleable(),
                 TextColumn::make('stipulated_at')
                     ->label('Mandato')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('oam_at')
                     ->label('Data OAM')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('dismissed_at')
                     ->label('Cessato')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('email')
                     ->label('Email')
@@ -103,7 +103,7 @@ class FornitoresTable
                     ->default(true),
                 Filter::make('stipulated_at')
                     ->label('Mandato antecedente 6 mesi')
-                    ->query(fn($query) => $query->whereDate('stipulated_at', '<=', now()->subMonth(6))),
+                    ->query(fn ($query) => $query->whereDate('stipulated_at', '<=', now()->subMonth(6))),
                 // Filtro per tipologia di mandato Enasarco
                 SelectFilter::make('enasarco')
                     ->label('Mandato Enasarco')

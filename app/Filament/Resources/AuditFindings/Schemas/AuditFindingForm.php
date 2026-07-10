@@ -9,9 +9,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class AuditFindingForm
@@ -21,7 +20,7 @@ class AuditFindingForm
         $components = [];
 
         // Se il form viene usato nel registro globale esterno, serve il select dell'audit
-        if (!$isRelationManager) {
+        if (! $isRelationManager) {
             $components[] = Select::make('audit_id')
                 ->label('Audit di Riferimento')
                 ->relationship('audit', 'title')
@@ -65,14 +64,14 @@ class AuditFindingForm
                     DatePicker::make('investigation_deadline')
                         ->label('Scadenza Istruttoria')
                         ->native(false)
-                        ->displayFormat('d/m/Y')
-                        ->required(fn(Get $get) => $get('requires_investigation'))
-                        ->visible(fn(Get $get) => $get('requires_investigation')),
+                        ->displayFormat('d/m/y')
+                        ->required(fn (Get $get) => $get('requires_investigation'))
+                        ->visible(fn (Get $get) => $get('requires_investigation')),
                     Textarea::make('investigation_notes')
                         ->label('Note Istruttoria')
                         ->rows(3)
                         ->columnSpanFull()
-                        ->visible(fn(Get $get) => $get('requires_investigation')),
+                        ->visible(fn (Get $get) => $get('requires_investigation')),
                 ]),
             Section::make('Rimedio / Azione Correttiva')
                 ->columns(2)
@@ -84,23 +83,23 @@ class AuditFindingForm
                     DatePicker::make('corrective_action_deadline')
                         ->label('Scadenza Risoluzione')
                         ->native(false)
-                        ->displayFormat('d/m/Y')
-                        ->required(fn(Get $get) => $get('requires_corrective_action'))
-                        ->visible(fn(Get $get) => $get('requires_corrective_action')),
+                        ->displayFormat('d/m/y')
+                        ->required(fn (Get $get) => $get('requires_corrective_action'))
+                        ->visible(fn (Get $get) => $get('requires_corrective_action')),
                     Textarea::make('corrective_action_description')
                         ->label('Descrizione del Rimedio Richiesto')
                         ->rows(3)
                         ->columnSpanFull()
-                        ->visible(fn(Get $get) => $get('requires_corrective_action')),
+                        ->visible(fn (Get $get) => $get('requires_corrective_action')),
                 ]),
             Section::make('Esito e Chiusura')
                 ->columns(2)
-                ->visible(fn(Get $get) => in_array($get('status'), ['resolved', 'closed', 'accepted_risk']))
+                ->visible(fn (Get $get) => in_array($get('status'), ['resolved', 'closed', 'accepted_risk']))
                 ->components([
                     DatePicker::make('resolved_at')
                         ->label('Data Risoluzione/Chiusura')
                         ->native(false)
-                        ->displayFormat('d/m/Y')
+                        ->displayFormat('d/m/y')
                         ->required(),
                     Textarea::make('resolution_notes')
                         ->label('Note di Chiusura (Azioni intraprese)')

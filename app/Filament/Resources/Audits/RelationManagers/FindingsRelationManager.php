@@ -47,14 +47,14 @@ class FindingsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('corrective_action_deadline')
                     ->label('Scadenza Rimedio')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable()
                     ->color(fn ($record) => $record->isOverdue() ? 'danger' : 'gray')
                     ->weight(fn ($record) => $record->isOverdue() ? 'bold' : 'normal')
                     ->description(fn ($record) => $record->isOverdue() ? 'SCADUTO' : null),
                 TextColumn::make('resolved_at')
                     ->label('Risolto il')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

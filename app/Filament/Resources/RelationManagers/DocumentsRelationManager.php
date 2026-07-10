@@ -79,7 +79,7 @@ class DocumentsRelationManager extends RelationManager
                         ->label('Data emissione')
                         ->live()
                         //  ->visible(fn($get) => $get('is_monitored'))
-                        ->displayFormat('d/m/Y'),
+                        ->displayFormat('d/m/y'),
                     Toggle::make('is_monitored')
                         ->label('Controlla scadenza')
                         ->default(fn ($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->is_monitored : false)
@@ -88,7 +88,7 @@ class DocumentsRelationManager extends RelationManager
                     DatePicker::make('expires_at')
                         ->label('Data scadenza')
                         ->default(fn ($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->durationCalculate($get('emitted_at')) : null)
-                        ->displayFormat('d/m/Y')
+                        ->displayFormat('d/m/y')
                         ->visible(fn ($get) => $get('is_monitored'))
                         ->afterOrEqual('emitted_at'),
                     TextInput::make('docnumber')
@@ -162,12 +162,12 @@ class DocumentsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('emitted_at')
                     ->label('Emissione')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     //  ->visible(fn($record) => $record?->is_monitored)
                     ->sortable(),
                 TextColumn::make('expires_at')
                     ->label('Scadenza')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable()
                   //  ->visible(fn ($record) => $record?->is_monitored ?? false)
                     ->color(fn ($record) => $record?->expires_at?->isPast() ? 'danger' : 'gray')
@@ -287,7 +287,7 @@ class DocumentsRelationManager extends RelationManager
                         DatePicker::make('new_emitted_at')
                             ->label('Nuova data emissione')
                             ->required()
-                            ->displayFormat('d/m/Y'),
+                            ->displayFormat('d/m/y'),
                     ])
                     ->action(function (Collection $records, array $data) {
                         $updatedCount = 0;

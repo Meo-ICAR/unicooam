@@ -57,7 +57,7 @@ class DocumentForm
                         ->label('Data emissione')
                         ->live()
                         //  ->visible(fn($get) => $get('is_monitored'))
-                        ->displayFormat('d/m/Y'),
+                        ->displayFormat('d/m/y'),
                     Toggle::make('is_monitored')
                         ->label('Controlla scadenza')
                         ->default(false)
@@ -65,7 +65,7 @@ class DocumentForm
                     DatePicker::make('expires_at')
                         ->label('Data scadenza')
                         ->default(fn ($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->durationCalculate($get('emitted_at')) : null)
-                        ->displayFormat('d/m/Y')
+                        ->displayFormat('d/m/y')
                         ->visible(fn ($get) => $get('is_monitored'))
                         ->afterOrEqual('emitted_at'),
                     TextInput::make('docnumber')

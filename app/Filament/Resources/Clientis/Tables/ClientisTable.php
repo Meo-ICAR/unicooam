@@ -3,11 +3,9 @@
 namespace App\Filament\Resources\Clientis\Tables;
 
 use App\Filament\Exports\DynamicGroupExport;
-use App\Models\Clienti;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -21,7 +19,7 @@ class ClientisTable
     {
         return $table
             ->defaultSort('nome')
-            ->modifyQueryUsing(fn($query) => $query->where('is_dummy', false))
+            ->modifyQueryUsing(fn ($query) => $query->where('is_dummy', false))
             ->headerActions([
                 ExportAction::make()
                     ->exports([
@@ -62,11 +60,11 @@ class ClientisTable
                     ->sortable()
                     ->label('Partita IVA'),
                 TextColumn::make('stipulated_at')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable()
                     ->label('Stipula'),
                 TextColumn::make('dismissed_at')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable()
                     ->label('Recesso'),
             ])

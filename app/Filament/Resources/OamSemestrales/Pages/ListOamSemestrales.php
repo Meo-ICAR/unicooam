@@ -2,16 +2,13 @@
 
 namespace App\Filament\Resources\OamSemestrales\Pages;
 
-use App\Filament\Actions\ExportOamAction;
 use App\Filament\Actions\ImportOamAction;
 use App\Filament\Exports\Sheets\M510AnagraficaSheet;
 use App\Filament\Exports\Sheets\M510EconomicoBaseSheet;
 use App\Filament\Exports\Sheets\M510InformativoSheet;
 use App\Filament\Exports\Sheets\M510PrudenzialeSheet;
 use App\Filament\Exports\Sheets\M510SediSheet;
-use App\Filament\Exports\M510MasterExport;
 use App\Filament\Resources\OamSemestrales\OamSemestraleResource;
-use App\Models\PROFORMA\Fornitore;
 use App\Models\Audit;
 use App\Models\Branch;
 use App\Models\Company;
@@ -20,14 +17,13 @@ use App\Models\ComplaintRegistry;
 use App\Models\Document;
 use App\Models\Employee;
 use App\Models\OamSemestrale;
+use App\Models\PROFORMA\Fornitore;
 use App\Models\SuspiciousActivityReport;
 use App\Models\Website;
 use Filament\Actions\Action;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
-use Illuminate\Support\HtmlString;
+// CORRETTO
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -65,8 +61,9 @@ class ListOamSemestrales extends ListRecords
             ->orderBy('emitted_at', 'desc')
             ->get()
             ->map(function ($doc) {
-                $data = $doc->emitted_at ? date('d/m/Y', strtotime($doc->emitted_at)) : 'N/D';
-                return "[{$data}] " . ($doc->name ?? $doc->title);
+                $data = $doc->emitted_at ? date('d/m/y', strtotime($doc->emitted_at)) : 'N/D';
+
+                return "[{$data}] ".($doc->name ?? $doc->title);
             })
             ->toArray();
         $requisiti_organizzativi = Document::where('documentable_type', 'company')->whereHas('documentType', function ($query) {
@@ -138,11 +135,11 @@ class ListOamSemestrales extends ListRecords
                         // Inseriamo i dati reali convertendo i null del tuo database in stringhe leggibili per l'Excel
                         $rilievi_lista[] = [
                             'collaboratore' => $nomeSoggetto,
-                            'executed_at' => $audit->executed_at ? date('d/m/Y', strtotime($audit->executed_at)) : '',
+                            'executed_at' => $audit->executed_at ? date('d/m/y', strtotime($audit->executed_at)) : '',
                             'auditor_name' => $audit->auditor_name ?? 'Non Assegnato',
-                            'summary' => $audit->summary ?? 'Nessun rilievo bloccante riscontrato (Stato: ' . $audit->status->value . ')',
+                            'summary' => $audit->summary ?? 'Nessun rilievo bloccante riscontrato (Stato: '.$audit->status->value.')',
                             'remediation_plan' => $audit->remediation_plan ?? 'Nessuna azione richiesta',
-                            'followup_date' => $audit->followup_date ? date('d/m/Y', strtotime($audit->followup_date)) : 'N/A',
+                            'followup_date' => $audit->followup_date ? date('d/m/y', strtotime($audit->followup_date)) : 'N/A',
                         ];
                     }
 
@@ -175,11 +172,11 @@ class ListOamSemestrales extends ListRecords
                         'numero_siti' => $websites->count(),
                         'siti' => $websites->pluck('domain')->toArray(),
                         'data_trasparenza' => $website_trasparenza,
-                        'data_relazione_requisiti' => $requisiti_organizzativi ? date('d/m/Y', strtotime($requisiti_organizzativi->emitted_at)) : 'N/A',
+                        'data_relazione_requisiti' => $requisiti_organizzativi ? date('d/m/y', strtotime($requisiti_organizzativi->emitted_at)) : 'N/A',
                         'procedure' => $procedures,
                         'moduli' => $moduli->pluck('name')->toArray(),
                         'modulistica_a' => $moduli->pluck('emitted_at')->map(function ($date) {
-                            return date('d/m/Y', strtotime($date));
+                            return date('d/m/y', strtotime($date));
                         })->toArray(),
                         'funzioni_esternalizzate' => $externalRoles->pluck('funzione')->unique()->values()->toArray(),
                     ];
@@ -201,7 +198,7 @@ class ListOamSemestrales extends ListRecords
                         // Il Mockup richiede il formato "COGNOME NOME"
                         $responsabile = 'N/D';
                         if ($branch->manager_last_name || $branch->manager_first_name) {
-                            $responsabile = trim(($branch->manager_last_name ?? '') . ' ' . ($branch->manager_first_name ?? ''));
+                            $responsabile = trim(($branch->manager_last_name ?? '').' '.($branch->manager_first_name ?? ''));
                         }
 
                         $branches_lista[] = [

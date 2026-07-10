@@ -25,8 +25,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WebsitesRelationManager extends RelationManager
 {
@@ -44,7 +42,7 @@ class WebsitesRelationManager extends RelationManager
             ->components([
                 TextInput::make('domain')
                     ->label('Dominio')
-                    ->url(fn($record) => $record?->domain ? (str_starts_with($record->domain, 'http') ? $record->domain : "https://{$record->domain}") : null)
+                    ->url(fn ($record) => $record?->domain ? (str_starts_with($record->domain, 'http') ? $record->domain : "https://{$record->domain}") : null)
                     ->required(),
                 ToggleColumn::make('is_active')
                     ->default(true)
@@ -66,15 +64,15 @@ class WebsitesRelationManager extends RelationManager
                     ]),
                 TextInput::make('url_transparency')
                     ->label('URL trasparenza')
-                    ->visible(fn($get) => $get('type') === 'istituzionale')
-                    ->url(fn($record) => $record?->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
+                    ->visible(fn ($get) => $get('type') === 'istituzionale')
+                    ->url(fn ($record) => $record?->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
                 DatePicker::make('transparency_date')
                     ->label('Data trasparenza')
-                    ->visible(fn($get) => $get('type') === 'istituzionale')
+                    ->visible(fn ($get) => $get('type') === 'istituzionale')
                     ->native(false)
-                    ->displayFormat('d/m/Y'),
+                    ->displayFormat('d/m/y'),
                 TextInput::make('name')
-                    ->default(fn($get) => $get('type'))
+                    ->default(fn ($get) => $get('type'))
                     ->label('Nome sito')
                     ->required(),
                 Toggle::make('is_active')
@@ -91,7 +89,7 @@ class WebsitesRelationManager extends RelationManager
                 TextColumn::make('domain')
                     ->label('Dominio')
                     ->openUrlInNewTab()
-                    ->url(fn($record) => str_starts_with($record->domain, 'http') ? $record->domain : "https://{$record->domain}")
+                    ->url(fn ($record) => str_starts_with($record->domain, 'http') ? $record->domain : "https://{$record->domain}")
                     ->openUrlInNewTab()
                     ->searchable(),
                 TextColumn::make('type')
@@ -103,14 +101,14 @@ class WebsitesRelationManager extends RelationManager
                     ->sortable()
                     ->boolean(),
                 TextColumn::make('url_transparency')
-                    ->visible(fn($record) => $record?->type === 'istituzionale')
+                    ->visible(fn ($record) => $record?->type === 'istituzionale')
                     ->label('URL trasparenza')
                     ->openUrlInNewTab()
-                    ->url(fn($record) => $record->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
+                    ->url(fn ($record) => $record->url_transparency ? (str_starts_with($record->url_transparency, 'http') ? $record->url_transparency : "https://{$record->url_transparency}") : null),
                 TextColumn::make('transparency_date')
-                    ->visible(fn($record) => $record?->type === 'istituzionale')
+                    ->visible(fn ($record) => $record?->type === 'istituzionale')
                     ->label('Trasparenza')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('name')
                     ->label('Nome')
@@ -122,16 +120,16 @@ class WebsitesRelationManager extends RelationManager
                  *  ->searchable(),
                  * TextColumn::make('privacy_date')
                  *     ->label('Privacy')
-                 *     ->date('d/m/Y')
+                 *     ->date('d/m/y')
                  *     ->sortable(),
                  * TextColumn::make('privacy_prior_date')
                  *     ->label('Privacy precedente')
-                 *     ->date('d/m/Y')
+                 *     ->date('d/m/y')
                  *     ->sortable()
                  *     ->toggleable(isToggledHiddenByDefault: true),
                  * TextColumn::make('transparency_prior_date')
                  *     ->label('Trasparenza precedente')
-                 *     ->date('d/m/Y')
+                 *     ->date('d/m/y')
                  *     ->sortable()
                  *     ->toggleable(isToggledHiddenByDefault: true),
                  * TextColumn::make('url_privacy')

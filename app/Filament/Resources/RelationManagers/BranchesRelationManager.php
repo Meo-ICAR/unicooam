@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\RelationManagers;
 
-use App\Models\Branch;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -25,11 +24,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\HtmlString;
-use BackedEnum;
 
 class BranchesRelationManager extends RelationManager
 {
@@ -52,10 +48,10 @@ class BranchesRelationManager extends RelationManager
                     ->label('Indica se è la Sede Legale/Operativa principale (1 = Sì, 0 = No)')
                     ->required(),
                 DateTimePicker::make('founded_at')
-                    ->displayFormat('d/m/Y')
+                    ->displayFormat('d/m/y')
                     ->label('Data di apertura della filiale'),
                 DateTimePicker::make('dismissed_at')
-                    ->displayFormat('d/m/Y')
+                    ->displayFormat('d/m/y')
                     ->label('Data chiusuradella filiale'),
                 TextInput::make('address')
                     ->label('Via / Piazza'),
@@ -98,7 +94,7 @@ class BranchesRelationManager extends RelationManager
                     ->boolean(),
                 TextColumn::make('address')
                     ->label('Indirizzo')
-                    ->formatStateUsing(fn($record) => trim(($record->address ?? '') . ' ' . ($record->street_number ?? '')))
+                    ->formatStateUsing(fn ($record) => trim(($record->address ?? '').' '.($record->street_number ?? '')))
                     ->searchable(),
                 TextColumn::make('city')
                     ->label('Città')
@@ -107,7 +103,7 @@ class BranchesRelationManager extends RelationManager
                     ->label('Provincia'),
                 TextColumn::make('manager_last_name')
                     ->label('Responsabile')
-                    ->formatStateUsing(fn($record) => trim(($record->manager_last_name ?? '') . ' ' . ($record->manager_first_name ?? '')))
+                    ->formatStateUsing(fn ($record) => trim(($record->manager_last_name ?? '').' '.($record->manager_first_name ?? '')))
                     ->searchable(),
                 TextColumn::make('founded_at')
                     ->label('Data apertura')
@@ -144,7 +140,7 @@ class BranchesRelationManager extends RelationManager
                     RestoreBulkAction::make(),
                 ]),
             ])
-            ->modifyQueryUsing(fn(Builder $query) => $query
+            ->modifyQueryUsing(fn (Builder $query) => $query
                 ->withoutGlobalScopes([
                     SoftDeletingScope::class,
                 ]));

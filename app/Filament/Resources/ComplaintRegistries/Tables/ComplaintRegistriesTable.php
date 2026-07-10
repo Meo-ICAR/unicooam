@@ -7,7 +7,6 @@ use App\Enums\ComplaintMacroCategory;
 use App\Enums\ComplaintStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Company;
-use Filament\Forms\Components\Select;
 use App\Models\Task;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -15,6 +14,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -51,13 +51,13 @@ class ComplaintRegistriesTable
                 // 2. TEMPISTICHE
                 TextColumn::make('received_at')
                     ->label('Ricevuto il')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 // 3. ANAGRAFICA RECLAMANTE (Con fallback sul testo libero se non associato a un Model)
                 TextColumn::make('complainant_name')
                     ->label('Reclamante')
                     ->searchable()
-                    ->default(fn($record) => $record->complainant?->name ?? 'Dato non censito'),
+                    ->default(fn ($record) => $record->complainant?->name ?? 'Dato non censito'),
                 // 4. CLASSIFICAZIONE (Usa gli Enum automatici per i Badge)
                 TextColumn::make('macro_category')
                     ->label('Macro Ambito')
@@ -94,11 +94,11 @@ class ComplaintRegistriesTable
                 // 8. MONITORAGGIO TERMINI DI LEGGE
                 TextColumn::make('deadline_at')
                     ->label('Scadenza Risposta')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable()
-                    ->color(fn($record) => $record->isOverdue() ? 'danger' : 'gray')
-                    ->weight(fn($record) => $record->isOverdue() ? 'bold' : 'normal')
-                    ->description(fn($record) => $record->isOverdue() ? '⚠️ SCADUTO' : null),
+                    ->color(fn ($record) => $record->isOverdue() ? 'danger' : 'gray')
+                    ->weight(fn ($record) => $record->isOverdue() ? 'bold' : 'normal')
+                    ->description(fn ($record) => $record->isOverdue() ? '⚠️ SCADUTO' : null),
                 IconColumn::make('is_extended')
                     ->label('Proroga')
                     ->boolean()
@@ -119,7 +119,7 @@ class ComplaintRegistriesTable
                 // Filtro rapido per isolare le scadenze violate
                 Filter::make('scaduti')
                     ->label('🚨 Mostra Scaduti Legali')
-                    ->query(fn(Builder $query) => $query
+                    ->query(fn (Builder $query) => $query
                         ->whereNotIn('status', [ComplaintStatus::Accepted->value, ComplaintStatus::Rejected->value])
                         ->where('deadline_at', '<', now())),
 
@@ -149,7 +149,7 @@ class ComplaintRegistriesTable
                         ->form([
                             Select::make('task_id')
                                 ->label('Seleziona il Task')
-                                ->options(fn() => Task::where('taskable', 'complaint')->pluck('name', 'id'))
+                                ->options(fn () => Task::where('taskable', 'complaint')->pluck('name', 'id'))
                                 ->searchable()
                                 ->required(),
                         ])
@@ -158,24 +158,26 @@ class ComplaintRegistriesTable
                             // Recuperiamo l'azienda principale
                             $company = Company::first();
 
-                            if (!$company) {
+                            if (! $company) {
                                 Notification::make()
                                     ->title('Errore')
                                     ->body('Nessuna azienda trovata nel sistema.')
                                     ->danger()
                                     ->send();
+
                                 return;
                             }
 
                             // Recuperiamo il SINGOLO task selezionato dall'utente nel form
                             $task = Task::with('documentTypes')->find($data['task_id']);
 
-                            if (!$task) {
+                            if (! $task) {
                                 Notification::make()
                                     ->title('Errore')
                                     ->body('Task non trovato.')
                                     ->danger()
                                     ->send();
+
                                 return;
                             }
 

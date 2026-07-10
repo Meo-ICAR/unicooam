@@ -6,18 +6,15 @@ namespace App\Filament\Resources\Employees\Tables;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Company;
 use App\Models\Task;
-use Filament\Actions\BulkAction;
-use Filament\Actions\BulkActionGroup;
-// use App\Models\Rui;
-use App\Models\Employee;
 use Filament\Actions\Action;
-use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\BulkAction;
+// use App\Models\Rui;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 // use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 // use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -25,7 +22,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class EmployeesTable
@@ -61,15 +57,15 @@ class EmployeesTable
                     ->sortable(),
                 TextColumn::make('hiring_date')
                     ->label('Data assunzione')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('oam_at')
                     ->label('Data OAM')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('termination_date')
                     ->label('Data cessazione')
-                    ->date('d/m/Y')
+                    ->date('d/m/y')
                     ->sortable(),
                 TextColumn::make('email')
                     ->label('Indirizzo email')
@@ -88,8 +84,8 @@ class EmployeesTable
                 TernaryFilter::make('is_active')
                     ->label('Stato')
                     ->queries(
-                        true: fn($query) => $query->where('is_active', true),
-                        false: fn($query) => $query->where('is_active', false),
+                        true: fn ($query) => $query->where('is_active', true),
+                        false: fn ($query) => $query->where('is_active', false),
                     )
                     ->placeholder('Tutti')
                     ->trueLabel('Solo Attivi')
@@ -109,7 +105,7 @@ class EmployeesTable
                         ->form([
                             Select::make('task_id')
                                 ->label('Seleziona il Task')
-                                ->options(fn() => Task::where('taskable', 'employee')->pluck('name', 'id'))
+                                ->options(fn () => Task::where('taskable', 'employee')->pluck('name', 'id'))
                                 ->searchable()
                                 ->required(),
                         ])
@@ -118,24 +114,26 @@ class EmployeesTable
                             // Recuperiamo l'azienda principale
                             $company = Company::first();
 
-                            if (!$company) {
+                            if (! $company) {
                                 Notification::make()
                                     ->title('Errore')
                                     ->body('Nessuna azienda trovata nel sistema.')
                                     ->danger()
                                     ->send();
+
                                 return;
                             }
 
                             // Recuperiamo il SINGOLO task selezionato dall'utente nel form
                             $task = Task::with('documentTypes')->find($data['task_id']);
 
-                            if (!$task) {
+                            if (! $task) {
                                 Notification::make()
                                     ->title('Errore')
                                     ->body('Task non trovato.')
                                     ->danger()
                                     ->send();
+
                                 return;
                             }
 

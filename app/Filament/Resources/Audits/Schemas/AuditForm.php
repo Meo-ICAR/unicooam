@@ -3,21 +3,19 @@
 namespace App\Filament\Resources\Audits\Schemas;
 
 use App\Enums\AuditStatus;
-use App\Models\PROFORMA\Clienti;
-use App\Models\PROFORMA\Fornitore;
-use App\Models\Branch;
 use App\Models\Company;
 use App\Models\Employee;
-use Filament\Forms\Components\MorphToSelect\Type;
+use App\Models\PROFORMA\Fornitore;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\MorphToSelect;
+use Filament\Forms\Components\MorphToSelect\Type;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ToggleButtons;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -71,9 +69,9 @@ class AuditForm
                                 ->preload()
                                 ->placeholder('Seleziona richiedente')
                                 // <--- SEGRETO DI FILAMENT: si nasconde se origin_type è 'internal'
-                                ->hidden(fn(Get $get) => $get('origin_type') === 'internal')
+                                ->hidden(fn (Get $get) => $get('origin_type') === 'internal')
                                 // Opzionale: lo rende obbligatorio solo se l'ispezione è esterna
-                                ->required(fn(Get $get) => $get('origin_type') === 'external_incoming'),
+                                ->required(fn (Get $get) => $get('origin_type') === 'external_incoming'),
                         ])->columnSpanFull(),
                     ]),
                 // SEZIONE 2: Pianificazione e Stato
@@ -84,11 +82,11 @@ class AuditForm
                         Grid::make(3)->schema([
                             DatePicker::make('scheduled_at')
                                 ->label('Data Pianificata')
-                                ->displayFormat('d/m/Y')
+                                ->displayFormat('d/m/y')
                                 ->native(false),
                             DatePicker::make('executed_at')
                                 ->label('Data Esecuzione')
-                                ->displayFormat('d/m/Y')
+                                ->displayFormat('d/m/y')
                                 ->native(false),
                             TextInput::make('protocol_number')
                                 ->label('Numero di Protocollo')
@@ -155,7 +153,7 @@ class AuditForm
                             ->columnSpanFull(),
                         DatePicker::make('followup_date')
                             ->label('Data Scadenza Follow-up')
-                            ->displayFormat('d/m/Y')
+                            ->displayFormat('d/m/y')
                             ->native(false)
                             ->helperText('Data entro cui verificare che le anomalie siano state sanate.'),
                     ]),

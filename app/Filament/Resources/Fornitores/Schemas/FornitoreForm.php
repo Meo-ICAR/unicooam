@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Fornitores\Schemas;
 
-use App\Models\Branch;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -32,17 +31,17 @@ class FornitoreForm
                                 ->maxLength(255),
                             DatePicker::make('available_at')
                                 ->label('Data Disponibilità')
-                                ->displayFormat('d/m/Y'),
+                                ->displayFormat('d/m/y'),
                             Toggle::make('is_active')
                                 ->label('Agente Attivo')
                                 ->default(true)
                                 ->inline(false),
                             DatePicker::make('stipulated_at')
                                 ->label('Stipula')
-                                ->displayFormat('d/m/Y'),
+                                ->displayFormat('d/m/y'),
                             DatePicker::make('dismissed_at')
                                 ->label('Cessazione')
-                                ->displayFormat('d/m/Y'),
+                                ->displayFormat('d/m/y'),
                             TextInput::make('cf')
                                 ->label('Codice Fiscale')
                                 ->maxLength(16),
@@ -60,7 +59,7 @@ class FornitoreForm
                                 ->maxLength(255),
                             TextInput::make('email_private')
                                 ->label('Email privata')
-                                ->disabled(fn($get) => $get('email') === null)
+                                ->disabled(fn ($get) => $get('email') === null)
                                 ->email()
                                 ->maxLength(255),
                             Select::make('branch_id')
@@ -90,10 +89,10 @@ class FornitoreForm
                                 ->columnSpan(2),
                             DatePicker::make('oam_at')
                                 ->label('Data iscrizione OAM')
-                                ->displayFormat('d/m/Y'),
+                                ->displayFormat('d/m/y'),
                             DatePicker::make('oam_dismissed_at')
                                 ->label('Data revoca OAM')
-                                ->displayFormat('d/m/Y'),
+                                ->displayFormat('d/m/y'),
                             // IVASS
                             TextInput::make('ivass')
                                 ->label('Codice IVASS')
@@ -113,7 +112,7 @@ class FornitoreForm
                                 ->columnSpan(2),
                             DatePicker::make('ivass_at')
                                 ->label('Data iscrizione IVASS')
-                                ->displayFormat('d/m/Y'),
+                                ->displayFormat('d/m/y'),
                         ]),
                     ])
                     ->columnSpanFull()
