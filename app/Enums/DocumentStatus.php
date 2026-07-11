@@ -9,13 +9,13 @@ use Filament\Support\Contracts\HasLabel;
 enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
 {
     case NA = 'na';
-    case ABSENT = 'absent';
     case PENDING = 'requested';
     case UPLOADED = 'uploaded';
     case APPROVED = 'approved';
     case REJECTED = 'rejected';
     case PROVISIONAL = 'provisional';
     case EXPIRED = 'expired';
+    case NOREADABLE = 'unreadable';
 
     public function getLabel(): ?string
     {
@@ -27,8 +27,8 @@ enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
             self::REJECTED => 'Respinto',
             self::PROVISIONAL => 'Provvisorio',
             self::EXPIRED => 'Scaduto',
-            self::REVOKED => 'Revocato',
-            self::NOREADABLE => 'Illegibile'
+            self::NOREADABLE => 'Illegibile',
+            self::REVOKED => 'Revocato'
         };
     }
 
@@ -41,9 +41,9 @@ enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
             self::APPROVED => 'success',
             self::REJECTED => 'danger',
             self::PROVISIONAL => 'warning',
-            self::EXPIRED => 'gray',
-            self::REVOKED => 'gray',
-            self::NOREADABLE => 'danger'
+            self::EXPIRED => 'danger',
+            self::NOREADABLE => 'danger',
+            self::REVOKED => 'gray'
         };
     }
 
@@ -57,8 +57,9 @@ enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
             self::REJECTED => 'heroicon-m-x-circle',
             self::PROVISIONAL => 'heroicon-m-clock',
             self::EXPIRED => 'heroicon-m-exclamation-triangle',
-            self::REVOKED => 'heroicon-m-x-circle',
             self::NOREADABLE => 'heroicon-m-x-circle',
+            self::REVOKED => 'heroicon-m-x-circle',
+
         };
     }
 }

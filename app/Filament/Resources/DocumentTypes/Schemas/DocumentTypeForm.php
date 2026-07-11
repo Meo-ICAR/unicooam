@@ -35,9 +35,10 @@ class DocumentTypeForm
                         Select::make('doctype')
                             ->label('Tipo documento')
                             ->options([
-                                'modulo' => 'Modulo',
-                                'procedura' => 'Procedura',
+                                'modulo' => 'Modulo OAM',
+                                'procedura' => 'Procedura OAM',
                                 'template' => 'Template',
+                                'OAM' => 'Trasp.OAM',
                                 'comunicazione' => 'Comunicazione',
                             ]),
                         //   FormHelper::polymorphicSelect(name: 'document_typable', label: 'Collegata a (Entità)'),
