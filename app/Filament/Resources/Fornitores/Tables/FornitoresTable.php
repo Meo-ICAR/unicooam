@@ -5,18 +5,19 @@ namespace App\Filament\Resources\Fornitores\Tables;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Company;
 use App\Models\Task;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;  // Importante per il form nel modal
+use Filament\Actions\EditAction;  // Importante per il form nel modal
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Mail;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
@@ -37,7 +38,7 @@ class FornitoresTable
                     ->label('Esporta Excel')
                     ->color('success'),
             ])
-            ->selectable('is_active = 1')
+
             ->columns([
                 // DATI PRINCIPALI
                 TextColumn::make('nome')
@@ -45,10 +46,6 @@ class FornitoresTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
-                ToggleColumn::make('is_active')
-                    ->label('Attivo')
-                    //  ->boolean()
-                    ->sortable(),
                 TextColumn::make('piva')
                     ->label('P. IVA')
                     ->searchable()
@@ -57,50 +54,43 @@ class FornitoresTable
                     ->label('Mandato')
                     ->date('d/m/y')
                     ->sortable(),
-                TextColumn::make('oam_at')
-                    ->label('Data OAM')
-                    ->date('d/m/y')
-                    ->sortable(),
+
                 TextColumn::make('dismissed_at')
                     ->label('Cessato')
                     ->date('d/m/y')
                     ->sortable(),
+
                 TextColumn::make('email')
                     ->label('Email')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
+
                 TextColumn::make('pec')
                     ->label('PEC')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
+
                 TextColumn::make('ivass')
                     ->label('IVASS')
-                    //  ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                // STATO E INQUADRAMENTO
-                ToggleColumn::make('isdipendente')
-                    ->label('Dipendente')
-                    //     ->boolean()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('enasarco')
-                    ->label('Enasarco')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                // ALBI PROFESSIONALI (nascosti di default per non affollare la vista)
-                TextColumn::make('branch.name')
-                    ->label('Filiale')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                // DATE
+                    ->sortable(),
+                TextColumn::make('name')
+                    ->label('Istruttoria')
+                    ->searchable()
+                    ->sortable(),
+                // STATO E INQUADRAMENTO
+
             ])
             ->filters([
                 // Filtro per stato attivo/inattivo
-                TernaryFilter::make('is_active')
-                    ->label('Stato Agente')
-                    ->placeholder('Tutti')
-                    ->trueLabel('Solo Attivi')
-                    ->falseLabel('Solo Inattivi')
-                    ->default(true),
+                Filter::make('semestre_attuale')
+                    ->label('Solo semestre in corso')
+                    ->toggle() // <--- Trasforma la Checkbox in un interruttore Toggle grafico
+                    ->default(true)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $data['isActive']
+                            ? $query->perSemestreOam(OamSemester::getInBaseAlMeseCorrente())
+                            : $query;
+                    }),
+
                 Filter::make('stipulated_at')
                     ->label('Mandato antecedente 6 mesi')
                     ->query(fn ($query) => $query->whereDate('stipulated_at', '<=', now()->subMonth(6))),

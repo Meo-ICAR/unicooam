@@ -83,6 +83,15 @@ class DocumentsTable
                     ->label('Ha data emissione')
                     ->query(fn (Builder $query): Builder => $query->whereNotNull('emitted_at')),
                 // FILTRO 1: Selezione per Tipo Entità (Polimorfica)
+                Filter::make('semestre_attuale')
+                    ->label('Solo semestre in corso')
+                    ->toggle() // <--- Trasforma la Checkbox in un interruttore Toggle grafico
+                    ->default(true)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $data['isActive']
+                            ? $query->perSemestreOam(OamSemester::getInBaseAlMeseCorrente())
+                            : $query;
+                    }),
                 SelectFilter::make('documentable_type')
                     ->label('Collegato a')
                     ->searchable()

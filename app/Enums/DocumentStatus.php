@@ -21,14 +21,14 @@ enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
     {
         return match ($this) {
             self::NA => 'N/A',
-            self::ABSENT => 'Assente',
             self::PENDING => 'Richiesto',
             self::UPLOADED => 'Caricato',
             self::APPROVED => 'Approvato',
             self::REJECTED => 'Respinto',
             self::PROVISIONAL => 'Provvisorio',
             self::EXPIRED => 'Scaduto',
-            self::REVOKED => 'Revocato'
+            self::REVOKED => 'Revocato',
+            self::NOREADABLE => 'Illegibile'
         };
     }
 
@@ -36,14 +36,14 @@ enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
     {
         return match ($this) {
             self::NA => 'gray',
-            self::ABSENT => 'danger',
             self::PENDING => 'info',
             self::UPLOADED => 'warning',
             self::APPROVED => 'success',
             self::REJECTED => 'danger',
             self::PROVISIONAL => 'warning',
             self::EXPIRED => 'gray',
-            self::REVOKED => 'danger'
+            self::REVOKED => 'gray',
+            self::NOREADABLE => 'danger'
         };
     }
 
@@ -51,7 +51,6 @@ enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
     {
         return match ($this) {
             self::NA => 'heroicon-m-minus-circle',
-            self::ABSENT => 'heroicon-m-x-mark',
             self::REQUESTED => 'heroicon-m-question-mark-circle',
             self::UPLOADED => 'heroicon-m-arrow-up-tray',
             self::APPROVED => 'heroicon-m-check-badge',
@@ -59,6 +58,7 @@ enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
             self::PROVISIONAL => 'heroicon-m-clock',
             self::EXPIRED => 'heroicon-m-exclamation-triangle',
             self::REVOKED => 'heroicon-m-x-circle',
+            self::NOREADABLE => 'heroicon-m-x-circle',
         };
     }
 }

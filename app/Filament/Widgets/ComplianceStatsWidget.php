@@ -2,12 +2,13 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\AuditFinding;
+use App\Filament\Resources\DocumentSchedules\DocumentScheduleResource;
 // use App\Models\CompanyInspection;
+use App\Models\AuditFinding;
 use App\Models\ComplaintRegistry;
 use App\Models\Document;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class ComplianceStatsWidget extends BaseWidget
 {
@@ -25,7 +26,13 @@ class ComplianceStatsWidget extends BaseWidget
             Stat::make('Documenti scaduti', Document::where('expires_at', '<', now())->whereNotNull('expires_at')->where('is_monitored', true)->count())
                 ->description('Richiedono rinnovo')
                 ->descriptionIcon('heroicon-m-clipboard-document-check')
-                ->color('warning'),
+                ->color('warning')
+                ->url(DocumentScheduleResource::getUrl('index', [
+                    'filters' => [
+                        'scaduti' => ['isActive' => true],
+
+                    ],
+                ])),
 
             /*
              * Stat::make('Ispezioni nel Semestre', CompanyInspection::count())

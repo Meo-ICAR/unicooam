@@ -6,6 +6,8 @@ use App\Models\Branch;
 use App\Models\Document;
 use App\Models\OamCode;
 use App\Models\Website;
+use App\ValueObjects\OamSemester;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -196,5 +198,14 @@ class Clienti extends Model
             ->where('is_active', true)  // <-- FILTRO: Mostra solo gli OamCode attivi
             ->withPivot('dal', 'al')  // Recupera i campi extra della tabella pivot
             ->withTimestamps();  // Gestisce automaticamente created_at e updated_at nella pivot
+    }
+
+    public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
+    {
+        return $query->where('stipulated_at', '<=', $semester->end)
+            ->where(function ($q) use ($semester) {
+                $q->whereNull('dismissed_at')
+                    ->orWhere('dismissed_at', '>=', $semester->start);
+            });
     }
 }

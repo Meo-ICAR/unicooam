@@ -6,7 +6,6 @@ use App\Enums\DocumentStatus;
 use App\Models\DocumentType;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -85,14 +84,7 @@ class DocumentForm
                     TextInput::make('document_url')
                         ->label('URL documento')
                         ->url(fn ($record) => $record?->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
-                    SpatieMediaLibraryFileUpload::make('attachments')
-                        ->label('Carica file (PDF, immagini, Word)')
-                        ->multiple()
-                        ->collection('documents')
-                        ->disk('public')
-                        ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
-                        ->maxSize(20480)
-                        ->columnSpanFull(),
+
                 ]),
         ]);
     }

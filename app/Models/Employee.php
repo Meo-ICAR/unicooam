@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use App\Models\ComplaintRegistry;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
@@ -109,5 +108,14 @@ class Employee extends Model
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
+    {
+        return $query->where('hiring_date', '<=', $semester->end)
+            ->where(function ($q) use ($semester) {
+                $q->whereNull('termination_date')
+                    ->orWhere('termination_date', '>=', $semester->start);
+            });
     }
 }

@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Employees\Tables;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Company;
 use App\Models\Task;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 // use App\Models\Rui;
@@ -17,9 +18,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
@@ -51,10 +51,7 @@ class EmployeesTable
                     ->label('Ruolo')
                     ->sortable()
                     ->searchable(),
-                ToggleColumn::make('is_active')
-                    ->label('Attivo')
-                    //  ->boolean()
-                    ->sortable(),
+
                 TextColumn::make('hiring_date')
                     ->label('Data assunzione')
                     ->date('d/m/y')
@@ -63,15 +60,26 @@ class EmployeesTable
                     ->label('Data OAM')
                     ->date('d/m/y')
                     ->sortable(),
+
+                TextColumn::make('email')
+                    ->label('Indirizzo email')
+                    ->searchable(),
                 TextColumn::make('termination_date')
                     ->label('Data cessazione')
                     ->date('d/m/y')
                     ->sortable(),
-                TextColumn::make('email')
-                    ->label('Indirizzo email')
-                    ->searchable(),
             ])
             ->filters([
+                Filter::make('semestre_attuale')
+                    ->label('Solo semestre in corso')
+                    ->toggle() // <--- Trasforma la Checkbox in un interruttore Toggle grafico
+                    ->default(true)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $data['isActive']
+                            ? $query->perSemestreOam(OamSemester::getInBaseAlMeseCorrente())
+                            : $query;
+                    }),
+
                 SelectFilter::make('employee_types')
                     ->label('Ruolo')
                     ->default('dipendente')
@@ -81,16 +89,7 @@ class EmployeesTable
                         'consulente' => 'Consulente',
                         'altro' => 'Altro',
                     ]),
-                TernaryFilter::make('is_active')
-                    ->label('Stato')
-                    ->queries(
-                        true: fn ($query) => $query->where('is_active', true),
-                        false: fn ($query) => $query->where('is_active', false),
-                    )
-                    ->placeholder('Tutti')
-                    ->trueLabel('Solo Attivi')
-                    ->falseLabel('Solo Dimessi')
-                    ->default(true),
+
             ])
             ->recordActions([
                 EditAction::make(),
