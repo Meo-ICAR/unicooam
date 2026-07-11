@@ -9,13 +9,14 @@ use Filament\Support\Contracts\HasLabel;
 enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
 {
     case NA = 'na';
-    case PENDING = 'requested';
-    case UPLOADED = 'uploaded';
-    case APPROVED = 'approved';
-    case REJECTED = 'rejected';
-    case PROVISIONAL = 'provisional';
-    case EXPIRED = 'expired';
-    case NOREADABLE = 'unreadable';
+    case PENDING = 'richiesto';
+    case UPLOADED = 'caricato';
+    case APPROVED = 'approvato';
+    case REJECTED = 'respinto';
+    case PROVISIONAL = 'provvisorio';
+    case EXPIRED = 'scaduto';
+    case NOREADABLE = 'illegibile';
+    case REVOKED = 'revocato';
 
     public function getLabel(): ?string
     {
