@@ -12,6 +12,7 @@ use BackedEnum;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Filament\Resources\Resource; // <--- AGGIUNTO QUESTO IMPORT MANCANTE
 
 class PraticaResource extends Resource
 {

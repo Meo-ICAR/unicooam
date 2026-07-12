@@ -14,6 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use UnitEnum;
+use Filament\Resources\Resource; // <--- AGGIUNTO QUESTO IMPORT MANCANTE
 
 class OrganizationResource extends Resource
 {

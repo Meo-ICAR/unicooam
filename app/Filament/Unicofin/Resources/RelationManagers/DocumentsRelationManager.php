@@ -32,6 +32,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
+use Filament\Resources\Resource; // <--- AGGIUNTO QUESTO IMPORT MANCANTE
 
 class DocumentsRelationManager extends RelationManager
 {

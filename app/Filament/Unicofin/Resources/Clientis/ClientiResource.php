@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use UnitEnum;
 
+
 class ClientiResource extends Resource
 {
     protected static ?string $model = Clienti::class;

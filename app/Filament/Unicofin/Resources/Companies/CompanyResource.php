@@ -20,6 +20,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
+
 class CompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
