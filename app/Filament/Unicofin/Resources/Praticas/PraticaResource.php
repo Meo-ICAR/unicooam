@@ -9,7 +9,6 @@ use App\Filament\Unicofin\Resources\Praticas\Schemas\PraticaForm;
 use App\Filament\Unicofin\Resources\Praticas\Tables\PraticasTable;
 use App\Models\Pratica;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;

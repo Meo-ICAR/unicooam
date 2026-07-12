@@ -26,11 +26,11 @@ class UnicofinPanelProvider extends PanelProvider
         return $panel
             ->id('unicofin')
             ->path('unicofin')
-            ->brandLogo(asset('images/unicoOAM_banner.png'))
+         //   ->brandLogo(asset('images/unicoOAM_banner.png'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
             //   ->brandLogoHeight('3rem')
             // Imposta l'icona del browser (favicon)
-            ->favicon(asset('images/unicoOAM.png'))
+        //    ->favicon(asset('images/unicoOAM.png'))
             ->colors([
                 'primary' => Color::Amber,
             ])

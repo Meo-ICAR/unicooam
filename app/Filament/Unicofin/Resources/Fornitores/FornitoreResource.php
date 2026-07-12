@@ -7,22 +7,35 @@ use App\Filament\Unicofin\Resources\Fornitores\Pages\EditFornitore;
 use App\Filament\Unicofin\Resources\Fornitores\Pages\ListFornitores;
 use App\Filament\Unicofin\Resources\Fornitores\Schemas\FornitoreForm;
 use App\Filament\Unicofin\Resources\Fornitores\Tables\FornitoresTable;
-use App\Models\Fornitore;
+use App\Filament\Unicofin\Resources\RelationManagers\BranchesRelationManager;
+use App\Filament\Unicofin\Resources\RelationManagers\DocumentsRelationManager;
+use App\Filament\Unicofin\Resources\RelationManagers\WebsitesRelationManager;
+use App\Models\PROFORMA\Fornitore;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class FornitoreResource extends Resource
 {
     protected static ?string $model = Fornitore::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+
+    // Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
+
+    protected static ?string $navigationLabel = 'Produttori';
+
+    protected static ?string $modelLabel = 'Produttore';
+
+    protected static ?string $pluralModelLabel = 'Produttori';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
@@ -37,7 +50,10 @@ class FornitoreResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DocumentsRelationManager::class,
+            //   InspectionsRelationManager::class,
+            WebsitesRelationManager::class,
+            BranchesRelationManager::class,
         ];
     }
 
@@ -48,13 +64,5 @@ class FornitoreResource extends Resource
             'create' => CreateFornitore::route('/create'),
             'edit' => EditFornitore::route('/{record}/edit'),
         ];
-    }
-
-    public static function getRecordRouteBindingEloquentQuery(): Builder
-    {
-        return parent::getRecordRouteBindingEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }

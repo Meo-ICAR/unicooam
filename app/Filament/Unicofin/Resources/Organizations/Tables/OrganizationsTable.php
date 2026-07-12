@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Unicofin\Resources\Branches\Tables;
+namespace App\Filament\Unicofin\Resources\Organizations\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -12,48 +12,24 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
-class BranchesTable
+class OrganizationsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('company.name')
+                TextColumn::make('acronym')
                     ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('address')
+                TextColumn::make('reference_law')
                     ->searchable(),
-                TextColumn::make('street_number')
+                TextColumn::make('website')
                     ->searchable(),
-                TextColumn::make('city')
+                TextColumn::make('pec_email')
                     ->searchable(),
-                TextColumn::make('zip_code')
-                    ->searchable(),
-                TextColumn::make('province')
-                    ->searchable(),
-                TextColumn::make('region')
-                    ->searchable(),
-                TextColumn::make('branchable_type')
-                    ->searchable(),
-                TextColumn::make('branchable_id')
-                    ->searchable(),
-                IconColumn::make('is_main_office')
-                    ->boolean(),
                 IconColumn::make('is_active')
                     ->boolean(),
-                TextColumn::make('manager_first_name')
-                    ->searchable(),
-                TextColumn::make('manager_last_name')
-                    ->searchable(),
-                TextColumn::make('manager_tax_code')
-                    ->searchable(),
-                TextColumn::make('founded_at')
-                    ->date()
-                    ->sortable(),
-                TextColumn::make('dismissed_at')
-                    ->date()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

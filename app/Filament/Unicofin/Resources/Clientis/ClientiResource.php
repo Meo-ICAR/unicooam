@@ -7,20 +7,31 @@ use App\Filament\Unicofin\Resources\Clientis\Pages\EditClienti;
 use App\Filament\Unicofin\Resources\Clientis\Pages\ListClientis;
 use App\Filament\Unicofin\Resources\Clientis\Schemas\ClientiForm;
 use App\Filament\Unicofin\Resources\Clientis\Tables\ClientisTable;
-use App\Models\Clienti;
+use App\Filament\Unicofin\Resources\RelationManagers\DocumentsRelationManager;
+use App\Models\PROFORMA\Clienti;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ClientiResource extends Resource
 {
     protected static ?string $model = Clienti::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-library';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
+
+    protected static ?string $navigationLabel = 'Istituti';
+
+    protected static ?string $modelLabel = 'Istituto';
+
+    protected static ?string $pluralModelLabel = 'Istituti';
+
+    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
     {
@@ -35,7 +46,10 @@ class ClientiResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DocumentsRelationManager::class,
+            //   WebsitesRelationManager::class,
+            //  BranchesRelationManager::class,
+            //   InspectionsRelationManager::class,
         ];
     }
 

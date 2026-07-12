@@ -9,7 +9,6 @@ use App\Filament\Unicofin\Resources\Clients\Schemas\ClientForm;
 use App\Filament\Unicofin\Resources\Clients\Tables\ClientsTable;
 use App\Models\Client;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;

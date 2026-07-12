@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Filament\Unicofin\Resources\Branches\Pages;
+namespace App\Filament\Unicofin\Resources\Organizations\Pages;
 
-use App\Filament\Unicofin\Resources\Branches\BranchResource;
+use App\Filament\Unicofin\Resources\Organizations\OrganizationResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 
-class EditBranch extends EditRecord
+class EditOrganization extends EditRecord
 {
-    protected static string $resource = BranchResource::class;
+    protected static string $resource = OrganizationResource::class;
 
     protected function getHeaderActions(): array
     {

@@ -3,14 +3,19 @@
 namespace App\Models;
 
 use App\Events\TaskActivated;
+use Filament\Facades\Filament; // <-- Add this line!
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory; // <-- Add this line!
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Spatie\MediaLibrary\HasMedia;
+/*
+     * 1. GLOBAL SCOPE ISOLAMENTO E TASK COMUNI
+     * Caricato automaticamente su tutte le query dell'applicazione.
+*/
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Task extends Model implements HasMedia
@@ -34,24 +39,27 @@ class Task extends Model implements HasMedia
         return $this->morphTo();
     }
 
-    /*
-     * 1. GLOBAL SCOPE ISOLAMENTO E TASK COMUNI
-     * Caricato automaticamente su tutte le query dell'applicazione.
-*/
     protected static function booted(): void
     {
+        static::addGlobalScope('app_isolation', function (Builder $builder) {
 
-        static::addGlobalScope('app_isolation', function ($builder) {
-            // Recupera l'identificativo dell'app corrente dal file .env (es. APP_IDENTIFIER=app_oam)
-            $currentApp = config('app.identifier', 'core_app');
+            // Evita crash se esegui codice fuori dal contesto HTTP di Filament (es. php artisan db:seed)
+            if (! app()->runningInConsole() && Filament::getCurrentPanel()) {
+                $currentPanelId = Filament::getCurrentPanel()->getId();
+                $currentApp = ($currentPanelId === 'admin') ? 'UnicoOAM' : 'UnicoFin';
+            } else {
+                // Valore di fallback generico se siamo in console o fuori da Filament
+                // In questo modo legge tutto ciò che non è esplicitamente dell'altra app
+                $currentApp = config('app.identifier', 'UnicoOAM');
+            }
 
+            // Il raggruppamento delle condizioni OR deve usare il Builder corretto
             $builder->where(function (Builder $query) use ($currentApp) {
                 $query->where('app_identifier', $currentApp)
                     ->orWhereNull('app_identifier')
-                    ->orWhere('app_identifier', ''); // Gestisce anche stringhe vuote
+                    ->orWhere('app_identifier', '');
             });
         });
-
     }
 
     /**
