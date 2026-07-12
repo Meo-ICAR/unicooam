@@ -28,6 +28,9 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->default()
+            ->id('admin')
+            ->path('admin')
             ->navigationGroups([
                 //  NavigationGroup::make()->label('Pratiche'),
                 //  NavigationGroup::make()->label('Contabilita'),
@@ -39,9 +42,7 @@ class AdminPanelProvider extends PanelProvider
             //   ->brandLogoHeight('3rem')
             // Imposta l'icona del browser (favicon)
             ->favicon(asset('images/unicoOAM.png'))
-            ->default()
-            ->id('admin')
-            ->path('admin')
+
             ->login()
             ->colors([
                 'primary' => Color::Amber,
