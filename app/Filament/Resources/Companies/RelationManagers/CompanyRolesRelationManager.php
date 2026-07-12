@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Companies\RelationManagers;
 
+use App\ValueObjects\OamSemester;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -18,15 +19,22 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class CompanyRolesRelationManager extends RelationManager
 {
     protected static string $relationship = 'companyRoles';
+
     protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $navigationLabel = 'Ruoli';
+
     protected static ?string $title = 'Ruoli';
+
     protected static ?string $modelLabel = 'Ruolo';
+
     protected static ?string $pluralModelLabel = 'Ruoli';
 
     public function form(Schema $schema): Schema
@@ -54,7 +62,7 @@ class CompanyRolesRelationManager extends RelationManager
                     ->label('Metodo di esecuzione')
                     ->options(['documentale' => 'Documentale', '' => '', 'onsite' => 'In loco']),
                 TextInput::make('expertName')
-                    ->label('Nome esperto'),
+                    ->label('Incaricato'),
                 TextInput::make('n')
                     ->label('Numero')
                     ->numeric(),
@@ -95,7 +103,15 @@ class CompanyRolesRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->filters([
-                //
+                Filter::make('semestre_attuale')
+                    ->label('Solo semestre in corso')
+                    ->toggle() // <--- Trasforma la Checkbox in un interruttore Toggle grafico
+                    ->default(true)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $data['isActive']
+                            ? $query->perSemestreOam(OamSemester::getInBaseAlMeseCorrente())
+                            : $query;
+                    }),
             ])
             ->headerActions([
                 CreateAction::make(),

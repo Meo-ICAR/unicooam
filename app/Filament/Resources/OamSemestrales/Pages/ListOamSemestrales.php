@@ -20,6 +20,7 @@ use App\Models\OamSemestrale;
 use App\Models\PROFORMA\Fornitore;
 use App\Models\SuspiciousActivityReport;
 use App\Models\Website;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Icons\Heroicon;
@@ -33,6 +34,7 @@ class ListOamSemestrales extends ListRecords
 
     protected function getHeaderActions(): array
     {
+        $semestre = OamSemester::getInBaseAlMeseCorrente();
         $oams = OamSemestrale::all();
         $datiProdotti = $oams->toArray();
         $provvigioni_assicurative = 0;  // $oams->sum('provvigioni_assicurative');
@@ -40,23 +42,22 @@ class ListOamSemestrales extends ListRecords
         $azienda = Company::first();
         $sedi = Branch::where('company_id', $azienda->id)->where('is_active', true)->get();
 
-        $dipendenti = Employee::where('company_id', $azienda->id)
-            ->where('is_active', true);
-        $fornitori = Fornitore::where('is_active', true);
-        $reclami = ComplaintRegistry::count();  // $oams->sum('reclami');
-        $sars = SuspiciousActivityReport::count();
+        $dipendenti = Employee::perSemestreOam($semestre)->where('company_id', $azienda->id);
+        $fornitori = Fornitore::perSemestreOam($semestre);
+        $reclami = ComplaintRegistry::perSemestreOam($semestre)->count(); // $oams->sum('reclami');
+        $sars = SuspiciousActivityReport::perSemestreOam($semestre)->count();
 
         $compliance_doc = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'documentale')->count();
         $compliance_onsite = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'onsite')->count();
         $externalRoles = CompanyRole::where('is_external', true)->distinct('funzione')->get();
 
-        $audit_doc = Audit::where('company_id', $azienda->id)->count();
-        $audit_onsite = Audit::where('company_id', $azienda->id)->count();
+        $audit_doc = Audit::perSemestreOam($semestre)->where('company_id', $azienda->id)->count();
+        $audit_onsite = Audit::perSemestreOam($semestre)->where('company_id', $azienda->id)->count();
 
         $websites = Website::where('is_active', true);
         $website_trasparenza = $websites->where('type', 'istituzionale')->first()->transparency_date;
 
-        $procedures = Document::where('documentable_type', 'company')
+        $procedures = Document::perSemestreOam($semestre)->where('documentable_type', 'company')
             ->where('doctype', '=', 'procedura')
             ->orderBy('emitted_at', 'desc')
             ->get()
@@ -66,10 +67,10 @@ class ListOamSemestrales extends ListRecords
                 return "[{$data}] ".($doc->name ?? $doc->title);
             })
             ->toArray();
-        $requisiti_organizzativi = Document::where('documentable_type', 'company')->whereHas('documentType', function ($query) {
+        $requisiti_organizzativi = Document::perSemestreOam($semestre)->where('documentable_type', 'company')->whereHas('documentType', function ($query) {
             $query->where('slug', 'requisiti-organizzativi');
         })->orderBy('emitted_at', 'desc')->first();
-        $moduli = Document::where('documentable_type', 'company')->where('doctype', '=', 'modulo')->orderBy('emitted_at', 'desc')->get();
+        $moduli = Document::perSemestreOam($semestre)->where('documentable_type', 'company')->where('doctype', '=', 'modulo')->orderBy('emitted_at', 'desc')->get();
 
         return [
             ImportOamAction::make()

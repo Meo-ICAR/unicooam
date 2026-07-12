@@ -6,6 +6,7 @@ use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Document;
 use App\Models\DocumentType;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\CreateAction;
@@ -183,20 +184,18 @@ class DocumentsRelationManager extends RelationManager
                         default => 'gray',
                     })
                     ->toggleable(),
-                TextColumn::make('documentType.name')
-                    ->label('Tipo')
-                    ->badge()
-                    ->color('gray')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('document_url')
-                    ->label('URL')
-                    ->url(fn ($record) => $record->document_url)
-                    ->openUrlInNewTab()
-                    ->visible(fn ($record) => ! empty($record->document_url))
-                    ->toggleable(isToggledHiddenByDefault: true),
+
             ])
             ->filters([
+                Filter::make('semestre_attuale')
+                    ->label('Solo semestre in corso')
+                    ->toggle() // <--- Trasforma la Checkbox in un interruttore Toggle grafico
+                    ->default(true)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $data['isActive']
+                            ? $query->perSemestreOam(OamSemester::getInBaseAlMeseCorrente())
+                            : $query;
+                    }),
                 SelectFilter::make('document_type_id')
                     ->label('Tipo documento')
                     ->relationship('documentType', 'name')
@@ -249,31 +248,15 @@ class DocumentsRelationManager extends RelationManager
                     ->icon('heroicon-o-arrow-path')
                     ->color('success')
                     ->requiresConfirmation()
-                    // Mostra il pulsante SOLO se il documento scade ed è monitorato
-                    //    ->visible(fn(Document $record) => $record->documentType->is_monitored)
+                    ->modalHeading(fn (Document $record) => "Aggiorna documento: {$record->name}")
+                    ->modalDescription(fn (Document $record) => "Sei sicuro di voler aggiornare \"{$record->name}\"?")
                     ->action(function (Document $record) {
-                        // 1. Archiviamo il documento attuale (opzionale, dipende dal tuo DB)
+                        // Chiamiamo il metodo direttamente sul model
+                        $record->renew();
 
-                        // 2. Creiamo il nuovo documento per il rinnovo
-                        $newDocument = Document::create([
-                            'company_id' => $record->company_id,
-                            'documentable_type' => $record->documentable_type,
-                            'documentable_id' => $record->documentable_id,
-                            'document_type_id' => $record->document_type_id,
-                            'name' => $record->name,
-                            'status' => 'pending',  // Torna in attesa del nuovo file
-                            'is_monitored' => $record->is_monitored,
-                            'emitted_at' => $record->expires_at,
-                            //  'expires_at' => null,
-                            // Verrà inserita la nuova
-                            //  scadenza al caricamento
-                        ]);
-                        $record->update([
-                            'status' => 'expired',  // o 'archived'
-                        ]);
                         Notification::make()
                             ->title('Aggiornamento effettuato')
-                            ->body("Nuovo aggiornamento per \"{$record->name}\".")
+                            ->body("Nuovo aggiornamento generato con successo per \"{$record->name}\".")
                             ->success()
                             ->send();
                     }),

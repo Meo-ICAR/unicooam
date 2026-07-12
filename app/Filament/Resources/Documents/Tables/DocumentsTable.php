@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Documents\Tables;
 use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Utils\TableHelper;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -72,17 +73,9 @@ class DocumentsTable
                         default => 'warning',
                     })
                     ->searchable(),
-                TextColumn::make('documentType.name')
-                    ->label('Tipo')
-                    ->searchable()
-                    ->sortable(),
 
             ])
             ->filters([
-                Filter::make('emitted_at')
-                    ->label('Ha data emissione')
-                    ->query(fn (Builder $query): Builder => $query->whereNotNull('emitted_at')),
-                // FILTRO 1: Selezione per Tipo Entità (Polimorfica)
                 Filter::make('semestre_attuale')
                     ->label('Solo semestre in corso')
                     ->toggle() // <--- Trasforma la Checkbox in un interruttore Toggle grafico
@@ -92,6 +85,11 @@ class DocumentsTable
                             ? $query->perSemestreOam(OamSemester::getInBaseAlMeseCorrente())
                             : $query;
                     }),
+                Filter::make('emitted_at')
+                    ->label('Ha data emissione')
+                    ->query(fn (Builder $query): Builder => $query->whereNotNull('emitted_at')),
+                // FILTRO 1: Selezione per Tipo Entità (Polimorfica)
+
                 SelectFilter::make('documentable_type')
                     ->label('Collegato a')
                     ->searchable()

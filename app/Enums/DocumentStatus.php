@@ -25,10 +25,10 @@ enum DocumentStatus: string implements HasColor, HasIcon, HasLabel
             self::PENDING => 'Richiesto',
             self::UPLOADED => 'Caricato',
             self::APPROVED => 'Approvato',
+            self::NOREADABLE => 'Illegibile',
             self::REJECTED => 'Respinto',
             self::PROVISIONAL => 'Provvisorio',
             self::EXPIRED => 'Scaduto',
-            self::NOREADABLE => 'Illegibile',
             self::REVOKED => 'Revocato'
         };
     }

@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use App\Models\PROFORMA\Clienti;
-use App\Models\Company;
-use App\Models\Employee;
+use App\ValueObjects\OamSemester;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SuspiciousActivityReport extends Model
@@ -81,5 +81,12 @@ class SuspiciousActivityReport extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Clienti::class, 'client_id');
+    }
+
+    public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
+    {
+        return $query->where('reported_at', '<=', $semester->end)
+            ->where('reported_at', '>=', $semester->start);
+
     }
 }

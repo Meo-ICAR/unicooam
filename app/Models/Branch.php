@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Models\PROFORMA\Fornitore;
+use App\ValueObjects\OamSemester;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Branch extends Model
@@ -15,8 +16,11 @@ class Branch extends Model
     use HasFactory, SoftDeletes;
 
     protected $connection = 'mysql';
+
     protected $table = 'unicooam.branches';
+
     protected $orderBy = 'name';
+
     protected $orderDirection = 'asc';
 
     /**
@@ -41,7 +45,7 @@ class Branch extends Model
         'manager_tax_code',
         'founded_at',
         'dismissed_at',
-        'is_active'
+        'is_active',
     ];
 
     /**
@@ -81,5 +85,14 @@ class Branch extends Model
     public function fornitore()
     {
         return $this->HasMany(Fornitore::class);
+    }
+
+    public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
+    {
+        return $query->where('founded_at', '<=', $semester->end)
+            ->where(function ($q) use ($semester) {
+                $q->whereNull('dismissed_at')
+                    ->orWhere('dismissed_at', '>=', $semester->start);
+            });
     }
 }

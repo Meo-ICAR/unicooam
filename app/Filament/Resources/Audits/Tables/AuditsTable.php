@@ -7,6 +7,7 @@ use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Utils\TableHelper;
 use App\Models\Company;
 use App\Models\Task;
+use App\ValueObjects\OamSemester;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -104,6 +105,16 @@ class AuditsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Filter::make('semestre_attuale')
+                    ->label('Solo semestre in corso')
+                    ->toggle() // <--- Trasforma la Checkbox in un interruttore Toggle grafico
+                    ->default(true)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $data['isActive']
+                            ? $query->perSemestreOam(OamSemester::getInBaseAlMeseCorrente())
+                            : $query;
+                    }),
+
                 // Filtro rapido per stato dell'audit
                 SelectFilter::make('status')
                     ->label('Stato Audit')

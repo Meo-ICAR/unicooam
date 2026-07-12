@@ -8,12 +8,12 @@ use App\Enums\ComplaintStatus;
 use App\Enums\ReceptionChannel;
 use App\Models\PROFORMA\Clienti;
 use App\Models\PROFORMA\Fornitore;
-use App\Models\Company;
-use App\Models\Document;
+use App\ValueObjects\OamSemester;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ComplaintRegistry extends Model
@@ -22,6 +22,7 @@ class ComplaintRegistry extends Model
 
     // Specifica il nome corretto della tabella se diverso dal plurale standard di Laravel
     protected $connection = 'mysql';
+
     protected $table = 'complaint_registry';
 
     protected $fillable = [
@@ -142,5 +143,12 @@ class ComplaintRegistry extends Model
         }
 
         return $this->deadline_at && $this->deadline_at->isPast();
+    }
+
+    public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
+    {
+        return $query->where('received_at', '<=', $semester->end)
+            ->where('received_at', '>=', $semester->start);
+
     }
 }

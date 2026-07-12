@@ -5,11 +5,13 @@ namespace App\Filament\Resources\SuspiciousActivityReports\Tables;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Utils\TableHelper;
 use App\Models\Employee;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -98,6 +100,16 @@ class SuspiciousActivityReportsTable
                     ->tooltip(fn ($record) => $record->description),  // Mostra il testo completo al passaggio del mouse
             ])
             ->filters([
+                Filter::make('semestre_attuale')
+                    ->label('Solo semestre in corso')
+                    ->toggle() // <--- Trasforma la Checkbox in un interruttore Toggle grafico
+                    ->default(true)
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $data['isActive']
+                            ? $query->perSemestreOam(OamSemester::getInBaseAlMeseCorrente())
+                            : $query;
+                    }),
+
                 // Filtro per lo Stato della pratica
                 SelectFilter::make('status')
                     ->label('Stato Segnalazione')

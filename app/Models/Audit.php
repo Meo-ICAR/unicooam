@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Enums\AuditStatus;
+use App\ValueObjects\OamSemester;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Audit extends Model
@@ -69,7 +70,7 @@ class Audit extends Model
         static::creating(function (Audit $audit) {
             // Se non è già stato specificato un company_id, assegna la prima Company presente
             if (blank($audit->company_id)) {
-                $audit->company_id = \App\Models\Company::first()?->id;
+                $audit->company_id = Company::first()?->id;
             }
         });
     }
@@ -119,5 +120,12 @@ class Audit extends Model
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
+    {
+        return $query->where('executed_at', '<=', $semester->end)
+            ->where('executed_at', '>=', $semester->start);
+
     }
 }

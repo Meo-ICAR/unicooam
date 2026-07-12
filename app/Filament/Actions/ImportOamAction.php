@@ -3,10 +3,8 @@
 namespace App\Filament\Actions;
 
 use App\Services\ImportPraticheService;
-use Carbon\Carbon;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Throwable;
 
@@ -26,36 +24,15 @@ class ImportOamAction extends Action
             ->icon('heroicon-o-arrow-down-tray')
             ->color('warning')
             ->modalHeading('Importa Pratiche dal Gestionale')
-            ->modalDescription('Seleziona il semestre e l\'anno per avviare l\'importazione delle pratiche e il ricalcolo degli aggregati OAM.')
+            ->modalDescription('ATTENZIONE! Tutte le modifiche manuali saranno rimosse. ')
             ->modalWidth('md')
-            ->form([
-                Select::make('semestre')
-                    ->label('Semestre')
-                    ->options([
-                        1 => '1° Semestre (Gennaio – Giugno)',
-                        2 => '2° Semestre (Luglio – Dicembre)',
-                    ])
-                    ->default((now()->month < 11) && (now()->month > 3) ? 1 : 2)
-                    ->required(),
-                TextInput::make('anno')
-                    ->label('Anno')
-                    ->numeric()
-                    ->minValue(2025)
-                    ->maxValue(now()->year)
-                    ->default(now()->year)
-                    ->required(),
-            ])
+
             ->action(function (array $data): void {
                 $anno = (int) $data['anno'];
-                $semestre = (int) $data['semestre'];
-
-                if ($semestre === 1) {
-                    $startAt = Carbon::create($anno, 1, 1)->startOfDay();
-                    $endAt = Carbon::create($anno, 6, 30)->endOfDay();
-                } else {
-                    $startAt = Carbon::create($anno, 7, 1)->startOfDay();
-                    $endAt = Carbon::create($anno, 12, 31)->endOfDay();
-                }
+                // 1. Generi l'istanza con il metodo statico del tuo Value Object
+                $semestre = OamSemester::getInBaseAlMeseCorrente();
+                $startAt = $semestre->start;
+                $endAt = $semestre->end;
 
                 try {
                     $count = app(ImportPraticheService::class)->import($startAt, $endAt);

@@ -22,7 +22,16 @@ class ImportPraticheService
      */
     public function import(Carbon $startAt, Carbon $endAt): int
     {
+
         // Svuota la tabella prima di ogni nuova esecuzione
+        if (empty($startAt)) {
+            $startAt = OamSemester->start;
+        }
+
+        if (empty($endAt)) {
+            $endAt = OamSemester->end;
+        }
+
         OamPratiche::truncate();
 
         $importedCount = 0;

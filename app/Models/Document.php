@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -182,13 +184,71 @@ class Document extends Model implements HasMedia
      */
     public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
     {
-        // Sostituisci 'document_type_id' con il nome esatto della tua colonna (es. 'document_type')
         return $query->where('emitted_at', '<=', $semester->end)
             ->whereIn('id', function ($subquery) use ($semester) {
-                $subquery->selectRaw('MAX(id)')
-                    ->from('documents')
-                    ->where('emitted_at', '<=', $semester->end)
-                    ->groupBy('document_type_id');
+                // Usando il metodo del query builder, ma puntando alla data massima correlata
+                $subquery->select('id')
+                    ->from('documents as d1')
+                    ->where('d1.emitted_at', '<=', $semester->end)
+                    ->whereRaw('d1.emitted_at = (
+                    SELECT MAX(d2.emitted_at)
+                    FROM documents as d2
+                    WHERE d2.document_type_id = d1.document_type_id
+                    AND d2.emitted_at <= ?
+                    AND d2.deleted_at IS NULL
+                )', [$semester->end]);
             });
+    }
+
+    // Dentro la classe Document...
+
+    /**
+     * Genera un nuovo aggiornamento/rinnovo per il documento corrente.
+     *
+     * @return Document Il nuovo documento creato
+     */
+    public function renew(): self
+    {
+        return DB::transaction(function () {
+            // 1. Crea il nuovo documento ereditando i dati necessari
+            $newDocument = self::create([
+                'company_id' => $this->company_id,
+                'documentable_type' => $this->documentable_type,
+                'documentable_id' => $this->documentable_id,
+                'document_type_id' => $this->document_type_id,
+                'user_id' => $this->user_id,
+
+                'name' => $this->name, // .' Agg. al '.now()->format('d/m/Y'),
+                'doctype' => $this->doctype,
+                'spatie_collection' => $this->spatie_collection,
+                'description' => $this->description,
+                'internal_notes' => $this->internal_notes,
+
+                'status' => 'approved', // o DocumentStatus::APPROVED->value
+                'is_monitored' => $this->is_monitored,
+                'is_unique' => $this->is_unique,
+                'is_endMonth' => $this->is_endMonth,
+                'is_template' => false,
+
+                'training_hours' => $this->training_hours,
+                'training_organization' => $this->training_organization,
+
+                'emitted_at' => now(),
+                'created_by' => Auth::id(),
+            ]);
+
+            // 2. Aggiorna il record attuale (quello vecchio)
+            $this->update([
+                'status' => 'expired', // o DocumentStatus::EXPIRED->value
+                'renewed_by' => Auth::id(),
+                'updated_by' => Auth::id(),
+                'metadata' => array_merge($this->metadata ?? [], [
+                    'renewed_to_uuid' => $newDocument->id,
+                    'replaced_at' => now()->toIso8601String(),
+                ]),
+            ]);
+
+            return $newDocument;
+        });
     }
 }
