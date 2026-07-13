@@ -8,13 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-
-
-use App\Filament\Traits\HasChecklistAction;  // 1. Importa il namespace
-use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
-
-
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\QueryBuilder\Constraints\RelationshipConstraint\Operators\IsRelatedToOperator;
@@ -36,7 +30,7 @@ use Illuminate\Support\Str;
 
 class ClientsTable
 {
-    use HasChecklistAction;
+    
 
     public static function configure(Table $table): Table
     {
