@@ -126,11 +126,7 @@ class ClientsTable
                         ->orWhere('is_remote_interaction', true)),
             ])
             ->recordActions([
-                ...self::getChecklistActions(
-                    code: 'AML',  // <-- Il 'code' esatto presente nel tuo DB
-                    label: 'AML',
-                    // icon: 'heroicon-o-clipboard-document-check'
-                ),
+               
             ], position: RecordActionsPosition::BeforeColumns)
             ->bulkActions([
                 //  BulkActionGroup::make([
