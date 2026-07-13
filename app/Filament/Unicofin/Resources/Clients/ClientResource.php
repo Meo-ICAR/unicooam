@@ -9,6 +9,7 @@ use App\Filament\Unicofin\Resources\Clients\Schemas\ClientForm;
 use App\Filament\Unicofin\Resources\Clients\Tables\ClientsTable;
 use App\Models\Client;
 use BackedEnum;
+use UnitEnum;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
@@ -16,11 +17,17 @@ use Filament\Resources\Resource; // <--- AGGIUNTO QUESTO IMPORT MANCANTE
 
 class ClientResource extends Resource
 {
-    protected static ?string $model = Client::class;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|UnitEnum|null $navigationGroup = 'Pratiche';
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $navigationLabel = 'Anagrafiche';
+
+    protected static ?string $modelLabel = 'Anagrafica';
+
+    protected static ?string $pluralModelLabel = 'Anagrafiche';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
@@ -32,12 +39,20 @@ class ClientResource extends Resource
         return ClientsTable::configure($table);
     }
 
-    public static function getRelations(): array
+    
+             public static function getRelations(): array
     {
         return [
-            //
+           // AddressesRelationManager::class,
+            DocumentsRelationManager::class,
+         //   WebsitesRelationManager::class,
+            ClientRelationsRelationManager::class,
+            ClientMandatesRelationManager::class,
+         //   ChecklistsRelationManager::class,
+          
         ];
     }
+        
 
     public static function getPages(): array
     {
