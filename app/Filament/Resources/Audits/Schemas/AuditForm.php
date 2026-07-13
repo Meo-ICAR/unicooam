@@ -154,9 +154,10 @@ class AuditForm
                                 '3A' => '3A - omessa consegna al cliente della documentazione precontrattuale e, ove richiesto, dello schema di contratto relativi al rapporto di mediazione, in tempo utile per consentire un consapevole e informato conferimento dell incarico (inosservanza delle procedure aziendali)  - Rilievo afferente all’utilizzo degli strumenti informaticidell’intermediario',
                                 '3B' => '3B - incompleta/imparziale compilazione della modulistica afferente al servizio di mediazione creditizia - Rilievo afferente all’utilizzo degli strumenti informatici dell’intermediario',
                                 '3C' => '3C - incompleta identificazione e verifica dei clienti/titolare effettivo/coobligati - alterazione documenazione acquisita - Rilievo afferente all utilizzo degli strumenti informatici dell intermediario',
-                                '3D' => '3D - ancato/imparziale  utilizzo degli strumenti aziendali finalizzati alla gestione/trasmissione della documentazione alla societa - Rilievo afferente all’utilizzo degli strumenti informatici dell’intermediario',
+                                '3D' => '3D - mancato/parziale utilizzo degli strumenti aziendali finalizzati alla gestione/trasmissione della documentazione alla societa - Rilievo afferente all’utilizzo degli strumenti informatici dell’intermediario',
                                 'Altro' => 'Altro',
                             ])
+                            ->default('Altro')
                             ->placeholder('Seleziona uno o più codici')
                             ->columnSpanFull(),
 

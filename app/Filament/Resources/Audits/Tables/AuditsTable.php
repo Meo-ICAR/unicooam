@@ -70,6 +70,9 @@ class AuditsTable
                     ->date('d/m/y')
                     ->sortable(),
                 //  ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('collaboratore')
+                    ->label('Collaboratore/U.O')
+                    ->sortable(),
                 TextColumn::make('organization.acronym')
                     ->label('Ente Vigilante')
                     ->badge()
