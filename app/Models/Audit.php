@@ -43,6 +43,9 @@ class Audit extends Model
         'auditor_notes',
         'remediation_plan',
         'followup_date',
+        'severity',
+        'rilievi_codes',
+        'collaboratore',
     ];
 
     /**
@@ -58,6 +61,7 @@ class Audit extends Model
             'followup_date' => 'date',
             // Cast nativo verso il PHP Enum (Filament lo adora)
             'status' => AuditStatus::class,
+            'rilievi_codes' => 'array', // o 'json'
         ];
     }
 

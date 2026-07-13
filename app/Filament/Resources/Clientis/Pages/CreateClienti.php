@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Clientis\Pages;
 
-use App\Filament\UnicoFin\Resources\Clientis\ClientiResource;
+use App\Filament\Resources\Clientis\ClientiResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateClienti extends CreateRecord

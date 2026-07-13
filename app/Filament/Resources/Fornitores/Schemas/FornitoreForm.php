@@ -65,6 +65,11 @@ class FornitoreForm
                             ->email()
                             ->maxLength(255)
                             ->columnSpan(1),
+                        Select::make('branch_id')
+                            ->label('Sede appartenenza')
+                            ->relationship('branch', 'name')
+                            ->searchable()
+                            ->preload(),
                         DatePicker::make('dismissed_at')
                             ->label('Cessazione')
                             ->displayFormat('d/m/y')

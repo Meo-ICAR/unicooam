@@ -41,6 +41,35 @@ class AuditsTable
                 // 2. Soggetto Controllato (Risolve il polimorfismo mostrando il nome reale dell'agente/impiegato)
                 TableHelper::polymorphicColumn('auditable', 'Soggetto Controllato'),
                 // 3. Organismo di Vigilanza (Relazione con la tabella organizations)
+                TextColumn::make('executed_at')
+                    ->label('Data Audit')
+                    ->date('d/m/y')
+                    ->sortable()
+                    ->toggleable(),
+                // 6. Stati ed Esiti (Visualizzazione a Badge avanzata)
+                TextColumn::make('auditor_name')
+                    ->label('Auditor'),
+
+                TextColumn::make('status')
+                    ->label('Stato')
+                    ->badge()
+                    ->sortable(),  // Se usi l'Enum con HasColor/HasLabel, Filament fa tutto da solo
+                TextColumn::make('rilievi_codes')
+                    ->label('Codici')
+                    ->badge()
+                    ->sortable(),  // Se usi l'Enum con HasColor/HasLabel, Filament fa tutto da solo
+                TextColumn::make('severity')
+                    ->label('Severity')
+                    ->badge()
+                    ->sortable(),  // Se usi l'Enum con HasColor/HasLabel, Filament fa tutto da solo
+                TextColumn::make('remediation_plan')
+                    ->label('Remediation Plan')
+                    ->sortable(),
+                TextColumn::make('followup_date')
+                    ->label('Follow-up')
+                    ->date('d/m/y')
+                    ->sortable(),
+                //  ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('organization.acronym')
                     ->label('Ente Vigilante')
                     ->badge()
@@ -49,23 +78,12 @@ class AuditsTable
                     ->sortable()
                     ->placeholder('Audit Interno'),
                 // 4. Chi esegue il controllo (Auditor)
-                TextColumn::make('auditor_name')
-                    ->label('Auditor'),
+
                 // 5. Date critiche (Formattate in formato italiano)
                 TextColumn::make('scheduled_at')
                     ->label('Pianificata')
                     ->date('d/m/y')
                     ->sortable(),
-                TextColumn::make('executed_at')
-                    ->label('Eseguita')
-                    ->date('d/m/y')
-                    ->sortable()
-                    ->toggleable(),
-                // 6. Stati ed Esiti (Visualizzazione a Badge avanzata)
-                TextColumn::make('status')
-                    ->label('Stato')
-                    ->badge()
-                    ->sortable(),  // Se usi l'Enum con HasColor/HasLabel, Filament fa tutto da solo
                 TextColumn::make('outcome')
                     ->label('Esito')
                     ->badge()
@@ -76,14 +94,7 @@ class AuditsTable
                     ])
                     ->sortable()
                     ->placeholder('In attesa di esito'),
-                TextColumn::make('followup_date')
-                    ->label('Follow-up')
-                    ->date('d/m/y')
-                    ->sortable(),
-                //  ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('remediation_plan')
-                    ->label('Remediation Plan')
-                    ->sortable(),
+
                 // 1. Identificazione e Protocollo
                 TextColumn::make('protocol_number')
                     ->label('N. Protocollo')
