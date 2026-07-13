@@ -16,6 +16,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Illuminate\Database\Eloquent\Model;
 
+
 class ClientForm
 {
     public static function configure(Schema $schema): Schema

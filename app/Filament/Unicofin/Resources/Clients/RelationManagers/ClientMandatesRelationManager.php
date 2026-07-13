@@ -2,7 +2,6 @@
 
 namespace App\Filament\Unicofin\Resources\Clients\RelationManagers;
 
-use App\Filament\Unicofin\Resources\ClientMandates\ClientMandateResource;
 use App\Models\ClientMandate;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -185,46 +184,8 @@ class ClientMandatesRelationManager extends RelationManager
                 CreateAction::make(),
             ])
             ->actions([
-                Action::make('apriSOS')
-                    ->label('Segnalazione SOS')
-                    ->icon('heroicon-o-clipboard-document-check')
-                    ->color('warning')
-                    ->action(function (SosReport $record, ChecklistService $checklistService) {
-                        try {
-                            // Verifichiamo se esiste già una checklist per questo client privacy
-                            $existingChecklist = $record
-                                ->checklist()
-                                ->where('code', 'SOS_WORKFLOW')
-                                ->first();
-
-                            if ($existingChecklist) {
-                                // Se esiste, mostriamo una notifica e reindirizziamo
-                                Notification::make()
-                                    ->info()
-                                    ->title('Checklist Già Presente')
-                                    ->body('La checklist esiste già. Puoi compilarla o modificarla.')
-                                    ->send();
-
-                                // Reindirizziamo alla pagina di modifica della checklist
-                                return redirect()->to(ChecklistResource::getUrl('edit', ['record' => $existingChecklist]));
-                            } else {
-                                // Se non esiste, la creiamo
-                                $checklistService->assignTemplate($record, 'SOS_WORKFLOW');
-
-                                Notification::make()
-                                    ->success()
-                                    ->title('Checklist Assegnata!')
-                                    ->body('La Checklist è pronta per essere compilata')
-                                    ->send();
-                            }
-                        } catch (\Exception $e) {
-                            Notification::make()
-                                ->danger()
-                                ->title('Errore')
-                                ->body("Errore durante l'assegnazione della checklist: " . $e->getMessage())
-                                ->send();
-                        }
-                    }),
+               
+                
                 EditAction::make(),
                 DeleteAction::make(),
             ])
