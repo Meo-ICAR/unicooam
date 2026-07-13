@@ -147,4 +147,42 @@ class Client extends Model
     {
         return $this->morphMany(Document::class, 'documentable');
     }
+
+     public function companyRelations()
+    {
+        return $this->hasMany(ClientRelation::class, 'company_id');
+    }
+
+    public function personRelations()
+    {
+        return $this->hasMany(ClientRelation::class, 'client_id');
+    }
+
+    public function clientMandates(): HasMany
+    {
+        return $this->hasMany(ClientMandate::class);
+    }
+
+    public function activeMandates(): HasMany
+    {
+        return $this->clientMandates()->where('stato', 'attivo');
+    }
+
+    public function hasActiveMandates(): bool
+    {
+        return $this->activeMandates()->exists();
+    }
+
+    public function getLatestMandate()
+    {
+        return $this->clientMandates()->latest()->first();
+    }
+
+    public function getTotalMandateAmount(): float
+    {
+        return $this
+            ->clientMandates()
+            ->whereNotNull('importo_richiesto_mandato')
+            ->sum('importo_richiesto_mandato');
+    }
 }
