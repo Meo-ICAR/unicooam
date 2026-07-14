@@ -73,7 +73,7 @@ class FornitoresTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('name')
-                    ->label('Istruttoria')
+                    ->label('Denominazione Istruttoria')
                     ->searchable()
                     ->sortable(),
                 // STATO E INQUADRAMENTO

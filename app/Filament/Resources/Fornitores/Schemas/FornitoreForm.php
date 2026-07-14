@@ -35,6 +35,10 @@ class FornitoreForm
                         DatePicker::make('stipulated_at')
                             ->label('Stipula')
                             ->displayFormat('d/m/y'),
+                        TextInput::make('name')
+                            ->label('Denominazione Istruttoria')
+                            ->disabled()
+                            ->columnSpan(2), // Prende 2 colonne su 4 perché di solito è più lunga
 
                         DatePicker::make('oam_at')
                             ->label('Data iscrizione OAM')

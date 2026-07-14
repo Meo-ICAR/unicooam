@@ -39,7 +39,7 @@ class ImportPraticheService
         $query = Pratica::query()
             ->whereNull('rejected_at')
             ->where('data_inserimento_pratica', '>=', '2025-01-01')
-            ->where('data_inserimento_pratica', '<', '2026-07-01')
+            ->where('data_inserimento_pratica', '<', $endAt)
             ->where('stato_pratica', '<>', 'INSERITA')
             ->where('is_notowned', 0)
             ->whereNotIn('tipo_prodotto', ['Utenza', 'Polizza'])

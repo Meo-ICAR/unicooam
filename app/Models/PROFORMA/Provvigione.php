@@ -2,10 +2,8 @@
 
 namespace App\Models\PROFORMA;
 
-use App\Models\PROFORMA\Pratica;
-use App\Models\OamCode;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use App\ValueObjects\OamSemester;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -20,7 +18,7 @@ class Provvigione extends Model
      */
     protected $connection = 'mysql_proforma';
 
-    protected $table = 'provvigioni';
+    protected $table = 'proforma.provvigioni';
 
     /**
      * The primary key for the model.
@@ -193,5 +191,12 @@ class Provvigione extends Model
             ->sum('importo');
 
         return $provvcliente ? (float) $provvcliente : 0.0;
+    }
+
+    public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
+    {
+        return $query->where('data_status', '<=', $semester->end)
+            ->where('data_status', '>=', $semester->start);
+
     }
 }

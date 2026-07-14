@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\PROFORMA\Provvigione;
 use App\Models\OamCode;
 use App\Models\OamPratiche;
 use App\Models\OamSemestrale;
+use App\Models\PROFORMA\Provvigione;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -21,7 +21,7 @@ class OamSemestraleService
     public function aggregate(?string $period = null, ?string $companyId = null): int
     {
         // Svuotiamo prima di aprire la transazione
-        if (!$period) {
+        if (! $period) {
             OamSemestrale::truncate();
         } else {
             OamSemestrale::where('period', $period)->delete();
@@ -98,10 +98,10 @@ class OamSemestraleService
             }
 
             // Calcolo storni: provvigioni Istituto con "storno" in descrizione
-            $risultati = Provvigione::query()
+            $risultati = Provvigione::perSemestreOam() // Rimosso "scope" e corretto in "::"
                 ->with([
-                    'pratica' => fn($q) => $q->select('id', 'tipo_prodotto'),
-                    'pratica.oamCode' => fn($q) => $q->select('tipo_prodotto', 'description'),
+                    'pratica' => fn ($q) => $q->select('id', 'tipo_prodotto'),
+                    'pratica.oamCode' => fn ($q) => $q->select('tipo_prodotto', 'description'),
                 ])
                 ->where('descrizione', 'like', '%storno%')
                 ->where('tipo', 'Istituto')

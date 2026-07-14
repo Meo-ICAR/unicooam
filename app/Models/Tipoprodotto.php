@@ -2,37 +2,46 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class TipoProdotto extends Model
+class Tipoprodotto extends Model
 {
     protected $connection = 'mysql_proforma';
 
     protected $table = 'proforma.tipoprodotto';
 
-    protected $primaryKey = 'tipo_prodotto';
-
-    protected $keyType = 'string';
-
-    public $incrementing = false;
-
-    public $timestamps = false;
-
+    /**
+     * I campi che possono essere assegnati massivamente.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'tipo_prodotto',
+        'name',
+        'code',
+        'is_external',
+        'is_oneclient',
         'oam',
+        'tipo_provvigioni',
     ];
 
     /**
-     * Mappa virtualmente il campo 'tipo_prodotto' sulla proprietà 'name'.
-     * In questo modo $prodotto->name restituirà il valore di tipo_prodotto.
+     * I cast nativi per i tipi di dato.
+     *
+     * @var array<string, string>
      */
-    protected function name(): Attribute
+    protected $casts = [
+        'is_external' => 'boolean',
+        'is_oneclient' => 'boolean',
+    ];
+
+    /**
+     * Ottiene i sottoprodotti associati a questo prodotto finanziario.
+     * Relazione 1 a Molti.
+     */
+    public function subproducts(): HasMany
     {
-        return Attribute::make(
-            get: fn () => $this->tipo_prodotto,
-            set: fn (string $value) => ['tipo_prodotto' => $value]
-        );
+        // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
+        return $this->hasMany(TipoprodottoSub::class, 'tipoprodotto_id');
     }
 }
