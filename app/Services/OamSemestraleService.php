@@ -32,7 +32,6 @@ class OamSemestraleService
                 ->selectRaw('SUM(intermediari_non_convenzionati) as intermediari_non_convenzionati')
                 ->selectRaw('SUM(pratiche_intermediate) as pratiche_intermediate')
                 ->selectRaw('SUM(pratiche_lavorazione) as pratiche_lavorazione')
-                ->selectRaw('SUM(num_rivalse) as num_rivalse')
                 ->selectRaw('SUM(erogato_lordo) as erogato_lordo')
                 ->selectRaw('SUM(erogato_lavorazione) as erogato_lavorazione')
                 ->selectRaw('SUM(provv_clientela) as provv_clientela')
@@ -46,7 +45,7 @@ class OamSemestraleService
                 ->selectRaw('SUM(payout_rete_ass_broker) as payout_rete_ass_broker')
                 ->selectRaw('SUM(payout_rete_ass_broker_cap) as payout_rete_ass_broker_cap')
                 ->selectRaw('SUM(importo_retrocesse) as importo_retrocesse')
-                ->selectRaw('SUM(importo_retrocesse>0) as num_rivalse')
+                ->selectRaw('SUM(num_rivalse) as num_rivalse')
                 ->groupBy('company_id', 'period', 'abi_name', 'prodotto_creditizio')
                 ->orderBy('company_id')
                 ->orderBy('period')
@@ -77,7 +76,7 @@ class OamSemestraleService
                     'period' => $row->period,
                     'abi_name' => $row->abi_name,
                     'is_convenzione' => Clienti::getisConvenzione($row->abi_name),
-                    'submission_type' => Clienti::getisConvenzione($row->abi_name, $row->prodotto_creditizio),
+                    'gestione' => Clienti::getClienteSubmission($row->abi_name, $row->prodotto_creditizio),
                     'prodotto_creditizio' => $row->prodotto_creditizio,
                     'num_rivalse' => $row->num_rivalse ?? 0,
                     'importo_retrocesse' => $row->importo_retrocesse ?? 0.0,

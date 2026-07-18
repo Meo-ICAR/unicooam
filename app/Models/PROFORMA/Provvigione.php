@@ -185,7 +185,7 @@ class Provvigione extends Model
             ->sum('importo');
 
         // Se è 0 ritorna 0.0, altrimenti ritorna l'importo negativo
-        return $totale === 0.0 ? 0.0 : -$totale;
+        return $totale === 0.0 ? 0.0 : $totale;
     }
 
     public static function getProvvigioneAgenti(string $id_pratica): ?float
