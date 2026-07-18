@@ -2,12 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\OamCode;
 use App\Models\OamPratiche;
 use App\Models\OamSemestrale;
-use App\Models\PROFORMA\Provvigione;
+use App\Models\PROFORMA\Clienti;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class OamSemestraleService
 {
@@ -29,7 +27,7 @@ class OamSemestraleService
 
         return DB::transaction(function () use ($period, $companyId) {
             $query = OamPratiche::query()
-                ->select('company_id', 'period', 'prodotto_creditizio')
+                ->select('company_id', 'period', 'abi_name', 'prodotto_creditizio')
                 ->selectRaw('SUM(intermediari_convenzionati) as intermediari_convenzionati')
                 ->selectRaw('SUM(intermediari_non_convenzionati) as intermediari_non_convenzionati')
                 ->selectRaw('SUM(pratiche_intermediate) as pratiche_intermediate')
@@ -48,10 +46,12 @@ class OamSemestraleService
                 ->selectRaw('SUM(payout_rete_ass_broker) as payout_rete_ass_broker')
                 ->selectRaw('SUM(payout_rete_ass_broker_cap) as payout_rete_ass_broker_cap')
                 ->selectRaw('SUM(importo_retrocesse) as importo_retrocesse')
-                ->groupBy('company_id', 'period', 'prodotto_creditizio')
+                ->selectRaw('SUM(importo_retrocesse>0) as num_rivalse')
+                ->groupBy('company_id', 'period', 'abi_name', 'prodotto_creditizio')
                 ->orderBy('company_id')
                 ->orderBy('period')
-                ->orderBy('prodotto_creditizio');
+                ->orderBy('abi_name')               // <-- Primo
+                ->orderBy('prodotto_creditizio');   // <-- Secondo
 
             if ($period) {
                 $query->where('period', $period);
@@ -75,6 +75,9 @@ class OamSemestraleService
                 OamSemestrale::create([
                     'company_id' => $row->company_id,
                     'period' => $row->period,
+                    'abi_name' => $row->abi_name,
+                    'is_convenzione' => Clienti::getisConvenzione($row->abi_name),
+                    'submission_type' => Clienti::getisConvenzione($row->abi_name, $row->prodotto_creditizio),
                     'prodotto_creditizio' => $row->prodotto_creditizio,
                     'num_rivalse' => $row->num_rivalse ?? 0,
                     'importo_retrocesse' => $row->importo_retrocesse ?? 0.0,
@@ -94,64 +97,10 @@ class OamSemestraleService
                     'payout_rete_ass_banche' => $row->payout_rete_ass_banche ?? 0.0,
                     'payout_rete_ass_broker' => $row->payout_rete_ass_broker ?? 0.0,
                     'payout_rete_ass_broker_cap' => $row->payout_rete_ass_broker_cap ?? 0.0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+
                 ]);
-            }
-
-            // Calcolo storni: provvigioni Istituto con "storno" in descrizione
-            $risultati = Provvigione::perSemestreOam() // Rimosso "scope" e corretto in "::"
-                ->with([
-                    'pratica' => fn ($q) => $q->select('id', 'tipo_prodotto'),
-                    'pratica.oamCode' => fn ($q) => $q->select('tipo_prodotto', 'description'),
-                ])
-                ->where('descrizione', 'like', '%storno%')
-                ->where('tipo', 'Istituto')
-                ->get()
-                ->map(function ($provvigione) {
-                    $oamCode = $provvigione->pratica?->oamCode;
-
-                    return (object) [
-                        'id_pratica' => $provvigione->id_pratica,
-                        'importo' => -$provvigione->importo,
-                        'oam_descrizione' => $oamCode?->description,
-                    ];
-                });
-
-            Log::info('Risultati Storni Istituto:', [
-                'totale_record' => $risultati->count(),
-            ]);
-
-            $reportStorni = $risultati->groupBy('oam_descrizione')->map(function ($gruppo) {
-                return [
-                    'importo_retrocesse' => $gruppo->sum('importo'),
-                    'num_rivalse' => $gruppo->count(),
-                ];
-            });
-
-            Log::info('Report Storni OAM (Somma e Conteggio):', $reportStorni->toArray());
-
-            foreach ($reportStorni as $prodottoCreditizio => $datiStorno) {
-                OamSemestrale::updateOrCreate(
-                    [
-                        'company_id' => $lastCompanyId,
-                        'period' => $lastPeriod,
-                        'prodotto_creditizio' => $prodottoCreditizio,
-                    ],
-                    [
-                        'num_rivalse' => $datiStorno['num_rivalse'] ?? 0,
-                        'importo_retrocesse' => $datiStorno['importo_retrocesse'] ?? 0.0,
-                    ]
-                );
-            }
-
-            Log::info('OAM Code:');
-            $oamCodes = OamCode::where('is_dummy', false)->where('is_active', true)->get();
-            foreach ($oamCodes as $oamCode) {
-                OamSemestrale::where('company_id', $lastCompanyId)
-                    ->where('period', $lastPeriod)
-                    ->where('prodotto_creditizio', $oamCode->description)
-                    ->update([
-                        'intermediari_convenzionati' => $oamCode->clienti()->count(),
-                    ]);
             }
 
             return $aggregates->count();

@@ -70,7 +70,7 @@ class ClientiForm
                                             ->relationship(
                                                 name: 'oamCodes',
                                                 titleAttribute: 'tipo_prodotto',
-                                                modifyQueryUsing: fn(Builder $query) => $query
+                                                modifyQueryUsing: fn (Builder $query) => $query
                                                     ->where('is_dummy', false)
                                             )
                                             ->searchable()
@@ -102,6 +102,22 @@ class ClientiForm
                                             ->label('Data rinnovo (Vuoto se indeterminato)'),
                                         DatePicker::make('dismissed_at')
                                             ->label('Data Recesso'),
+
+                                        Select::make('submission_type')
+                                            ->label('Gestione inoltro')
+                                            ->options([
+
+                                                '--' => '--',
+                                                'accesso portale' => 'Accentrato',
+                                                'inoltro' => 'Decentrato',
+                                                'entrambi' => 'Modalita combinata',
+                                            ])
+                                            ->default('accesso portale')
+                                            ->required()
+                                            ->label('Modalità Inoltro Pratiche'),
+                                        Toggle::make('is_exclusive')
+                                            ->inline(false)
+                                            ->label('Mandato in Esclusiva'),
                                         Select::make('status')
                                             ->options([
                                                 'ATTIVO' => 'Attivo',
@@ -112,18 +128,6 @@ class ClientiForm
                                             ->default('ATTIVO')
                                             ->required()
                                             ->label('Stato Mandato'),
-                                        Select::make('submission_type')
-                                            ->options([
-                                                'accesso portale' => 'Accesso Portale',
-                                                'inoltro' => 'Inoltro',
-                                                'entrambi' => 'Entrambi',
-                                            ])
-                                            ->default('accesso portale')
-                                            ->required()
-                                            ->label('Modalità Inoltro Pratiche'),
-                                        Toggle::make('is_exclusive')
-                                            ->inline(false)
-                                            ->label('Mandato in Esclusiva'),
                                     ]),
                                 Grid::make(2)->schema([
                                     Section::make('Sezione OAM')

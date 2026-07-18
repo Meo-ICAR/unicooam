@@ -28,18 +28,18 @@ class ImportOamAction extends Action
             ->modalWidth('md')
 
             ->action(function (array $data): void {
-                $anno = (int) $data['anno'];
+                //  $anno = (int) $data['anno'];
                 // 1. Generi l'istanza con il metodo statico del tuo Value Object
                 $semestre = OamSemester::getInBaseAlMeseCorrente();
                 $startAt = $semestre->start;
                 $endAt = $semestre->end;
 
                 try {
-                    $count = app(ImportPraticheService::class)->import($startAt, $endAt);
+                    $count = app(ImportPraticheService::class)->import(null, null);
 
                     Notification::make()
                         ->title('Importazione completata')
-                        ->body("Importate {$count} pratiche per il {$semestre}° semestre {$anno}.")
+                        ->body("Importate {$count} pratiche")
                         ->success()
                         ->send();
                 } catch (Throwable $e) {

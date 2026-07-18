@@ -186,6 +186,28 @@ class Clienti extends Model
         return $tipo;
     }
 
+    public static function getClienteSubmission(?string $name, string $prodotto): ?string
+    {
+        if (empty($name)) {
+            return '--';
+        }
+
+        $cliente = static::where('nome', $name)->first();
+
+        // Se il cliente non esiste, restituiamo un valore di fallback sicuro
+        if (! $cliente) {
+            return '--';
+        }
+
+        // Usiamo il costrutto match di PHP per mappare in modo pulito ed efficiente
+        return match ($cliente->submission_type) {
+            'accesso portale' => 'Accentrato',
+            'inoltro' => 'Decentrato',
+            'entrambi' => 'Modalita combinata',
+            default => '--',
+        };
+    }
+
     public function oamCodes(): BelongsToMany
     {
         return $this
@@ -207,5 +229,32 @@ class Clienti extends Model
                 $q->whereNull('dismissed_at')
                     ->orWhere('dismissed_at', '>=', $semester->start);
             });
+    }
+
+    public static function getisConvenzione(?string $name): ?bool
+    {
+        // Se il nome è nullo o vuoto, ritorniamo subito false
+        if (empty($name)) {
+            return false;
+        }
+
+        $cliente = static::where('abi_name', $name)->first();
+
+        // Se non trovo il cliente, oppure se NON ha una data di stipula (null), non c'è convenzione
+        if (! $cliente || empty($cliente->stipulated_at)) {
+            return false;
+        }
+
+        $defaultSemester = OamSemester::getInBaseAlMeseCorrente();
+
+        // Ora siamo sicuri che stipulated_at non è null
+        $is_convenzione = $cliente->stipulated_at < $defaultSemester->end;
+
+        // Se c'è una data di cessazione (non null), verifichiamo che sia successiva alla fine del semestre
+        if (! empty($cliente->dismissed_at)) {
+            $is_convenzione = $is_convenzione && $cliente->dismissed_at > $defaultSemester->end;
+        }
+
+        return $is_convenzione;
     }
 }

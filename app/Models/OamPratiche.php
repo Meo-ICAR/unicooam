@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OamPratiche extends Model
@@ -13,6 +13,7 @@ class OamPratiche extends Model
 
     // Definito esplicitamente per mappare esattamente il nome della tua tabella
     protected $connection = 'mysql';
+
     protected $table = 'oam_pratiches';
 
     // Proteggiamo i campi di sistema
@@ -20,7 +21,7 @@ class OamPratiche extends Model
         'id',
         'created_at',
         'updated_at',
-        'deleted_at'
+        'deleted_at',
     ];
 
     // Casting esplicito dei tipi di dato
@@ -51,6 +52,7 @@ class OamPratiche extends Model
         'erogated_at' => 'datetime',
         'rejected_at' => 'datetime',
         'storned_at' => 'datetime',
+
     ];
 
     /**

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\OamPratiches\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -13,15 +12,17 @@ class OamPraticheForm
     {
         return $schema
             ->components([
-                Select::make('company_id')
-                    ->label('Azienda')
-                    ->relationship('company', 'name'),
+
                 TextInput::make('period')
                     ->label('Periodo'),
                 TextInput::make('numero_iscrizione_m510')
                     ->label('N. iscrizione M510'),
                 TextInput::make('prodotto_creditizio')
                     ->label('Prodotto creditizio'),
+
+                TextInput::make('abi_name')
+                    ->label('Finanziatore'),
+
                 TextInput::make('intermediari_convenzionati')
                     ->label('Intermediari convenzionati')
                     ->numeric()

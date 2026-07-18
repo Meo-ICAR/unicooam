@@ -23,7 +23,13 @@ class OamPratichesTable
     {
         return $table
             ->columns([
+
+                TextColumn::make('abi_name')
+                    ->label('Finanziatore')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('tipo_prodotto')
+                    ->label('Prodotto')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('istituto')
@@ -60,8 +66,14 @@ class OamPratichesTable
                 TextColumn::make('prodotto_creditizio')
                     ->sortable()
                     ->searchable(),
+
                 TextColumn::make('tipo_prodotto')
                     ->label('Prodotto')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('abi_name')
+                    ->label('Finanziatore')
+
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('intermediari_convenzionati')
@@ -175,11 +187,20 @@ class OamPratichesTable
             ->filters([
                 // TrashedFilter::make(),
                 // Dentro il metodo ->filters([...]) della tua tabella:
+                SelectFilter::make('abi_name')
+                    ->label('Finanziatore')
+                    ->multiple()
+                    ->searchable()
+                    ->options(fn () => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
+                        ->distinct()
+                        ->orderBy('abi_name')  // Opzionale: ordina alfabeticamente se vuoi
+                        ->pluck('abi_name', 'abi_name')
+                        ->toArray()),
                 SelectFilter::make('prodotto_creditizio')
                     ->label('Prodotto Creditizio')
                     ->multiple()
                     ->searchable()
-                    ->options(fn() => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
+                    ->options(fn () => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
                         ->distinct()
                         ->orderBy('prodotto_creditizio')  // Opzionale: ordina alfabeticamente se vuoi
                         ->pluck('prodotto_creditizio', 'prodotto_creditizio')
@@ -188,7 +209,7 @@ class OamPratichesTable
                     ->label('Prodotto')
                     ->multiple()
                     ->searchable()
-                    ->options(fn() => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
+                    ->options(fn () => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
                         ->whereNotNull('tipo_prodotto')
                         ->where('tipo_prodotto', '!=', '')  // Evita stringhe vuote
                         ->distinct()
@@ -199,7 +220,7 @@ class OamPratichesTable
                     ->label('Istituto')
                     ->multiple()
                     ->searchable()
-                    ->options(fn() => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
+                    ->options(fn () => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
                         ->whereNotNull('istituto')
                         ->where('istituto', '!=', '')  // Evita stringhe vuote
                         ->distinct()
@@ -208,15 +229,15 @@ class OamPratichesTable
                         ->toArray()),
                 Filter::make('importo_retrocesse')
                     ->label('Stornate')
-                    ->query(fn(Builder $query): Builder => $query->where('importo_retrocesse', '!=', 0)),
+                    ->query(fn (Builder $query): Builder => $query->where('importo_retrocesse', '!=', 0)),
                 Filter::make('intermediari_non_convenzionati')
                     ->label('Intermediari Non Convenzionati')
-                    ->query(fn(Builder $query): Builder => $query->where('intermediari_non_convenzionati', '=', 1)),
+                    ->query(fn (Builder $query): Builder => $query->where('intermediari_non_convenzionati', '=', 1)),
                 SelectFilter::make('agente')
                     ->label('Agente')
                     ->multiple()
                     ->searchable()
-                    ->options(fn() => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
+                    ->options(fn () => OamPratiche::query()  // Recupera automaticamente il Model di questa Resource (es. OamSemestrale o OamPratiche)
                         ->whereNotNull('agente')
                         ->where('agente', '!=', '')  // Evita stringhe vuote
                         ->distinct()

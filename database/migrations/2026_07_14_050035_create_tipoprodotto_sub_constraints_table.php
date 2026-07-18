@@ -15,22 +15,18 @@ return new class extends Migration
             $table->id();
 
             // --- Relazione con la Banca (UUID) ---
-            $table->foreignUuid('clienti_id')
-                ->constrained('clienti')
-                ->cascadeOnDelete()
-                ->comment('L\'istituto di credito che impone il vincolo.');
+            // Usiamo uuid() per creare la colonna senza generare vincoli fisici
+            $table->uuid('clienti_id')
+                ->comment('L\'istituto di credito che impone il vincolo (DB Esterno).');
 
             // --- Ambito di Applicazione (Gerarchico) ---
-            $table->foreignId('tipoprodotto_id')
+            // Usiamo unsignedBigInteger() che è l'equivalente di foreignId() ma senza logica di chiavi
+            $table->unsignedBigInteger('tipoprodotto_id')
                 ->nullable()
-                ->constrained('tipoprodotto')
-                ->nullOnDelete()
-                ->comment('Prodotto a cui si applica il vincolo. Se NULL, si applica a tutti i prodotti della banca.');
+                ->comment('Prodotto a cui si applica il vincolo. Se NULL, si applica a tutti i prodotti della banca (DB Esterno).');
 
-            $table->foreignId('tipoprodotto_sub_id')
+            $table->unsignedBigInteger('tipoprodotto_sub_id')
                 ->nullable()
-                ->constrained('tipoprodotto_sub')
-                ->nullOnDelete()
                 ->comment('Sottoprodotto specifico (es. CQS Pensionati). Se NULL, si applica a tutto il macro-prodotto.');
 
             // --- Parametri di Vincolo Strutturati (Colonne Standard) ---
@@ -59,7 +55,6 @@ return new class extends Migration
             $table->softDeletes()->comment('Data di eliminazione logica del vincolo (Soft Delete).');
 
             // Indici
-            $table->index(['bank_id', 'tipoprodotto_id', 'tipoprodotto_sub_id'], 'idx_bank_product_constraints');
 
             $table->comment('Vincoli assuntivi e limiti operativi imposti dalle banche sui prodotti con estensibilità JSON.');
         });

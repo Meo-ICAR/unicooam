@@ -15,35 +15,25 @@ return new class extends Migration
             $table->id();
 
             // --- Gerarchia e Applicabilità ---
-            $table->foreignId('tipo_prodotto_id')
+            $table->unsignedBigInteger('tipoprodotto_id')
                 ->nullable()
-                ->constrained('tipo_prodottos')
-                ->nullOnDelete()
-                ->comment('ID Prodotto (es. Cessione del Quinto). Se NULL, si applica a tutti i prodotti.');
+                ->comment('Prodotto a cui si applica il vincolo. Se NULL, si applica a tutti i prodotti della banca (DB Esterno).');
 
-            $table->foreignId('tipo_prodotto_sub_id')
+            $table->unsignedBigInteger('tipoprodotto_sub_id')
                 ->nullable()
-                ->constrained('tipo_prodotto_subs')
-                ->nullOnDelete()
-                ->comment('ID Sottoprodotto (es. Pensionati). Se NULL, si applica a tutti i sottoprodotti del prodotto selezionato.');
+                ->comment('Sottoprodotto specifico (es. CQS Pensionati). Se NULL, si applica a tutto il macro-prodotto.');
+            // Usiamo uuid() per creare la colonna senza generare vincoli fisici
+            $table->uuid('clienti_id')
+                ->nullable()
+                ->comment('L\'istituto di credito che impone il vincolo (DB Esterno).');
 
-            $table->foreignUuid('clienti_id')
+            $table->unsignedBigInteger('kind_id')
                 ->nullable()
-                ->constrained('clientis')
-                ->nullOnDelete()
-                ->comment('ID Banca/Istituto erogante. Se NULL, si applica a tutte le banche.');
-
-            $table->foreignUuid('fornitori_id')
-                ->nullable()
-                ->constrained('fornitoris')
-                ->nullOnDelete()
-                ->comment('ID agente. Se NULL, si applica a tutti');
-
-            $table->foreignId('kind_id')
-                ->nullable()
-                ->constrained('kinds')
-                ->nullOnDelete()
                 ->comment('ID Ruolo/Livello dell\'agente (es. Senior, Junior). Se NULL, si applica a tutta la rete.');
+            // Usiamo uuid() per creare la colonna senza generare vincoli fisici
+            $table->uuid('fornitori_id')
+                ->nullable()
+                ->comment('Agente');
 
             $table->boolean('coordinamento')->default(false)->comment('Provv di coordinamento');
             $table->boolean('iscliente')->default(false)->comment('Provv di mediazione da cliente');
@@ -54,6 +44,9 @@ return new class extends Migration
 
             // --- Valore Economico ---
             $table->decimal('value', 10, 4)
+                ->default(0)
+                ->nullable()
+
                 ->comment('Valore della provvigione. Può essere una percentuale (es. 2.5000 per 2.5%) o un importo fisso in euro.');
 
             // --- Gestione Storicità ---
@@ -72,7 +65,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Indici
-            $table->index(['product_id', 'subproduct_id', 'bank_id'], 'idx_commission_hierarchy');
+
             $table->index(['valid_from', 'valid_to'], 'idx_commission_validity');
 
             // Commento della tabella stessa (Supportato nativamente da MySQL)

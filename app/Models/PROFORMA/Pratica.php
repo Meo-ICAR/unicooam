@@ -3,7 +3,6 @@
 namespace App\Models\PROFORMA;
 
 use App\Models\OamCode;
-use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -67,7 +66,7 @@ class Pratica extends Model
         'amount',
         'net',
         'is_notowned',
-        'upload_at',
+        'upload_at', 'abi', 'abi_name',
     ];
 
     /**
@@ -126,11 +125,22 @@ class Pratica extends Model
         return $this->HasMany(Provvigione::class, 'id_pratica', 'id');
     }
 
-    public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
+    public function scopePerSemestreOam(Builder $query, $semester): Builder
     {
-        return $query->where('erogated_at', '<=', $semester->end)
-            ->where('erogated_at', '>=', $semester->start);
-
+        return $query
+            ->whereNull('rejected_at')
+            ->where('data_inserimento_pratica', '>=', '2025-01-01') // Cutoff storico
+            ->where('data_inserimento_pratica', '<', $semester->end)
+            ->where('stato_pratica', '<>', 'INSERITA')
+            ->where('is_notowned', 0)
+            ->whereNotIn('tipo_prodotto', ['Utenza', 'Polizza'])
+            ->where(function (Builder $q) use ($semester) {
+                $q->whereNull('erogated_at')
+                    ->orWhere(function (Builder $subQ) use ($semester) {
+                        $subQ->where('erogated_at', '>=', $semester->start)
+                            ->where('erogated_at', '<', $semester->end);
+                    });
+            });
     }
 
     /**

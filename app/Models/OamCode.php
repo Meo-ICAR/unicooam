@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use App\Models\PROFORMA\Clienti;
-use App\Models\ClientiOam;  // Assicurati di importarlo
+use App\Models\PROFORMA\Clienti; // Assicurati di importarlo
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class OamCode extends Model
 {
@@ -14,6 +13,7 @@ class OamCode extends Model
 
     // Definito esplicitamente per mappare la tabella plurale corretta
     protected $connection = 'mysql';
+
     protected $table = 'unicooam.oam_codes';
 
     protected $fillable = [
@@ -22,7 +22,7 @@ class OamCode extends Model
         'description',
         'tipo_prodotto',
         'is_dummy',
-        'is_active'
+        'is_active', 'submission_type',
     ];
 
     public function clienti(): BelongsToMany
@@ -35,7 +35,7 @@ class OamCode extends Model
                 'clienti_id'  // Poi la chiave del modello correlato
             )
             ->where('is_active', true)  // <-- FILTRO: Mostra solo Client attivi
-            ->withPivot('dal', 'al')
+            ->withPivot('dal', 'al', 'submission_type')
             ->withTimestamps();
     }
 }

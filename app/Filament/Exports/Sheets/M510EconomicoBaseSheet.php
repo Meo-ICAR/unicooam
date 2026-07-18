@@ -10,7 +10,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class M510EconomicoBaseSheet implements FromArray, WithTitle, WithEvents
+class M510EconomicoBaseSheet implements FromArray, WithEvents, WithTitle
 {
     protected array $prodotti;
 
@@ -25,16 +25,18 @@ class M510EconomicoBaseSheet implements FromArray, WithTitle, WithEvents
 
         // RIGA 1: Titolo principale
         $rows[] = [
-            '1 di 5 _ PROFILO ECONOMICO/OPERATIVO BASE',
-            '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+            '1 di 5 _ PROFILO ECONOMICO/OPERATIVO ANALITICO',
+            '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
         ];
 
         // RIGA 2: Intestazioni di primo livello
         $rows[] = [
             "Numero\niscrizione\n(M510)",  // A
-            'PRODOTTI/O CREDITIZI/O OGGETTO DELLA CONVENZIONE / SERVIZIO PRESTATO',  // B
-            "N°\nintermediari\nconvenzionati",  // C
-            "N°\nintermediari\nNON\nconvenzionati",  // D
+            'FINANZIATORE',  // B
+            'CONVENZIONE',  // D
+            'GESTIONE',  // D
+            'PRODOTTI/O CREDITIZI/O OGGETTO DELLA CONVENZIONE / SERVIZIO PRESTATO',  // c
+
             'PRATICHE',  // E (Unito con F)
             '',  // F
             'EROGATO',  // G (Unito con H)
@@ -48,12 +50,14 @@ class M510EconomicoBaseSheet implements FromArray, WithTitle, WithEvents
             "(PAY-OUT)\nAMMONTARE DELLE PROVVIGIONI RICONOSCIUTE ALLA RETE -\nINTERMEDIAZIONE ASSICURATIVA - CREDITIZIA\n\n(PRINCIPIO DI COMPETENZA)",  // P (Unito con Q, R)
             '', '',
             "N° RIVALSE AI SENSI DELL'ART.\n125 - SEXIES, DEL TUB",  // S
-            "AMMONTARE DELLE\nPROVVIGIONI RETROCESSE AL\nFINANZIATORE IN SEGUITO\nALLA RIVALSA"  // T
+            "AMMONTARE DELLE\nPROVVIGIONI RETROCESSE AL\nFINANZIATORE IN SEGUITO\nALLA RIVALSA",  // T
         ];
 
         // RIGA 3: Intestazioni di secondo livello
         $rows[] = [
-            '', '', '', '',
+            '', '', '', '', '',
+            'Convenzione',  // E
+            'Gestione',  // E
             "N° Pratiche intermediate per\nprodotto/servizio",  // E
             "N° Pratiche di\nfinanziamento in\nlavorazione",  // F
             "Montante lordo / Importo\nerogato per prodotto",  // G
@@ -66,18 +70,19 @@ class M510EconomicoBaseSheet implements FromArray, WithTitle, WithEvents
             "da banche/Intermediari\nfinanziari",  // P
             'da Broker',  // Q
             'da Broker Captive',  // R
-            '', ''
+            '', '',
         ];
 
         // RIGHE DATI: Generazione con i nuovi nomi dei campi del DB
         foreach ($this->prodotti as $index => $row) {
-            $numeroMPEB = 'MPEB' . ($index + 1);
+            $numeroMPEB = 'MPEB'.($index + 1);
 
             $rows[] = [
                 $numeroMPEB,  // A
-                $row['prodotto_creditizio'] ?? '',  // B
-                $row['intermediari_convenzionati'] ?? 0,  // C
-                $row['intermediari_non_convenzionati'] ?? 0,  // D
+                $row['abi_name'] ?? '',  // B
+                $row['is_convenzione'] ?? 'NO',  // D
+                $row['submission_type'] ?? '',  // B
+                $row['prodotto_creditizio'] ?? '',  // C
                 $row['pratiche_intermediate'] ?? 0,  // E
                 $row['pratiche_lavorazione'] ?? 0,  // F
                 $row['erogato_lordo'] ?? '0.00',  // G
@@ -93,7 +98,7 @@ class M510EconomicoBaseSheet implements FromArray, WithTitle, WithEvents
                 $row['payout_rete_ass_broker'] ?? '0.00',  // Q
                 $row['payout_rete_ass_broker_cap'] ?? '0.00',  // R
                 $row['num_rivalse'] ?? 0,  // S
-                $row['importo_retrocesse'] ?? '0.00'  // T
+                $row['importo_retrocesse'] ?? '0.00',  // T
             ];
         }
 
@@ -102,7 +107,7 @@ class M510EconomicoBaseSheet implements FromArray, WithTitle, WithEvents
 
     public function title(): string
     {
-        return 'Profilo Economico Base';
+        return 'Profilo Economico Analitico';
     }
 
     public function registerEvents(): array
@@ -112,13 +117,13 @@ class M510EconomicoBaseSheet implements FromArray, WithTitle, WithEvents
                 $sheet = $event->sheet->getDelegate();
                 $highestRow = $sheet->getHighestRow();
 
-                $sheet->mergeCells('A1:T1');
-                $sheet->mergeCells('E2:F2');
-                $sheet->mergeCells('G2:H2');
-                $sheet->mergeCells('L2:N2');
-                $sheet->mergeCells('P2:R2');
+                $sheet->mergeCells('A1:U1');
+                $sheet->mergeCells('F2:G2');
+                $sheet->mergeCells('H2:I2');
+                $sheet->mergeCells('M2:O2');
+                $sheet->mergeCells('Q2:S2');
 
-                $colonneSingole = ['A', 'B', 'C', 'D', 'I', 'J', 'K', 'O', 'S', 'T'];
+                $colonneSingole = ['A', 'B', 'C', 'D', 'E', 'I', 'J', 'K', 'O', 'S', 'T', 'U'];
                 foreach ($colonneSingole as $col) {
                     $sheet->mergeCells("{$col}2:{$col}3");
                 }
@@ -137,22 +142,22 @@ class M510EconomicoBaseSheet implements FromArray, WithTitle, WithEvents
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
                         'vertical' => Alignment::VERTICAL_CENTER,
-                        'wrapText' => true
+                        'wrapText' => true,
                     ],
                     'borders' => [
                         'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFFFFFFF']],
-                    ]
+                    ],
                 ]);
 
                 // Corpo Dati
                 if ($highestRow >= 4) {
-                    $sheet->getStyle('A4:T' . $highestRow)->applyFromArray([
+                    $sheet->getStyle('A4:T'.$highestRow)->applyFromArray([
                         'font' => ['size' => 9],
                         'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFF2F2F2']]
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFF2F2F2']],
                     ]);
 
-                    $sheet->getStyle('C4:T' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('C4:T'.$highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
 
                 $sheet->getColumnDimension('A')->setWidth(12);

@@ -6,6 +6,7 @@ use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use stdClass;
 
 class Provvigione extends Model
 {
@@ -161,27 +162,30 @@ class Provvigione extends Model
         return $provvcliente ? $provvcliente : 0.0;
     }
 
-    public static function getProvvigioneIstituto(string $id_pratica, string $istituto): ?float
+    public static function getProvvigioneIstituto(string $id_pratica, string $istituto): float
     {
-        $provvcliente = static::where('id_pratica', $id_pratica)
-            ->where('tipo', '=', 'Istituto')
-            //     ->where('denominazione_riferimento', '=', $istituto)
+        // sum() restituisce 0 se non trova nulla, quindi basta forzare il cast a float
+        return (float) static::where('id_pratica', $id_pratica)
+            ->where('tipo', 'Istituto')
+            // ->where('denominazione_riferimento', $istituto)
             ->whereNot('descrizione', 'like', '%premio%')
             ->sum('importo');
-
-        return $provvcliente ? $provvcliente : 0.0;
     }
 
-    public static function getProvvigioneStorno(string $tipo): ?float
+    // FIX: cambiato il parametro da $tipo a $id_pratica e aggiunto il $semester
+    public static function getProvvigioneStorno(string $id_pratica, ?OamSemester $semester = null): float
     {
-        $provvcliente = static::where('id_pratica', $id_pratica)
-            //  ->where('tipo', '=', 'Istituto')
-            //     ->where('denominazione_riferimento', '=', $istituto)
-            //  ->where('id_pratica', $id_pratica)
+        // Fallback: se non passi il semestre, prendiamo quello corrente
+        $semester = $semester ?? OamSemester::getInBaseAlMeseCorrente();
+
+        $totale = (float) static::where('id_pratica', $id_pratica)
+            ->where('tipo', 'Istituto')
+            ->perSemestreOam($semester) // Ora lo scope riceve l'oggetto corretto
             ->where('descrizione', 'like', '%storno%')
             ->sum('importo');
 
-        return $provvcliente ? -$provvcliente : 0.0;
+        // Se è 0 ritorna 0.0, altrimenti ritorna l'importo negativo
+        return $totale === 0.0 ? 0.0 : -$totale;
     }
 
     public static function getProvvigioneAgenti(string $id_pratica): ?float
@@ -193,10 +197,40 @@ class Provvigione extends Model
         return $provvcliente ? (float) $provvcliente : 0.0;
     }
 
-    public function scopePerSemestreOam(Builder $query, OamSemester $semester): Builder
+    public function scopePerSemestreOam(Builder $query, $semester): Builder
     {
-        return $query->where('data_status', '<=', $semester->end)
-            ->where('data_status', '>=', $semester->start);
+        // 1. Recuperiamo il semestre di default
+        $defaultSemester = OamSemester::getInBaseAlMeseCorrente();
+
+        // 2. Creiamo una variabile di appoggio generica
+        $semesterAppoggio = new stdClass;
+
+        // Assegniamo le date: se passate usiamo quelle forzate, altrimenti usiamo quelle di default
+        $semesterAppoggio->start = $semester->start ?? $defaultSemester->start;
+        $semesterAppoggio->end = $semester->end ?? $defaultSemester->end;
+
+        return $query->where('data_status', '<=', $semesterAppoggio->end)
+            ->where('data_status', '>=', $semesterAppoggio->start);
+
+    }
+
+    public function scopeStorniOam(Builder $query): Builder
+    {
+        // 1. Recuperiamo il semestre di default
+        $defaultSemester = OamSemester::getInBaseAlMeseCorrente();
+
+        // 2. Creiamo una variabile di appoggio generica
+        $semesterAppoggio = new stdClass;
+
+        // Assegniamo le date: se passate usiamo quelle forzate, altrimenti usiamo quelle di default
+        $semesterAppoggio->start = $defaultSemester->start;
+        $semesterAppoggio->end = $defaultSemester->end;
+
+        return $query
+            ->where('tipo', 'Istituto')
+            ->where('descrizione', 'like', '%storno%')
+            ->where('data_status', '<=', $semesterAppoggio->end)
+            ->where('data_status', '>=', $semesterAppoggio->start);
 
     }
 }
