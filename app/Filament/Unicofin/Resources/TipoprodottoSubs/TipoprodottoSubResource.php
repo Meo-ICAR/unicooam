@@ -13,12 +13,21 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class TipoprodottoSubResource extends Resource
 {
     protected static ?string $model = TipoprodottoSub::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static ?string $modelLabel = 'Sub Prodotto';
+
+    protected static ?string $pluralModelLabel = 'Sub Prodotti';
+
+    protected static UnitEnum|string|null $navigationGroup = 'System';
+
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $recordTitleAttribute = 'name';
 

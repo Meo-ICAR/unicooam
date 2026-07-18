@@ -153,8 +153,9 @@ class OamSemestralesTable
                     ->label('Convenzione')
                     ->formatStateUsing(fn ($state) => $state ? 'SI' : 'NO')
                     ->sortable(),
-                TextColumn::make('submission_type')
-                    ->label('Gestione')->sortable()
+                TextColumn::make('gestione')
+                    ->label('Gestione')
+                    ->sortable()
                     ->searchable(),
 
             ])

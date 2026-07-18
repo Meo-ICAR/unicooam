@@ -17,6 +17,8 @@ class TipoprodottosTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+                TextColumn::make('tipo_provvigioni')
+                    ->badge(),
                 TextColumn::make('code')
                     ->searchable(),
                 IconColumn::make('is_external')
@@ -25,8 +27,7 @@ class TipoprodottosTable
                     ->boolean(),
                 TextColumn::make('oam')
                     ->searchable(),
-                TextColumn::make('tipo_provvigioni')
-                    ->badge(),
+
             ])
             ->filters([
                 //

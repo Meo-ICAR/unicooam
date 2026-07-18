@@ -28,7 +28,7 @@ class TipoprodottoSub extends Model
      * Ottiene il prodotto finanziario principale a cui appartiene questo sottoprodotto.
      * Relazione Molti a 1.
      */
-    public function product(): BelongsTo
+    public function tipoProdotto(): BelongsTo
     {
         return $this->belongsTo(Tipoprodotto::class, 'tipoprodotto_id');
     }

@@ -7,12 +7,12 @@ use App\Filament\Unicofin\Resources\Praticas\Pages\EditPratica;
 use App\Filament\Unicofin\Resources\Praticas\Pages\ListPraticas;
 use App\Filament\Unicofin\Resources\Praticas\Schemas\PraticaForm;
 use App\Filament\Unicofin\Resources\Praticas\Tables\PraticasTable;
-use App\Models\Pratica;
+use App\Models\PROFORMA\Pratica;
 use BackedEnum;
+use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
-use Filament\Resources\Resource; // <--- AGGIUNTO QUESTO IMPORT MANCANTE
+use Filament\Tables\Table; // <--- AGGIUNTO QUESTO IMPORT MANCANTE
 
 class PraticaResource extends Resource
 {
