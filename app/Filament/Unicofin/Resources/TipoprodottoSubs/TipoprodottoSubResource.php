@@ -5,6 +5,7 @@ namespace App\Filament\Unicofin\Resources\TipoprodottoSubs;
 use App\Filament\Unicofin\Resources\TipoprodottoSubs\Pages\CreateTipoprodottoSub;
 use App\Filament\Unicofin\Resources\TipoprodottoSubs\Pages\EditTipoprodottoSub;
 use App\Filament\Unicofin\Resources\TipoprodottoSubs\Pages\ListTipoprodottoSubs;
+use App\Filament\Unicofin\Resources\TipoprodottoSubs\RelationManagers\LimitsRelationManager;
 use App\Filament\Unicofin\Resources\TipoprodottoSubs\Schemas\TipoprodottoSubForm;
 use App\Filament\Unicofin\Resources\TipoprodottoSubs\Tables\TipoprodottoSubsTable;
 use App\Models\TipoprodottoSub;
@@ -44,7 +45,7 @@ class TipoprodottoSubResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            LimitsRelationManager::class,
         ];
     }
 

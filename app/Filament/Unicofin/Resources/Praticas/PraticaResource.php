@@ -2,6 +2,7 @@
 
 namespace App\Filament\Unicofin\Resources\Praticas;
 
+use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Unicofin\Resources\Praticas\Pages\CreatePratica;
 use App\Filament\Unicofin\Resources\Praticas\Pages\EditPratica;
 use App\Filament\Unicofin\Resources\Praticas\Pages\ListPraticas;
@@ -35,7 +36,7 @@ class PraticaResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DocumentsRelationManager::class,
         ];
     }
 

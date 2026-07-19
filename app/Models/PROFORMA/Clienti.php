@@ -5,6 +5,8 @@ namespace App\Models\PROFORMA;
 use App\Models\Branch;
 use App\Models\Document;
 use App\Models\OamCode;
+use App\Models\ProvvigioniRule;
+use App\Models\TipoprodottoSubConstraint;
 use App\Models\Website;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,6 +14,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -256,5 +259,32 @@ class Clienti extends Model
         }
 
         return $is_convenzione;
+    }
+
+    /**
+     * Ottiene i sottoprodotti associati a questo prodotto finanziario.
+     * Relazione 1 a Molti.
+     */
+    public function limits(): HasMany
+    {
+        // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
+        return $this->hasMany(TipoprodottoSubConstraint::class, 'clienti_id');
+    }
+
+    /**
+     * Ottiene i sottoprodotti associati a questo prodotto finanziario.
+     * Relazione 1 a Molti.
+     */
+    public function provvigioni(): HasMany
+    {
+        // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
+        return $this->hasMany(ProvvigioniRule::class, 'clienti_id');
+    }
+
+    public function agentiBlacklistati()
+    {
+        return $this->belongsToMany(Fornitore::class, 'blacklist_clienti_fornitori', 'cliente_id', 'fornitore_id')
+            ->withPivot(['motivo', 'data_inizio', 'data_fine'])
+            ->withTimestamps();
     }
 }

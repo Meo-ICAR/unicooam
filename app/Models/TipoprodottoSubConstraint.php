@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TipoprodottoSubConstraint extends Model
 {
-    protected $connection = 'mysql_proforma';
+    // protected $connection = 'mysql_proforma';
 
-    protected $table = 'proforma.tipoprodotto_sub_constraints';
+    protected $table = 'unicooam.tipoprodotto_sub_constraints';
 
     /**
      * Disabilitiamo i timestamps nativi di Laravel (created_at/updated_at)

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TipoprodottoSub extends Model
 {
@@ -31,5 +32,15 @@ class TipoprodottoSub extends Model
     public function tipoProdotto(): BelongsTo
     {
         return $this->belongsTo(Tipoprodotto::class, 'tipoprodotto_id');
+    }
+
+    /**
+     * Ottiene i sottoprodotti associati a questo prodotto finanziario.
+     * Relazione 1 a Molti.
+     */
+    public function limits(): HasMany
+    {
+        // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
+        return $this->hasMany(TipoprodottoSubConstraint::class, 'tipoprodotto_sub_id');
     }
 }

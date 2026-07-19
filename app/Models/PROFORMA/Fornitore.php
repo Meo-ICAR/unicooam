@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -196,5 +197,36 @@ class Fornitore extends Model
                 $q->whereNull('dismissed_at')
                     ->orWhere('dismissed_at', '>=', $semester->start);
             });
+    }
+
+    /**
+     * Ottiene i sottoprodotti associati a questo prodotto finanziario.
+     * Relazione 1 a Molti.
+     */
+    public function provvigioni(): HasMany
+    {
+        // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
+        return $this->hasMany(ProvvigioniRule::class, 'clienti_id');
+    }
+
+    public function bancheBlacklist()
+    {
+        return $this->belongsToMany(Cliente::class, 'blacklist_clienti_fornitori', 'fornitore_id', 'cliente_id')
+            ->withPivot(['motivo', 'data_inizio', 'data_fine'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Helper per verificare rapidamente se l'agente è bloccato da una specifica banca.
+     */
+    public function isBlacklistedBy(string $clienteId): bool
+    {
+        return $this->bancheBlacklist()
+            ->where('cliente_id', $clienteId)
+            ->where(function ($query) {
+                $query->whereNull('data_fine')
+                    ->orWhere('data_fine', '>=', now());
+            })
+            ->exists();
     }
 }
