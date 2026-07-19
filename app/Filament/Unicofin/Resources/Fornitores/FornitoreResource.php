@@ -9,7 +9,7 @@ use App\Filament\Unicofin\Resources\Fornitores\Pages\ListFornitores;
 use App\Filament\Unicofin\Resources\Fornitores\RelationManagers\ProvvigioniRelationManager;
 use App\Filament\Unicofin\Resources\Fornitores\Schemas\FornitoreForm;
 use App\Filament\Unicofin\Resources\Fornitores\Tables\FornitoresTable;
-use App\Models\Fornitore;
+use App\Models\PROFORMA\Fornitore;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;

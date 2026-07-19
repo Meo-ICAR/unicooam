@@ -148,7 +148,7 @@ class Client extends Model
         return $this->morphMany(Document::class, 'documentable');
     }
 
-     public function companyRelations()
+    public function companyRelations()
     {
         return $this->hasMany(ClientRelation::class, 'company_id');
     }
@@ -161,6 +161,11 @@ class Client extends Model
     public function clientMandates(): HasMany
     {
         return $this->hasMany(ClientMandate::class);
+    }
+
+    public function clientPratiches(): HasMany
+    {
+        return $this->hasMany(Pratica::class, 'codice_fiscale', 'tax_code');
     }
 
     public function activeMandates(): HasMany

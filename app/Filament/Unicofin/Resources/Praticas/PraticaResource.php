@@ -6,6 +6,7 @@ use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Unicofin\Resources\Praticas\Pages\CreatePratica;
 use App\Filament\Unicofin\Resources\Praticas\Pages\EditPratica;
 use App\Filament\Unicofin\Resources\Praticas\Pages\ListPraticas;
+use App\Filament\Unicofin\Resources\Praticas\RelationManagers\ProvvigioniRelationManager;
 use App\Filament\Unicofin\Resources\Praticas\Schemas\PraticaForm;
 use App\Filament\Unicofin\Resources\Praticas\Tables\PraticasTable;
 use App\Models\PROFORMA\Pratica;
@@ -19,9 +20,19 @@ class PraticaResource extends Resource
 {
     protected static ?string $model = Pratica::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';  // Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $navigationLabel = 'Pratiche';
+
+    protected static ?string $modelLabel = 'Pratica';
+
+    protected static ?string $pluralModelLabel = 'Pratiche';
+
+    // protected static UnitEnum|string|null $navigationGroup = 'Pratiche';
+
+    // protected static ?int $navigationSort = 10;
+
+    protected static ?string $recordTitleAttribute = 'cognome_cliente';
 
     public static function form(Schema $schema): Schema
     {
@@ -37,6 +48,7 @@ class PraticaResource extends Resource
     {
         return [
             DocumentsRelationManager::class,
+            ProvvigioniRelationManager::class,
         ];
     }
 

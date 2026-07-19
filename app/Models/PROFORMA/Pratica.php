@@ -2,9 +2,11 @@
 
 namespace App\Models\PROFORMA;
 
+use App\Models\Document;
 use App\Models\OamCode;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Pratica extends Model
 {
@@ -205,5 +207,10 @@ class Pratica extends Model
                 ]);
             }
         });
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
     }
 }
