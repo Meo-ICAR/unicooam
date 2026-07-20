@@ -21,6 +21,7 @@ class Tipoprodotto extends Model
         'code',
         'is_external',
         'is_oneclient',
+        'is_active',
         'oam',
         'tipo_provvigioni',
     ];
@@ -33,6 +34,7 @@ class Tipoprodotto extends Model
     protected $casts = [
         'is_external' => 'boolean',
         'is_oneclient' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     /**

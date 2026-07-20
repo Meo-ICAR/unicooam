@@ -6,6 +6,8 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
@@ -28,7 +30,7 @@ class TipoprodottoSubsTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
-
+                ToggleColumn::make('is_active'),
                 TextColumn::make('code')
                     ->label('Codice')
                     ->searchable()
@@ -51,6 +53,8 @@ class TipoprodottoSubsTable
                     }),
             ])
             ->filters([
+                Filter::make('is_active')
+                    ->default(true),
                 SelectFilter::make('tipoprodotto_id')
                     ->relationship('tipoProdotto', 'name')
                     ->label('Prodotto Principale')

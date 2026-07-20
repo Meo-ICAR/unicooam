@@ -3,7 +3,7 @@
 namespace App\Filament\Unicofin\Resources\Praticas\Tables;
 
 use App\Filament\Exports\DynamicGroupExport;
-use App\Models\PraticaStato;
+use App\Models\PraticaStati;
 use App\Models\PROFORMA\Pratica;
 use App\Models\Tipoprodotto;
 use Filament\Actions\ViewAction;
@@ -85,7 +85,7 @@ class PraticasTable
                     ->searchable() // Opzionale: aggiunge la barra di ricerca nel menu a tendina
                     ->multiple(),  // Opzionale: se vuoi permettere la selezione di più banche
                 SelectFilter::make('stato_pratica')
-                    ->options(PraticaStato::pluck('stato_pratica', 'stato_pratica'))
+                    ->options(PraticaStati::pluck('stato_pratica', 'stato_pratica'))
                     ->multiple()
                     ->label('Escludere)')
                     ->default(['SOSPESA', 'PERFEZIONATA', 'IN AMMORTAMENTO', 'DECLINATA', 'RINUNCIA CLIENTE', 'PRATICA RESPINTA', 'CHIUSA'])

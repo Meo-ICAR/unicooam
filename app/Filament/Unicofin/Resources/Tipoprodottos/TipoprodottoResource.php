@@ -5,6 +5,7 @@ namespace App\Filament\Unicofin\Resources\Tipoprodottos;
 use App\Filament\Unicofin\Resources\Tipoprodottos\Pages\CreateTipoprodotto;
 use App\Filament\Unicofin\Resources\Tipoprodottos\Pages\EditTipoprodotto;
 use App\Filament\Unicofin\Resources\Tipoprodottos\Pages\ListTipoprodottos;
+use App\Filament\Unicofin\Resources\Tipoprodottos\RelationManagers\ProvvigioniRelationManager;
 use App\Filament\Unicofin\Resources\Tipoprodottos\RelationManagers\SubproductsRelationManager;
 use App\Filament\Unicofin\Resources\Tipoprodottos\Schemas\TipoprodottoForm;
 use App\Filament\Unicofin\Resources\Tipoprodottos\Tables\TipoprodottosTable;
@@ -46,6 +47,7 @@ class TipoprodottoResource extends Resource
     {
         return [
             SubproductsRelationManager::class,
+            //  ProvvigioniRelationManager:class,
         ];
     }
 

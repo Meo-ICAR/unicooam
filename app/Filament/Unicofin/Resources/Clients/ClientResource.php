@@ -2,27 +2,26 @@
 
 namespace App\Filament\Unicofin\Resources\Clients;
 
+use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Unicofin\Resources\Clients\Pages\CreateClient;
 use App\Filament\Unicofin\Resources\Clients\Pages\EditClient;
 use App\Filament\Unicofin\Resources\Clients\Pages\ListClients;
-use App\Filament\Unicofin\Resources\Clients\Schemas\ClientForm;
-use App\Filament\Unicofin\Resources\Clients\Tables\ClientsTable;
-use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Unicofin\Resources\Clients\RelationManagers\ClientMandatesRelationManager;
 use App\Filament\Unicofin\Resources\Clients\RelationManagers\ClientRelationsRelationManager;
-use App\Models\Client;
+use App\Filament\Unicofin\Resources\Clients\Schemas\ClientForm;
+use App\Filament\Unicofin\Resources\Clients\Tables\ClientsTable;
 use BackedEnum;
-use UnitEnum;
+use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Filament\Resources\Resource; // <--- AGGIUNTO QUESTO IMPORT MANCANTE
+use UnitEnum; // <--- AGGIUNTO QUESTO IMPORT MANCANTE
 
 class ClientResource extends Resource
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Pratiche';
+    //   protected static string|UnitEnum|null $navigationGroup = 'Pratiche';
 
     protected static ?string $navigationLabel = 'Anagrafiche';
 
@@ -42,20 +41,18 @@ class ClientResource extends Resource
         return ClientsTable::configure($table);
     }
 
-    
-             public static function getRelations(): array
+    public static function getRelations(): array
     {
         return [
-           // AddressesRelationManager::class,
+            // AddressesRelationManager::class,
             DocumentsRelationManager::class,
-         //   WebsitesRelationManager::class,
+            //   WebsitesRelationManager::class,
             ClientRelationsRelationManager::class,
             ClientMandatesRelationManager::class,
-         //   ChecklistsRelationManager::class,
-          
+            //   ChecklistsRelationManager::class,
+
         ];
     }
-        
 
     public static function getPages(): array
     {

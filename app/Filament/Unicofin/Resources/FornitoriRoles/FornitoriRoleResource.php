@@ -2,23 +2,29 @@
 
 namespace App\Filament\Unicofin\Resources\FornitoriRoles;
 
+use App\Filament\Unicofin\Resources\Fornitores\RelationManagers\ProvvigioniRelationManager;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Pages\CreateFornitoriRole;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Pages\EditFornitoriRole;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Pages\ListFornitoriRoles;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Schemas\FornitoriRoleForm;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Tables\FornitoriRolesTable;
 use App\Models\FornitoriRole;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class FornitoriRoleResource extends Resource
 {
     protected static ?string $model = FornitoriRole::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $navigationLabel = 'Tipo Fornitori';
+
+    protected static ?string $modelLabel = 'Tipo';
+
+    protected static ?string $pluralModelLabel = 'Tipi';
+
+    protected static UnitEnum|string|null $navigationGroup = 'System';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -35,7 +41,7 @@ class FornitoriRoleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ProvvigioniRelationManager::class,
         ];
     }
 

@@ -113,7 +113,7 @@ class Pratica extends Model
      */
     public function stato()
     {
-        return $this->belongsTo(PraticheStato::class, 'stato_pratica', 'stato_pratica');
+        return $this->belongsTo(PraticaStati::class, 'stato_pratica', 'stato_pratica');
     }
 
     public function annullato()

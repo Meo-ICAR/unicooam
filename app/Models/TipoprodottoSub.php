@@ -22,7 +22,18 @@ class TipoprodottoSub extends Model
         'tipoprodotto_id',
         'name',
         'code',
+        'is_active',
         'vincoli',
+    ];
+
+    /**
+     * I cast nativi per i tipi di dato.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+
+        'is_active' => 'boolean',
     ];
 
     /**

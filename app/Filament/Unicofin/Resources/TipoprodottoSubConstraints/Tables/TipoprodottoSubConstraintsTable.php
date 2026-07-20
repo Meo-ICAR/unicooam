@@ -6,6 +6,8 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 
 class TipoprodottoSubConstraintsTable
@@ -24,6 +26,7 @@ class TipoprodottoSubConstraintsTable
                     ->searchable(),
                 TextColumn::make('role.name')
                     ->searchable(),
+                ToggleColumn::make('is_active'),
                 TextColumn::make('min_age')
                     ->numeric()
                     ->sortable(),
@@ -53,7 +56,8 @@ class TipoprodottoSubConstraintsTable
                     ->sortable(),
             ])
             ->filters([
-                //
+                Filter::make('is_active')
+                    ->default(true),
             ])
             ->recordActions([
                 EditAction::make(),

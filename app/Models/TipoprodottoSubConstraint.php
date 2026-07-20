@@ -39,6 +39,7 @@ class TipoprodottoSubConstraint extends Model
         'allowed_employment_types',
         'additional_rules_json',
         'additional_notes',
+        'is_active',
     ];
 
     /**
@@ -63,6 +64,8 @@ class TipoprodottoSubConstraint extends Model
         // Cast automatico da stringa JSON a array PHP per una manipolazione immediata
         'allowed_employment_types' => 'array',
         'additional_rules_json' => 'array',
+        'is_active' => 'boolean',
+
     ];
 
     /**

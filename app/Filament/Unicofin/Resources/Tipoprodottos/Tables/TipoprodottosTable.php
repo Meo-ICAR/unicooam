@@ -7,6 +7,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 
 class TipoprodottosTable
@@ -17,8 +19,7 @@ class TipoprodottosTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('tipo_provvigioni')
-                    ->badge(),
+                ToggleColumn::make('is_active'),
                 TextColumn::make('code')
                     ->searchable(),
                 IconColumn::make('is_external')
@@ -27,10 +28,15 @@ class TipoprodottosTable
                     ->boolean(),
                 TextColumn::make('oam')
                     ->searchable(),
+                TextColumn::make('tipo_provvigioni')
+                    ->badge(),
 
             ])
             ->filters([
-                //
+                Filter::make('is_active')
+                    ->default(true),
+                Filter::make('is_external'),
+                // ->default(true),
             ])
             ->recordActions([
                 EditAction::make(),
