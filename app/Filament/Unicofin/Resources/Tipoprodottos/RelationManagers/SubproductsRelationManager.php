@@ -2,6 +2,7 @@
 
 namespace App\Filament\Unicofin\Resources\Tipoprodottos\RelationManagers;
 
+use App\Filament\Unicofin\Resources\TipoprodottoSubs\Tables\TipoprodottoSubsTable;
 use App\Filament\Unicofin\Resources\TipoprodottoSubs\TipoprodottoSubResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -15,7 +16,7 @@ class SubproductsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        return $table
+        return TipoprodottoSubsTable::configure($table)
             ->headerActions([
                 CreateAction::make(),
             ]);

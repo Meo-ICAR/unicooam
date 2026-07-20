@@ -47,7 +47,7 @@ class TipoprodottoResource extends Resource
     {
         return [
             SubproductsRelationManager::class,
-            //  ProvvigioniRelationManager:class,
+            ProvvigioniRelationManager::class,
         ];
     }
 

@@ -54,6 +54,6 @@ class Tipoprodotto extends Model
     public function provvigioni(): HasMany
     {
         // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
-        return $this->hasMany(ProvvigioniRule::class, 'clienti_id');
+        return $this->hasMany(ProvvigioniRule::class, 'tipoprodotto_id');
     }
 }
