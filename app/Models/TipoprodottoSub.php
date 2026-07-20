@@ -38,9 +38,41 @@ class TipoprodottoSub extends Model
      * Ottiene i sottoprodotti associati a questo prodotto finanziario.
      * Relazione 1 a Molti.
      */
+    public function provvigioni(): HasMany
+    {
+        // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
+        return $this->hasMany(ProvvigioniRule::class, 'clienti_id');
+    }
+
+    /**
+     * Ottiene i sottoprodotti associati a questo prodotto finanziario.
+     * Relazione 1 a Molti.
+     */
     public function limits(): HasMany
     {
         // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
         return $this->hasMany(TipoprodottoSubConstraint::class, 'tipoprodotto_sub_id');
+    }
+
+    /**
+     * Regole di configurazione dei requisiti per questo sottotipo prodotto.
+     */
+    public function regoleRequisiti(): HasMany
+    {
+        return $this->hasMany(RequisitoTipoFinanziamento::class, 'tipoprodotto_sub_id');
+    }
+
+    /**
+     * Requisiti direttamente associati a questo sottotipo di prodotto.
+     */
+    public function requisiti(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            PraticaRequisito::class,
+            'requisito_tipo_finanziamento',
+            'tipoprodotto_sub_id',
+            'pratica_requisito_id'
+        )->withPivot(['obbligatorio', 'ordine'])
+            ->orderBy('requisito_tipo_finanziamento.ordine');
     }
 }

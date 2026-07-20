@@ -7,6 +7,7 @@ use App\Filament\Unicofin\Resources\Praticas\Pages\CreatePratica;
 use App\Filament\Unicofin\Resources\Praticas\Pages\EditPratica;
 use App\Filament\Unicofin\Resources\Praticas\Pages\ListPraticas;
 use App\Filament\Unicofin\Resources\Praticas\RelationManagers\ProvvigioniRelationManager;
+use App\Filament\Unicofin\Resources\Praticas\RelationManagers\RequisitiRelationManager;
 use App\Filament\Unicofin\Resources\Praticas\Schemas\PraticaForm;
 use App\Filament\Unicofin\Resources\Praticas\Tables\PraticasTable;
 use App\Models\PROFORMA\Pratica;
@@ -47,6 +48,7 @@ class PraticaResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RequisitiRelationManager::class,
             DocumentsRelationManager::class,
             ProvvigioniRelationManager::class,
         ];

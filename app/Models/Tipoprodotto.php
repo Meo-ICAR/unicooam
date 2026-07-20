@@ -44,4 +44,14 @@ class Tipoprodotto extends Model
         // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
         return $this->hasMany(TipoprodottoSub::class, 'tipoprodotto_id');
     }
+
+    /**
+     * Ottiene i sottoprodotti associati a questo prodotto finanziario.
+     * Relazione 1 a Molti.
+     */
+    public function provvigioni(): HasMany
+    {
+        // Specifichiamo la chiave esterna poiché il modello non si chiama 'TipoprodottoSub' standard
+        return $this->hasMany(ProvvigioniRule::class, 'clienti_id');
+    }
 }

@@ -3,51 +3,65 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PraticaStato extends Model
 {
-    /**
-     * Il nome della tabella.
-     */
-    protected $table = 'proforma.pratiches_statos';
+    use SoftDeletes;
 
-    /**
-     * La chiave primaria della tabella.
-     */
-    protected $primaryKey = 'stato_pratica';
-
-    /**
-     * Indica se la chiave primaria è auto-incrementante (nel nostro caso no).
-     */
-    public $incrementing = false;
-
-    /**
-     * Il tipo di dato della chiave primaria.
-     */
-    protected $keyType = 'string';
-
-    /**
-     * Disabilita i timestamps (created_at / updated_at) poiché assenti nel DB.
-     */
-    public $timestamps = false;
+    protected $table = 'pratica_stati';
 
     protected $fillable = [
-        'stato_pratica',
-        'isrejected',
-        'isworking',
-        'isestingued',
+        'codice',
+        'name',
+        'ordine',
+        'is_rejected',
+        'is_working',
+        'is_estingued',
+        'colore',
+        'icona',
+    ];
+
+    protected $casts = [
+        'ordine' => 'integer',
+        'is_rejected' => 'boolean',
+        'is_working' => 'boolean',
+        'is_estingued' => 'boolean',
     ];
 
     /**
-     * Cast degli attributi.
+     * Stati di destinazione raggiungibili da questo stato.
      */
-    protected function casts(): array
+    public function transizioniSuccessive(): BelongsToMany
     {
-        return [
-            // Convertiamo gli int in booleani per comodità di utilizzo
-            'isrejected' => 'boolean',
-            'isworking' => 'boolean',
-            'isestingued' => 'boolean',
-        ];
+        return $this->belongsToMany(
+            self::class,
+            'pratica_stati_transizioni',
+            'stato_da_id',
+            'stato_a_id'
+        );
+    }
+
+    /**
+     * Stati di provenienza che possono portare a questo stato.
+     */
+    public function transizioniPrecedenti(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            self::class,
+            'pratica_stati_transizioni',
+            'stato_a_id',
+            'stato_da_id'
+        );
+    }
+
+    /**
+     * Pratiche attualmente in questo stato.
+     */
+    public function pratiche(): HasMany
+    {
+        return $this->hasMany(Pratica::class, 'stato_id');
     }
 }
