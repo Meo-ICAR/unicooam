@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\RelationManagers;
 
+use App\Filament\Traits\HasPlanAccess;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -25,10 +26,12 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\SoftDeletingScope; // <-- Importa il trait
 
 class BranchesRelationManager extends RelationManager
 {
+    use HasPlanAccess; // <-- Basta questo! Controlla automaticamente checkPiano('websites')
+
     protected static string $relationship = 'branches';
 
     protected static ?string $title = 'Sedi';

@@ -8,18 +8,19 @@ use App\Filament\Resources\Audits\Pages\ListAudits;
 use App\Filament\Resources\Audits\Schemas\AuditForm;
 use App\Filament\Resources\Audits\Tables\AuditsTable;
 use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\Audit;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BackedEnum;
-use UnitEnum;
 
 class AuditResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = Audit::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';

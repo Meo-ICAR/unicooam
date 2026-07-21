@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\RelationManagers;
 
+use App\Filament\Traits\HasPlanAccess;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -24,10 +25,12 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TrashedFilter;
-use Filament\Tables\Table;
+use Filament\Tables\Table; // <-- Importa il trait
 
 class WebsitesRelationManager extends RelationManager
 {
+    use HasPlanAccess; // <-- Basta questo! Controlla automaticamente checkPiano('websites')
+
     protected static string $relationship = 'websites';
 
     protected static ?string $title = 'Siti web';

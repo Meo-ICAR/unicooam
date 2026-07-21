@@ -15,6 +15,7 @@ class TipoprodottoSubForm
             ->components([
                 Section::make('Dettagli Sottoprodotto')
                     ->description('Gestisci i dettagli e i vincoli del sottoprodotto finanziario.')
+                    ->columnSpanFull()
                     ->schema([
                         // Mostra il nome del padre in sola lettura
 
@@ -33,10 +34,11 @@ class TipoprodottoSubForm
                             ->label('Vincoli / Note')
                             // tinytext nel database tiene fino a 255 caratteri
                             ->maxLength(255)
-                            ->rows(3)
-                            ->columnSpanFull(),
-                    ])
-                    ->columns(2),
+                            ->rows(1),
+                        // ->columnSpanFull(),
+
+                    ])->columns(3),
+
             ]);
     }
 }

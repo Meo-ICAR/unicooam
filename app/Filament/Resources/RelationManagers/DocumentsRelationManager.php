@@ -4,6 +4,7 @@ namespace App\Filament\Resources\RelationManagers;
 
 use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\ValueObjects\OamSemester;
@@ -28,14 +29,16 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
-use Filament\Tables\Table;
 // CORRETTO
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use pxlrbt\FilamentExcel\Actions\ExportAction;
+use pxlrbt\FilamentExcel\Actions\ExportAction; // <-- Importa il trait
 
 class DocumentsRelationManager extends RelationManager
 {
+    use HasPlanAccess; // <-- Basta questo! Controlla automaticamente checkPiano('websites')
+
     protected static string $relationship = 'documents';
 
     protected static ?string $title = 'Documenti';

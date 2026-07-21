@@ -8,6 +8,7 @@ use App\Filament\Resources\ComplaintRegistries\Pages\ListComplaintRegistries;
 use App\Filament\Resources\ComplaintRegistries\Schemas\ComplaintRegistryForm;
 use App\Filament\Resources\ComplaintRegistries\Tables\ComplaintRegistriesTable;
 use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\ComplaintRegistry;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ComplaintRegistryResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = ComplaintRegistry::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';

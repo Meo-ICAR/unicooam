@@ -169,19 +169,23 @@ class OamPratichesTable
                 TextColumn::make('pratica')
                     ->searchable(),
                 TextColumn::make('sended_at')
-                    ->dateTime()
+                    ->date()
+                    ->label('Istruttoria')
                     ->sortable(),
                 TextColumn::make('approved_at')
-                    ->dateTime()
+                    ->date()
+                    ->label('Approvato')
                     ->sortable(),
                 TextColumn::make('erogated_at')
-                    ->dateTime()
+                    ->date()
+                    ->label('Erogato')
                     ->sortable(),
                 TextColumn::make('rejected_at')
-                    ->dateTime()
+                    ->date()
+                    ->label('Respinto')
                     ->sortable(),
                 TextColumn::make('storned_at')
-                    ->dateTime()
+                    ->date()
                     ->sortable(),
             ])
             ->filters([

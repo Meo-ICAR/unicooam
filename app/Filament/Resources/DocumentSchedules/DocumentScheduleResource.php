@@ -5,8 +5,9 @@ namespace App\Filament\Resources\DocumentSchedules;
 use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
-use App\Filament\Utils\TableHelper; // Assicurati di importare questo!
-use App\Mail\DocumentReminderMail; // Importa la tua nuova Mailable
+use App\Filament\Traits\HasPlanAccess; // Assicurati di importare questo!
+use App\Filament\Utils\TableHelper; // Importa la tua nuova Mailable
+use App\Mail\DocumentReminderMail;
 use App\Models\DocumentSchedule;
 use App\Models\DocumentType;
 use App\Models\EmailTemplate;
@@ -16,15 +17,15 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Placeholder;  // Importante per il form nel modal
+use Filament\Forms\Components\DatePicker;  // Importante per il form nel modal
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
-use Filament\Resources\Resource;
 // use Illuminate\Support\Collection;
+use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -44,6 +45,8 @@ use UnitEnum;
 
 class DocumentScheduleResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = DocumentSchedule::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;

@@ -23,7 +23,6 @@ use App\Models\Website;
 use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Support\Icons\Heroicon;
 // CORRETTO
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -74,11 +73,24 @@ class ListOamSemestrales extends ListRecords
 
         return [
             ImportOamAction::make()
-                ->icon(Heroicon::OutlinedArrowPath)
+                ->icon('heroicon-o-arrow-up-tray')
                 ->color('info'),
-            Action::make('debugAnagrafica')
+
+            Action::make('Analitico')
+                ->label('Analitico')
+                ->icon('heroicon-o-chart-bar')
+                ->color('info')
+                ->action(function () use ($datiProdotti): BinaryFileResponse {
+                    return Excel::download(
+                        new M510EconomicoBaseSheet($datiProdotti),
+                        'OAM_Analitico.xlsx'
+                    );
+                }),
+
+            Action::make('Anagrafica')
                 ->label('Anagrafica')
-                ->icon('heroicon-o-table-cells')
+                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->icon('heroicon-o-identification')
                 ->color('success')  // Colore verde per indicare che è uno strumento di debug
                 ->action(function () use ($azienda, $dipendenti, $fornitori): BinaryFileResponse {
                     // 1. Recuperiamo la prima azienda disponibile nel database per i dati reali
@@ -99,22 +111,77 @@ class ListOamSemestrales extends ListRecords
                     // 3. Eseguiamo il download diretto del singolo foglio isolato
                     return Excel::download(
                         new M510AnagraficaSheet($datiTest),
-                        'DEBUG_M510_Anagrafica.xlsx'
+                        'OAM_Anagrafica.xlsx'
                     );
                 }),
-            Action::make('debugEconomicoBase')
-                ->label('1-Economico')
-                ->icon('heroicon-o-table-cells')
-                ->color('secondary')
-                ->action(function () use ($datiProdotti): BinaryFileResponse {
+            Action::make('Informativo')
+                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->label('Informativo')
+                ->icon('heroicon-o-information-circle')
+                ->color('success')
+                ->action(function () use ($websites, $website_trasparenza, $requisiti_organizzativi, $procedures, $moduli, $externalRoles): BinaryFileResponse {
+                    // Struttura dati fittizia ricavata dall'immagine
+
+                    $datiTestInformativo = [
+                        'numero_siti' => $websites->count(),
+                        'siti' => $websites->pluck('domain')->toArray(),
+                        'data_trasparenza' => $website_trasparenza,
+                        'data_relazione_requisiti' => $requisiti_organizzativi ? date('d/m/y', strtotime($requisiti_organizzativi->emitted_at)) : 'N/A',
+                        'procedure' => $procedures,
+                        'moduli' => $moduli->pluck('name')->toArray(),
+                        'modulistica_a' => $moduli->pluck('emitted_at')->map(function ($date) {
+                            return date('d/m/y', strtotime($date));
+                        })->toArray(),
+                        'funzioni_esternalizzate' => $externalRoles->pluck('funzione')->unique()->values()->toArray(),
+                    ];
+
                     return Excel::download(
-                        new M510EconomicoBaseSheet($datiProdotti),
-                        'DEBUG_M510_Economico_Base.xlsx'
+                        new M510InformativoSheet($datiTestInformativo),
+                        'OAM_Informativo.xlsx'
                     );
                 }),
-            Action::make('debugPrudenziale')
-                ->label('3-Prudenziale')
-                ->icon('heroicon-o-table-cells')
+            Action::make('Sedi')
+                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->label('Sedi')
+                ->icon('heroicon-o-map-pin')
+                ->color('success')
+                ->action(function () use ($azienda): BinaryFileResponse {
+                    $branches_lista = [];
+                    $filialiRegistrate = Branch::get();
+
+                    foreach ($filialiRegistrate as $branch) {
+                        // Il Mockup richiede il formato "COGNOME NOME"
+                        $responsabile = 'N/D';
+                        if ($branch->manager_last_name || $branch->manager_first_name) {
+                            $responsabile = trim(($branch->manager_last_name ?? '').' '.($branch->manager_first_name ?? ''));
+                        }
+
+                        $branches_lista[] = [
+                            'address' => $branch->address,
+                            'street_number' => $branch->street_number,
+                            'city' => $branch->city,
+                            'zip_code' => $branch->zip_code,
+                            'province' => $branch->province,
+                            'region' => $branch->region,
+                            'responsabile' => $responsabile,
+                            'is_main_office' => $branch->is_main_office ? 'SI' : 'NO',  // Trasformato in SI/NO secco per la colonna I
+                        ];
+                    }
+                    $datiExport = [
+                        'gruppo' => $azienda->sponsor ?? 'RACES FINANZIARIA SPA',
+                        'branches_lista' => $branches_lista,
+                    ];
+
+                    // Richiamo esplicito al nuovo M510SediSheet
+                    return Excel::download(
+                        new M510SediSheet($datiExport),
+                        'OAM_Sedi_Operative.xlsx'
+                    );
+                }),
+            Action::make('Prudenziale')
+                ->label('Prudenziale')
+                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->icon('heroicon-o-shield-check')
                 ->color('warning')  // Colore arancione per distinguerlo
                 ->action(function () use ($azienda, $provvigioni_assicurative, $reclami, $sars, $compliance_onsite, $audit_onsite, $compliance_doc, $audit_doc): BinaryFileResponse {
                     $auditsRegistrati = Audit::get();
@@ -159,69 +226,7 @@ class ListOamSemestrales extends ListRecords
                     // 2. Scarichiamo esclusivamente il singolo foglio Prudenziale
                     return Excel::download(
                         new M510PrudenzialeSheet($datiTestPrudenziale),
-                        'DEBUG_M510_Prudenziale.xlsx'
-                    );
-                }),
-            Action::make('debugInformativo')
-                ->label('4-Informativo')
-                ->icon('heroicon-o-table-cells')
-                ->color('info')
-                ->action(function () use ($websites, $website_trasparenza, $requisiti_organizzativi, $procedures, $moduli, $externalRoles): BinaryFileResponse {
-                    // Struttura dati fittizia ricavata dall'immagine
-
-                    $datiTestInformativo = [
-                        'numero_siti' => $websites->count(),
-                        'siti' => $websites->pluck('domain')->toArray(),
-                        'data_trasparenza' => $website_trasparenza,
-                        'data_relazione_requisiti' => $requisiti_organizzativi ? date('d/m/y', strtotime($requisiti_organizzativi->emitted_at)) : 'N/A',
-                        'procedure' => $procedures,
-                        'moduli' => $moduli->pluck('name')->toArray(),
-                        'modulistica_a' => $moduli->pluck('emitted_at')->map(function ($date) {
-                            return date('d/m/y', strtotime($date));
-                        })->toArray(),
-                        'funzioni_esternalizzate' => $externalRoles->pluck('funzione')->unique()->values()->toArray(),
-                    ];
-
-                    return Excel::download(
-                        new M510InformativoSheet($datiTestInformativo),
-                        'DEBUG_M510_Informativo.xlsx'
-                    );
-                }),
-            Action::make('debugSedi')
-                ->label('5-Sedi')
-                ->icon('heroicon-o-table-cells')
-                ->color('success')
-                ->action(function () use ($azienda): BinaryFileResponse {
-                    $branches_lista = [];
-                    $filialiRegistrate = Branch::get();
-
-                    foreach ($filialiRegistrate as $branch) {
-                        // Il Mockup richiede il formato "COGNOME NOME"
-                        $responsabile = 'N/D';
-                        if ($branch->manager_last_name || $branch->manager_first_name) {
-                            $responsabile = trim(($branch->manager_last_name ?? '').' '.($branch->manager_first_name ?? ''));
-                        }
-
-                        $branches_lista[] = [
-                            'address' => $branch->address,
-                            'street_number' => $branch->street_number,
-                            'city' => $branch->city,
-                            'zip_code' => $branch->zip_code,
-                            'province' => $branch->province,
-                            'region' => $branch->region,
-                            'responsabile' => $responsabile,
-                            'is_main_office' => $branch->is_main_office ? 'SI' : 'NO',  // Trasformato in SI/NO secco per la colonna I
-                        ];
-                    }
-                    $datiExport = [
-                        'gruppo' => $azienda->sponsor ?? 'RACES FINANZIARIA SPA',
-                        'branches_lista' => $branches_lista,
-                    ];
-
-                    // Richiamo esplicito al nuovo M510SediSheet
-                    return Excel::download(
-                        new M510SediSheet($datiExport),
-                        'DEBUG_M510_Sedi_Operative.xlsx'
+                        'OAM_Prudenziale.xlsx'
                     );
                 }),
         ];

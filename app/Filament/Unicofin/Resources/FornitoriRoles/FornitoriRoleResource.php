@@ -2,10 +2,10 @@
 
 namespace App\Filament\Unicofin\Resources\FornitoriRoles;
 
-use App\Filament\Unicofin\Resources\Fornitores\RelationManagers\ProvvigioniRelationManager;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Pages\CreateFornitoriRole;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Pages\EditFornitoriRole;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Pages\ListFornitoriRoles;
+use App\Filament\Unicofin\Resources\FornitoriRoles\RelationManagers\ProvvigioniRelationManager;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Schemas\FornitoriRoleForm;
 use App\Filament\Unicofin\Resources\FornitoriRoles\Tables\FornitoriRolesTable;
 use App\Models\FornitoriRole;
@@ -18,7 +18,7 @@ class FornitoriRoleResource extends Resource
 {
     protected static ?string $model = FornitoriRole::class;
 
-    protected static ?string $navigationLabel = 'Tipo Fornitori';
+    protected static ?string $navigationLabel = 'Tipo Produttori';
 
     protected static ?string $modelLabel = 'Tipo';
 

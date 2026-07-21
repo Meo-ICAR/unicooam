@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\PROFORMA\Clienti;
+use App\Models\PROFORMA\Fornitore;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,7 +28,7 @@ class ProvvigioniRule extends Model
         'tipoprodotto_id',
         'tipoprodotto_sub_id',
         'clienti_id',
-        'kind_id',
+        'fornitorirole_id',
         'fornitori_id',
         'coordinamento',
         'iscliente',
@@ -72,9 +74,9 @@ class ProvvigioniRule extends Model
     /**
      * L'istituto di credito che impone il vincolo.
      */
-    public function cliente(): BelongsTo
+    public function clienti(): BelongsTo
     {
-        return $this->belongsTo(Cliente::class, 'clienti_id');
+        return $this->belongsTo(Clienti::class, 'clienti_id');
     }
 
     /**
@@ -88,9 +90,9 @@ class ProvvigioniRule extends Model
     /**
      * Ruolo/Livello dell'agente (es. Senior, Junior).
      */
-    public function kind(): BelongsTo
+    public function fornitoriRole(): BelongsTo
     {
         // Sostituisci "Kind::class" con il nome reale del tuo modello per i ruoli/livelli
-        return $this->belongsTo(FornitoriRole::class, 'kind_id');
+        return $this->belongsTo(FornitoriRole::class, 'fornitorirole_id');
     }
 }

@@ -20,8 +20,8 @@ class ImportOamAction extends Action
         parent::setUp();
 
         $this
-            ->label('Importa Pratiche OAM')
-            ->icon('heroicon-o-arrow-down-tray')
+            ->label('Importa Pratiche')
+            ->icon('heroicon-o-arrow-up-tray')
             ->color('warning')
             ->modalHeading('Importa Pratiche dal Gestionale')
             ->modalDescription('ATTENZIONE! Tutte le modifiche manuali saranno rimosse. ')

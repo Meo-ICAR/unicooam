@@ -7,16 +7,19 @@ use App\Filament\Resources\OamCodes\Pages\EditOamCode;
 use App\Filament\Resources\OamCodes\Pages\ListOamCodes;
 use App\Filament\Resources\OamCodes\Schemas\OamCodeForm;
 use App\Filament\Resources\OamCodes\Tables\OamCodesTable;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\OamCode;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class OamCodeResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = OamCode::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-hashtag';  // Heroicon::OutlinedRectangleStack;
