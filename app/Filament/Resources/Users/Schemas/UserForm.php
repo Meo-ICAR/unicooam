@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -17,10 +18,18 @@ class UserForm
                     ->label('Email')
                     ->email()
                     ->required(),
+                Select::make('role')
+                    ->options([
+                        'user' => 'Utente',
+                        'quality' => 'Qualita',
+                        'inspector' => ' Audit / Compilance ',
+                        'sos' => 'Segn. SOS',
+                        'admin' => 'Amministratore',
+                    ])
+                    ->required(),
                 TextInput::make('password')
                     ->password()
                     ->required(),
-                TextInput::make('role'),
 
             ]);
     }

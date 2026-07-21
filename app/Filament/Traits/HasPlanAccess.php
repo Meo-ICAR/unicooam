@@ -12,7 +12,11 @@ trait HasPlanAccess
      */
     public static function shouldRegisterNavigation(): bool
     {
-        // 🔹 Il "\" dice a PHP di cercare la funzione a livello GLOBALE
+        // Se la risorsa appartiene al gruppo Settings e checkPiano('settings') è false, nascondila
+        if (static::$navigationGroup === 'Settings' && ! \checkPiano('settings')) {
+            return false;
+        }
+
         return \checkPiano(static::getFeatureKey(), static::class);
     }
 

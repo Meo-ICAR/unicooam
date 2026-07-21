@@ -17,19 +17,32 @@ enum PlanType: string
      */
     public function features(): array
     {
-        // Feature del piano Essential
-        $essentialFeatures = [
-            'basic_reports',
+        $manager = [
+            'complaint-registries',
+            'document-schedules',
+            'documents',
+            'employees',
+            'clientis',
+            'fornitores',
+            'oam-semestrales',
+            'suspicious-activity-reports',
+        ];
+        $manager2 = [
+            'companies',
+            'oam-codes',
+            'users',
+            'branches',
+            'websites',
+        ];
+        $systems = [
+            'document-types',
+            'email-templates',
+            'tasks',
+            'users',
         ];
 
-        // Feature del piano Base
-        $baseFeatures = [
-            'Anagrafica',
-            'fornitores',
-            'Informativo',
-            'Sedi',
-            'Branches',
-            'employees',
+        $oamSheet = [
+            'globale', 'Anagrafica', 'Informativo', 'Sedi', 'Prudenziale',
         ];
 
         $goldFeatures = [
@@ -37,6 +50,7 @@ enum PlanType: string
             'complaint-registries',
             'document-schedules',
             'suspicious-activity-reports',
+            'oam-semestrales',
 
         ];
 

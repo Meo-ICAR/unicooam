@@ -54,4 +54,47 @@ class CompanyRole extends Model
             ->where('al', '>=', $semester->start);
 
     }
+
+    /**
+     * Calcola il numero di audit previsti (funzione Compliance).
+     */
+    public static function auditPrevistiPerPeriodo($inizio, $fine): int
+    {
+        return (int) static::query()
+            ->where('funzione', 'compliance')
+            ->whereNotNull('dal')
+            ->whereNotNull('al')
+            ->where('dal', '<=', $fine)
+            ->where('al', '>=', $inizio)
+            ->sum('n');
+    }
+
+    /**
+     * Aggiorna (o crea se inesistente) il record con il nuovo numero di audit previsti per il periodo.
+     */
+    public static function salvaAuditPrevistiPerPeriodo($inizio, $fine, int $nuovoNumero): void
+    {
+        $role = static::query()
+            ->where('funzione', 'compliance')
+            ->whereNotNull('dal')
+            ->whereNotNull('al')
+            ->where('dal', '<=', $fine)
+            ->where('al', '>=', $inizio)
+            ->first();
+
+        if ($role) {
+            $role->update(['n' => $nuovoNumero]);
+        } else {
+            $companyId = static::value('company_id') ?? Company::first()?->id;
+            static::create([
+                'company_id' => $companyId, // <-- Risolve l'errore SQL 1364
+                'name' => 'Controllo Semestrale',
+                'funzione' => 'compliance',
+                'dal' => $inizio->format('Y-m-d'),
+                'al' => $fine->format('Y-m-d'),
+                'n' => $nuovoNumero,
+                'is_external' => false,
+            ]);
+        }
+    }
 }

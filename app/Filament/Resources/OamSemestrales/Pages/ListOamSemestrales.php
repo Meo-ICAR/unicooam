@@ -75,7 +75,17 @@ class ListOamSemestrales extends ListRecords
             ImportOamAction::make()
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('info'),
-
+            Action::make('globale')
+                ->label('Excel Globale')
+                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->icon('heroicon-o-arrow-down')
+                ->color('success')
+                ->action(function () use ($datiProdotti): BinaryFileResponse {
+                    return Excel::download(
+                        new M510EconomicoBaseSheet($datiProdotti),
+                        'OAM_Globale.xlsx'
+                    );
+                }),
             Action::make('Analitico')
                 ->label('Analitico')
                 ->icon('heroicon-o-chart-bar')
@@ -104,8 +114,8 @@ class ListOamSemestrales extends ListRecords
                         'num_collaboratori' => $fornitori->count(),
                         'sedi_territoriali' => $azienda->branches->count(),
                         'progressivo' => '1/2026',
-                        'profilo_analitico' => 'NO',
-                        'profilo_base' => 'COMPILAZIONE OBBLIGATORIA',
+                        'profilo_analitico' => 'COMPILAZIONE OBBLIGATORIA',
+                        'profilo_base' => 'NO',
                     ];
 
                     // 3. Eseguiamo il download diretto del singolo foglio isolato

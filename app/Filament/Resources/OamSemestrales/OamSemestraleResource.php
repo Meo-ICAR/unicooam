@@ -7,15 +7,17 @@ use App\Filament\Resources\OamSemestrales\Pages\EditOamSemestrale;
 use App\Filament\Resources\OamSemestrales\Pages\ListOamSemestrales;
 use App\Filament\Resources\OamSemestrales\Schemas\OamSemestraleForm;
 use App\Filament\Resources\OamSemestrales\Tables\OamSemestralesTable;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\OamSemestrale;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 
 class OamSemestraleResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = OamSemestrale::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-arrow-path-rounded-square';

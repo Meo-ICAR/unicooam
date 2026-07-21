@@ -7,16 +7,19 @@ use App\Filament\Resources\EmailTemplates\Pages\EditEmailTemplate;
 use App\Filament\Resources\EmailTemplates\Pages\ListEmailTemplates;
 use App\Filament\Resources\EmailTemplates\Schemas\EmailTemplateForm;
 use App\Filament\Resources\EmailTemplates\Tables\EmailTemplatesTable;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\EmailTemplate;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class EmailTemplateResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = EmailTemplate::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-envelope';  // Heroicon::OutlinedRectangleStack;

@@ -8,13 +8,13 @@ use App\Filament\Resources\OamPratiches\Pages\ListOamPratiches;
 use App\Filament\Resources\OamPratiches\Schemas\OamPraticheForm;
 use App\Filament\Resources\OamPratiches\Tables\OamPratichesTable;
 use App\Models\OamPratiche;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BackedEnum;
 
 class OamPraticheResource extends Resource
 {
@@ -22,9 +22,13 @@ class OamPraticheResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'prodotto_creditizio';
+    protected static ?string $navigationLabel = 'OAM Dettaglio';
 
-    protected static ?string $navigationLabel = 'Semestrale Dettaglio';
+    protected static ?string $modelLabel = 'Pratica OAM';
+
+    protected static ?string $pluralModelLabel = 'Pratiche OAM';
+
+    protected static ?string $recordTitleAttribute = 'prodotto_creditizio';
 
     protected static bool $shouldRegisterNavigation = false;
 

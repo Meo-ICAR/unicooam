@@ -8,16 +8,18 @@ use App\Filament\Resources\Clientis\Pages\ListClientis;
 use App\Filament\Resources\Clientis\Schemas\ClientiForm;
 use App\Filament\Resources\Clientis\Tables\ClientisTable;
 use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\PROFORMA\Clienti;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class ClientiResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = Clienti::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-library';

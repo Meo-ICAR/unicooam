@@ -8,13 +8,13 @@ use App\Filament\Resources\AuditFindings\Pages\ListAuditFindings;
 use App\Filament\Resources\AuditFindings\Schemas\AuditFindingForm;
 use App\Filament\Resources\AuditFindings\Tables\AuditFindingsTable;
 use App\Models\AuditFinding;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BackedEnum;
 
 class AuditFindingResource extends Resource
 {

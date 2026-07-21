@@ -1,20 +1,44 @@
 <?php
 
 use App\Enums\PlanType;
+use App\Enums\UserRole;
 
 if (! function_exists('checkPiano')) {
     /**
-     * Verifica se una funzionalità è attiva per il piano corrente.
-     * Se APP_PLAN non è configurato nel .env, di default usa FULL.
+     * Verifica se una funzionalità è accessibile considerando sia il PIANO che il RUOLO UTENTE.
      */
     function checkPiano(string $feature, ?string $callerClass = null): bool
     {
-        // 1. Prende la stringa dal .env (fallback su 'full' se la chiave manca)
+        // -------------------------------------------------------------
+        // STEP 1: Controllo del PIANO (Licenza/Abbonamento)
+        // -------------------------------------------------------------
         $planValue = env('APP_PLAN', PlanType::FULL->value);
-
-        // 2. Converte la stringa nell'Enum (fallback su FULL se il valore non è valido)
         $plan = PlanType::tryFrom($planValue) ?? PlanType::FULL;
 
-        return $plan->hasFeature($feature, $callerClass);
+        $hasPlanAccess = $plan->hasFeature($feature, $callerClass);
+
+        // Se il Piano blocca la feature, stop immediato (nessuno può vederla)
+        if (! $hasPlanAccess) {
+            return false;
+        }
+
+        // -------------------------------------------------------------
+        // STEP 2: Controllo del RUOLO UTENTE (RBAC)
+        // -------------------------------------------------------------
+        $user = auth()->user();
+
+        if ($user && ! empty($user->role)) {
+            // Compatibile sia se $user->role è una stringa che se è già un Enum
+            $role = $user->role instanceof UserRole
+                ? $user->role
+                : UserRole::tryFrom($user->role);
+
+            // Se il ruolo esiste ed esclude questa feature, nega l'accesso
+            if ($role && ! $role->hasFeature($feature)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

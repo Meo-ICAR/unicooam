@@ -12,16 +12,19 @@ use App\Filament\Resources\Companies\Tables\CompaniesTable;
 use App\Filament\Resources\RelationManagers\BranchesRelationManager;
 use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Resources\RelationManagers\WebsitesRelationManager;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\Company;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class CompanyResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = Company::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-office';  // Heroicon::OutlinedRectangleStack;

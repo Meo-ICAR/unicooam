@@ -20,6 +20,8 @@ class OamCodeResource extends Resource
 {
     use HasPlanAccess;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static ?string $model = OamCode::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-hashtag';  // Heroicon::OutlinedRectangleStack;

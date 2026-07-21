@@ -72,6 +72,7 @@ class AuditForm
                         ->label('Origine Audit')
                         ->options([
                             'internal' => 'Audit Interno (Routine)',
+                            'quality' => 'Controllo qualita',
                             'external_incoming' => 'Ispezione da Ente Esterno',
                             'whistleblowing' => 'Segnalazione / Whistleblowing',
                         ])

@@ -8,13 +8,12 @@ use App\Filament\Resources\Organizations\Pages\ListOrganizations;
 use App\Filament\Resources\Organizations\Schemas\OrganizationForm;
 use App\Filament\Resources\Organizations\Tables\OrganizationsTable;
 use App\Models\Organization;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use BackedEnum;
 use UnitEnum;
 
 class OrganizationResource extends Resource
