@@ -19,7 +19,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope; // Assicurati di importare q
 
 class DocumentResource extends Resource
 {
-    use HasPlanAccess;
+    //  use HasPlanAccess;
+
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $model = Document::class;
 
@@ -35,8 +37,6 @@ class DocumentResource extends Resource
     protected static ?string $modelLabel = 'Documento';
 
     protected static ?string $pluralModelLabel = 'Documenti';
-
-    protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $schema): Schema
     {

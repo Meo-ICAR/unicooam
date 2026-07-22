@@ -23,6 +23,8 @@ class AuditResource extends Resource
 
     protected static ?string $model = Audit::class;
 
+    protected static ?int $navigationSort = 20;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
     protected static ?string $recordTitleAttribute = 'name';

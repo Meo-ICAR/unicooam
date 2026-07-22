@@ -21,6 +21,8 @@ class SuspiciousActivityReportResource extends Resource
 {
     use HasPlanAccess;
 
+    protected static ?int $navigationSort = 40;
+
     protected static ?string $model = SuspiciousActivityReport::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-exclamation-triangle';  // Heroicon::OutlinedFlag;
@@ -34,8 +36,6 @@ class SuspiciousActivityReportResource extends Resource
     protected static ?string $pluralModelLabel = 'Segnalazioni SOS';
 
     // protected static string|\UnitEnum|null $navigationGroup = 'Antiriciclaggio';
-
-    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
     {

@@ -21,6 +21,8 @@ class ComplaintRegistryResource extends Resource
 {
     use HasPlanAccess;
 
+    protected static ?int $navigationSort = 30;
+
     protected static ?string $model = ComplaintRegistry::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';

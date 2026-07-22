@@ -20,7 +20,7 @@ class OamCodeResource extends Resource
 {
     // use HasPlanAccess;
 
-    protected static bool $shouldRegisterNavigation = false;
+    // protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $model = OamCode::class;
 
@@ -30,11 +30,11 @@ class OamCodeResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
-    protected static ?string $navigationLabel = 'Convenzioni';
+    protected static ?string $navigationLabel = 'Codici OAM';
 
-    protected static ?string $modelLabel = 'Convenzione';
+    protected static ?string $modelLabel = 'Codice';
 
-    protected static ?string $pluralModelLabel = 'Convenzioni';
+    protected static ?string $pluralModelLabel = 'Codici';
 
     protected static ?int $navigationSort = 6;
 

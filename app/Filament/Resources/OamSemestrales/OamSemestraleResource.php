@@ -20,6 +20,8 @@ class OamSemestraleResource extends Resource
 
     protected static ?string $model = OamSemestrale::class;
 
+    protected static ?int $navigationSort = 10;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-arrow-path-rounded-square';
 
     protected static ?string $navigationLabel = 'Semestrale OAM';
@@ -27,8 +29,6 @@ class OamSemestraleResource extends Resource
     protected static ?string $modelLabel = 'Semestrale OAM';
 
     protected static ?string $pluralModelLabel = 'Semestrale OAM';
-
-    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {
