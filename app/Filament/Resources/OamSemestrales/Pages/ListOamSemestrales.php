@@ -125,7 +125,7 @@ class ListOamSemestrales extends ListRecords
             'ragione_sociale' => $azienda->name ?? 'AZIENDA DI TEST SPA',
             'piva' => $azienda->vat_number ?? '01234567890',
             'periodo' => '01.01.2026 - 30.06.2026',
-            'num_dipendenti' => $dipendenti->where('employee_types', 'dipendente')->count(),
+            'num_dipendenti' => $dipendenti->count(),
             'num_collaboratori' => $fornitori->count(),
             'sedi_territoriali' => $azienda?->branches()->count() ?? 0,
             'progressivo' => '1/2026',

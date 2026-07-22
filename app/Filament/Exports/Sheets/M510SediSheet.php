@@ -10,7 +10,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class M510SediSheet implements FromArray, WithTitle, WithEvents
+class M510SediSheet implements FromArray, WithEvents, WithTitle
 {
     protected array $dati;
 
@@ -36,7 +36,7 @@ class M510SediSheet implements FromArray, WithTitle, WithEvents
             'PROVINCIA',
             'REGIONE',
             'RESPONSABILE',
-            'SEDE PRINCIPALE (SI/NO)'
+            'SEDE PRINCIPALE (SI/NO)',
         ];
 
         // --- MAPPARE I RECORD DALLA TABELLA `branches` ---
@@ -45,7 +45,7 @@ class M510SediSheet implements FromArray, WithTitle, WithEvents
 
         foreach ($filiali as $branch) {
             $rows[] = [
-                'SMC' . $counter,  // Codice progressivo Ministeriale
+                'SMC'.$counter,  // Codice progressivo Ministeriale
                 $branch['address'] ?? '',  // Solo via/piazza senza aggregazioni
                 $branch['street_number'] ?? '',  // Numero civico separato
                 $branch['city'] ?? '',  // Città
@@ -53,7 +53,7 @@ class M510SediSheet implements FromArray, WithTitle, WithEvents
                 $branch['province'] ?? '',  // Provincia
                 $branch['region'] ?? '',  // Regione
                 $branch['responsabile'] ?? '',  // Cognome Nome o Viceversa
-                $branch['is_main_office'] ?? 'NO'  // SI o NO stringente
+                $branch['is_main_office'] ?? 'NO',  // SI o NO stringente
             ];
             $counter++;
         }
@@ -63,7 +63,7 @@ class M510SediSheet implements FromArray, WithTitle, WithEvents
 
     public function title(): string
     {
-        return '5 di 5_Sedi Territoriali';
+        return 'Sedi Territoriali';
     }
 
     public function registerEvents(): array
@@ -80,7 +80,7 @@ class M510SediSheet implements FromArray, WithTitle, WithEvents
                 $sheet->getStyle('A1:I1')->applyFromArray([
                     'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF'], 'size' => 12],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF008B8B']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER]
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
 
                 // Stile delle Colonne Intestazione (Riga 2)
@@ -88,28 +88,28 @@ class M510SediSheet implements FromArray, WithTitle, WithEvents
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['argb' => 'FF000000']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF48D1CC']],  // Sfondo verde acqua chiaro
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFFFFFFF']]]
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFFFFFFF']]],
                 ]);
 
                 // Righe dati (Dalla riga 3 alla fine)
                 if ($highestRow >= 3) {
                     // Stile Generale Griglia
-                    $sheet->getStyle('A3:I' . $highestRow)->applyFromArray([
+                    $sheet->getStyle('A3:I'.$highestRow)->applyFromArray([
                         'font' => ['size' => 10],
                         'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFE0E0E0']]]
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFE0E0E0']]],
                     ]);
 
                     // Codici SMC colonna A (Verde acqua come da mockup grafico)
-                    $sheet->getStyle('A3:A' . $highestRow)->applyFromArray([
+                    $sheet->getStyle('A3:A'.$highestRow)->applyFromArray([
                         'font' => ['bold' => true],
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFE0F7F6']],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                     ]);
 
                     // Allineamenti centrati per CAP, Civico, Province e Flag SI/NO
-                    $sheet->getStyle('C3:G' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-                    $sheet->getStyle('I3:I' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('C3:G'.$highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle('I3:I'.$highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
 
                 // Larghezze campionate per evitare troncamenti di dati

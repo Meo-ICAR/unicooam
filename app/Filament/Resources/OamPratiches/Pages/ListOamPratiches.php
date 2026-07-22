@@ -3,15 +3,13 @@
 namespace App\Filament\Resources\OamPratiches\Pages;
 
 use App\Filament\Resources\OamPratiches\OamPraticheResource;
-use App\Services\ImportPraticheService;
 use App\Services\OamSemestraleService;
-use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Illuminate\Contracts\Support\Htmlable;  // CORRETTO
-use Illuminate\Support\HtmlString;
+
+// CORRETTO
 
 class ListOamPratiches extends ListRecords
 {
@@ -21,30 +19,17 @@ class ListOamPratiches extends ListRecords
     {
         return [
             //  CreateAction::make(),
-            Action::make('riprendiImportazione')
-                ->label('Riprendi Importazione')
-                ->action(function (ImportPraticheService $service) {
-                    $now = Carbon::now();
-                    $currentYear = $now->year;
-
-                    if ($now->month < 4) {
-                        // Se siamo prima di aprile (es. gen-mar), prendiamo il secondo semestre dell'anno precedente
-                        $startAt = Carbon::create($currentYear - 1, 7, 1)->startOfDay();
-                        $endAt = Carbon::create($currentYear, 1, 1)->startOfDay();
-                    } else {
-                        // Altrimenti prendiamo il primo semestre dell'anno corrente
-                        $startAt = Carbon::create($currentYear, 1, 1)->startOfDay();
-                        $endAt = Carbon::create($currentYear, 7, 1)->startOfDay();
-                    }
-
-                    $count = $service->import($startAt, $endAt);
+            Action::make('storno')
+                ->label('Aggiungi storno')
+                ->action(
 
                     Notification::make()
-                        ->title('Importazione Ripresa')
-                        ->body("L'importazione è stata ripresa con successo ({$count} righe elaborate).")
+                        ->title('Aggiunta pratica stornata')
+                        ->body('Storno aggiunto con successo')
                         ->success()
-                        ->send();
-                }),
+                        ->send()
+                ),
+
             Action::make('rigeneraReport')
                 ->label('Ricalcola Aggregati Semestrali')
                 ->action(function (OamSemestraleService $service) {
