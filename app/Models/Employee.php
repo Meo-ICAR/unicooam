@@ -42,6 +42,7 @@ class Employee extends Model
         'branch_id',
         'coordinated_by_id',
         'employee_types',
+        'employee_roles',
         'supervisor_type',
         'privacy_role',
         'purpose',
@@ -53,6 +54,7 @@ class Employee extends Model
         'privacy_data',
         'is_structure',
         'is_ghost',
+        'is_external',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -61,10 +63,12 @@ class Employee extends Model
     protected $casts = [
         'is_structure' => 'boolean',
         'is_ghost' => 'boolean',
+        'is_external' => 'boolean',
         'oam_at' => 'date',
         'oam_dismissed_at' => 'date',
         'hiring_date' => 'date',
         'termination_date' => 'date',
+        'employee_roles' => 'array', // Converte automaticamente JSON <-> Array
     ];
 
     /**
@@ -119,5 +123,31 @@ class Employee extends Model
                 $q->whereNull('termination_date')
                     ->orWhere('termination_date', '>=', $semester->start);
             });
+    }
+
+    /**
+     * Scope per selezionare solo gli auditor.
+     */
+    public function scopeAuditors(Builder $query): Builder
+    {
+        return $query->whereJsonContains('employee_types', 'audit');
+    }
+
+    public function scopeQuality(Builder $query): Builder
+    {
+        return $query->whereJsonContains('employee_types', 'quality');
+    }
+
+    public function scopeEmployee(Builder $query): Builder
+    {
+        return $query->whereJsonContains('employee_types', 'dipendente');
+    }
+
+    /**
+     * Scope generico per filtrare per qualsiasi tipologia di ruolo.
+     */
+    public function scopeHasType(Builder $query, string $type): Builder
+    {
+        return $query->whereJsonContains('employee_types', $type);
     }
 }

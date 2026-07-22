@@ -22,7 +22,8 @@ class OamCode extends Model
         'description',
         'tipo_prodotto',
         'is_dummy',
-        'is_active', 'submission_type',
+        'is_active',
+        // 'submission_type',
     ];
 
     public function clienti(): BelongsToMany
@@ -35,7 +36,8 @@ class OamCode extends Model
                 'clienti_id'  // Poi la chiave del modello correlato
             )
             ->where('is_active', true)  // <-- FILTRO: Mostra solo Client attivi
-            ->withPivot('dal', 'al', 'submission_type')
+            ->withPivot('dal', 'al')
+        //    ->withPivot('dal', 'al', 'submission_type')
             ->withTimestamps();
     }
 }

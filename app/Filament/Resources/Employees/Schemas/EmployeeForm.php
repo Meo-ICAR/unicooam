@@ -24,9 +24,24 @@ class EmployeeForm
                             ->required()
                             ->maxLength(255),
                         TextInput::make('employee_types')
+
                             ->label('Ruolo')
+
                             ->nullable()
+
                             ->maxLength(50),
+
+                        Select::make('employee_roles')
+                            ->label('Funzionni')
+                            ->multiple() // Abilita la selezione multipla combinabile
+                            ->options([
+                                'dipendente' => 'Dipendente',
+                                'cda' => 'CdA',
+                                'compliance' => 'Compliance',
+                                'audit' => 'Auditor',
+                                'quality' => 'Qualita',
+                            ])
+                            ->nullable(),
                         TextInput::make('email')
                             ->label('Indirizzo email')
                             ->email()
@@ -38,6 +53,9 @@ class EmployeeForm
                             ->tel()
                             ->nullable()
                             ->maxLength(20),
+                        Toggle::make('is_external')
+                            ->label('Collaboratore esterno'),
+
                     ]),
                 // Informazioni Lavorative
                 Section::make('Informazioni Lavorative')
@@ -70,26 +88,28 @@ class EmployeeForm
                         Toggle::make('numero_iscrizione_rui')
                             ->label('Iscritto OAM')
                             ->reactive(),
-                        TextInput::make('oam')
-                            ->label('Numero Iscrizione OAM')
-                            ->maxLength(50)
-                            ->visible(fn(callable $get) => $get('numero_iscrizione_rui'))
-                            ->nullable(),
                         DatePicker::make('oam_at')
                             ->label('Data Iscrizione OAM')
                             ->nullable()
-                            ->visible(fn(callable $get) => $get('numero_iscrizione_rui')),
+                            ->visible(fn (callable $get) => $get('numero_iscrizione_rui')),
+                        /*
+                            TextInput::make('oam')
+                            ->label('Numero Iscrizione OAM')
+                            ->maxLength(50)
+                            ->visible(fn (callable $get) => $get('numero_iscrizione_rui'))
+                            ->nullable(),
+*/
                         TextInput::make('oam_name')
                             ->label('Nome OAM')
                             ->maxLength(255)
                             ->nullable()
-                            ->visible(fn(callable $get) => $get('numero_iscrizione_rui')),
+                            ->visible(fn (callable $get) => $get('numero_iscrizione_rui')),
                         DatePicker::make('oam_dismissed_at')
                             ->label('Data Cancellazione OAM')
                             ->nullable()
-                            ->visible(fn(callable $get) => $get('numero_iscrizione_rui')),
+                            ->visible(fn (callable $get) => $get('numero_iscrizione_rui')),
                     ])
-                    ->columnSpanFull()
+                    ->columnSpanFull(),
             ]);
     }
 }

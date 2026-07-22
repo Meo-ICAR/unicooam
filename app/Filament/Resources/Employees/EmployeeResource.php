@@ -31,11 +31,11 @@ class EmployeeResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
-    protected static ?string $navigationLabel = 'Dipendenti';
+    protected static ?string $navigationLabel = 'Organigramma';
 
-    protected static ?string $modelLabel = 'Dipendente';
+    protected static ?string $modelLabel = 'Organigramma';
 
-    protected static ?string $pluralModelLabel = 'Dipendenti';
+    protected static ?string $pluralModelLabel = 'Collaboratori';
 
     protected static ?int $navigationSort = 7;
 

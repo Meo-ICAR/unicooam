@@ -115,9 +115,17 @@ class AuditForm
                                 ->default(AuditStatus::PLANNED)
                                 ->inline()
                                 ->required(),
-                            TextInput::make('auditor_name')
+
+                            Select::make('auditor_name')
                                 ->label('Auditor')
-                                ->maxLength(255),
+                                ->options(
+                                    // Utilizza lo scope auditors() definito nel modello Employee
+                                    Employee::auditors()
+                                        ->get()
+                                        ->pluck('name', 'name') // Sostituisci 'name' con il nome della colonna nel DB
+                                )
+                                ->searchable() // Rende la select ricercabile
+                                ->nullable(),
                             Select::make('execution_method')
                                 ->label('Metodo di Esecuzione')
                                 ->options([

@@ -263,7 +263,7 @@ class DocumentsRelationManager extends RelationManager
                             ->success()
                             ->send();
                     }),
-                DeleteAction::make(),
+                //  DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkAction::make('updatedate')

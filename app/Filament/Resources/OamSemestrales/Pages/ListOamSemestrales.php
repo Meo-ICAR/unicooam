@@ -41,7 +41,7 @@ class ListOamSemestrales extends ListRecords
         $azienda = Company::first();
         $sedi = Branch::where('company_id', $azienda->id)->where('is_active', true)->get();
 
-        $dipendenti = Employee::perSemestreOam($semestre)->where('company_id', $azienda->id);
+        $dipendenti = Employee::perSemestreOam($semestre)->Employee()->where('company_id', $azienda->id);
         $fornitori = Fornitore::perSemestreOam($semestre);
         $reclami = ComplaintRegistry::perSemestreOam($semestre)->count(); // $oams->sum('reclami');
         $sars = SuspiciousActivityReport::perSemestreOam($semestre)->count();

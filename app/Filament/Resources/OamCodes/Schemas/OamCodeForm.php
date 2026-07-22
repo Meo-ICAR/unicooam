@@ -22,6 +22,7 @@ class OamCodeForm
                     ->label('Descrizione'),
                 TextInput::make('tipo_prodotto')
                     ->label('Tipo prodotto'),
+                /*
                 Section::make('Associazione mandanti')
                     ->description('Seleziona i mandanti convenzionati a cui associare questo codice OAM.')
                     ->schema([
@@ -30,7 +31,7 @@ class OamCodeForm
                             ->relationship(
                                 name: 'clienti',
                                 titleAttribute: 'nome',
-                                modifyQueryUsing: fn(Builder $query) => $query
+                                modifyQueryUsing: fn (Builder $query) => $query
                                     ->whereNull('dismissed_at')
                                     ->where('principal_type', 'banca'),
                             )
@@ -38,8 +39,10 @@ class OamCodeForm
                             ->bulkToggleable()
                             ->columns(3)
                             ->gridDirection('row'),
+
                     ])
                     ->columnSpanFull(),
+                    */
             ]);
     }
 }

@@ -82,14 +82,18 @@ class EmployeesTable
                     }),
 
                 SelectFilter::make('employee_types')
-                    ->label('Ruolo')
-                    ->default('dipendente')
+                    ->label('Filtra per Ruolo')
                     ->options([
                         'dipendente' => 'Dipendente',
                         'cda' => 'CdA',
-                        'consulente' => 'Consulente',
-                        'altro' => 'Altro',
-                    ]),
+                        'compliance' => 'Compliance',
+                        'audit' => 'Audit',
+                        'quality' => 'Quality',
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => $data['value']
+                            ? $query->whereJsonContains('employee_types', $data['value'])
+                            : $query
+                    ),
 
             ])
             ->recordActions([
