@@ -97,7 +97,9 @@ class DocumentType extends Model implements HasMedia
         if (! $emittedAt) {
             return null;
         }
-
+        if (! $this->is_monitored) {
+            return null;
+        }
         $expirationDate = $emittedAt->copy();
         switch ($this->duration_unit) {
             case 'days':

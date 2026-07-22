@@ -41,8 +41,8 @@ class Employee extends Model
         'termination_date',
         'branch_id',
         'coordinated_by_id',
-        'employee_types',
-        'employee_roles',
+        'employee_type',
+
         'supervisor_type',
         'privacy_role',
         'purpose',
@@ -54,6 +54,7 @@ class Employee extends Model
         'privacy_data',
         'is_structure',
         'is_ghost',
+        'employee_roles',
         'is_external',
         'created_by',
         'updated_by',
@@ -130,17 +131,17 @@ class Employee extends Model
      */
     public function scopeAuditors(Builder $query): Builder
     {
-        return $query->whereJsonContains('employee_types', 'audit');
+        return $query->whereJsonContains('employee_roles', 'audit');
     }
 
     public function scopeQuality(Builder $query): Builder
     {
-        return $query->whereJsonContains('employee_types', 'quality');
+        return $query->whereJsonContains('employee_roles', 'quality');
     }
 
     public function scopeEmployee(Builder $query): Builder
     {
-        return $query->whereJsonContains('employee_types', 'dipendente');
+        return $query->whereJsonContains('employee_roles', 'dipendente');
     }
 
     /**

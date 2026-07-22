@@ -190,9 +190,9 @@ class DocumentsTable
                         ->modalHeading('Imposta data di emissione per i record selezionati')
                         ->modalSubmitActionLabel('Salva'),
 
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    // DeleteBulkAction::make(),
+                    //  ForceDeleteBulkAction::make(),
+                    //  RestoreBulkAction::make(),
                 ]),
             ]);
     }

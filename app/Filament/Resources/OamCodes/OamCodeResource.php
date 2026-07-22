@@ -18,7 +18,7 @@ use UnitEnum;
 
 class OamCodeResource extends Resource
 {
-    use HasPlanAccess;
+    // use HasPlanAccess;
 
     protected static bool $shouldRegisterNavigation = false;
 

@@ -45,6 +45,10 @@ class ClientisTable
                         'success' => 'Captive',
                     ])
                     ->label('Tipo'),
+                TextColumn::make('submission_type')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Tipo inoltro'),
                 TextColumn::make('stipulated_at')
                     ->date('d/m/y')
                     ->sortable()
@@ -53,6 +57,7 @@ class ClientisTable
                     ->date('d/m/y')
                     ->sortable()
                     ->label('Recesso'),
+                /*
                 TextColumn::make('oam_codes_count')
                     ->counts('oamCodes')
                     ->label('Convenzioni')
@@ -64,6 +69,7 @@ class ClientisTable
                     ->searchable()
                     ->sortable()
                     ->label('Partita IVA'),
+                    */
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable()

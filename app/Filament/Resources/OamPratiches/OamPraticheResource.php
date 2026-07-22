@@ -28,7 +28,7 @@ class OamPraticheResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pratiche OAM';
 
-    protected static ?string $recordTitleAttribute = 'prodotto_creditizio';
+    protected static ?string $recordTitleAttribute = 'cliente';
 
     protected static bool $shouldRegisterNavigation = false;
 

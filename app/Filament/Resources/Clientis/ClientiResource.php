@@ -18,7 +18,7 @@ use UnitEnum;
 
 class ClientiResource extends Resource
 {
-    use HasPlanAccess;
+    // use HasPlanAccess;
 
     protected static ?string $model = Clienti::class;
 
@@ -28,7 +28,7 @@ class ClientiResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
-    protected static ?string $navigationLabel = 'Istituti';
+    protected static ?string $navigationLabel = 'Istituti Eroganti';
 
     protected static ?string $modelLabel = 'Istituto';
 

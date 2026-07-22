@@ -10,6 +10,7 @@ use App\Models\DocumentType;
 use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -29,10 +30,10 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
-// CORRETTO
 use Filament\Tables\Table;
+// CORRETTO
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
 use pxlrbt\FilamentExcel\Actions\ExportAction; // <-- Importa il trait
 
 class DocumentsRelationManager extends RelationManager
@@ -51,9 +52,11 @@ class DocumentsRelationManager extends RelationManager
     {
         return $schema->components([
             Section::make('Dettagli Documento')
-                //  ->columns(2)
+                ->columnSpanFull() // <--- Occupa tutto lo spazio orizzontale della pagina/modal
+                ->columns(2)       // <--- Organizza i componenti interni su 2 colonne
                 ->components([
                     Select::make('document_type_id')
+
                         ->label('Tipo documento')
                         ->options(DocumentType::orderBy('name')->pluck('name', 'id'))
                         ->searchable()
@@ -118,6 +121,7 @@ class DocumentsRelationManager extends RelationManager
                         */
                 ]),
             Section::make('File Allegato')
+                ->columnSpanFull()
                 ->components([
                     TextInput::make('document_url')
                         ->label('URL documento')
@@ -137,6 +141,10 @@ class DocumentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]))
+            ->defaultSort('expires_at', 'desc')
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name')
@@ -246,6 +254,7 @@ class DocumentsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make(),
+                /*
                 Action::make('renew')
                     ->label('Aggiorna')
                     ->icon('heroicon-o-arrow-path')
@@ -263,40 +272,61 @@ class DocumentsRelationManager extends RelationManager
                             ->success()
                             ->send();
                     }),
+                    */
                 //  DeleteAction::make(),
             ])
             ->toolbarActions([
-                BulkAction::make('updatedate')
-                    ->label('Aggiorna documentazione')
-                    ->icon('heroicon-o-document')
-                    ->form([
-                        DatePicker::make('new_emitted_at')
-                            ->label('Nuova data emissione')
-                            ->required()
-                            ->displayFormat('d/m/y'),
-                    ])
-                    ->action(function (Collection $records, array $data) {
-                        $updatedCount = 0;
+                BulkActionGroup::make([
+                    BulkAction::make('setEmittedAt')
+                        ->label('Imposta Data Emissione')
+                        ->icon('heroicon-o-calendar')
+                        ->color('success')
+                        ->form([
+                            DatePicker::make('emitted_at')
+                                ->label('Data di Emissione')
+                                ->required()
+                                ->default(now()), // Imposta la data odierna come default
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $records->each(function ($record) use ($data) {
+                                $dataForced = $data['emitted_at'] ?? now(); // Usa la data fornita o la data odierna come fallback
 
-                        foreach ($records as $record) {
-                            $record->update([
-                                'emitted_at' => $data['new_emitted_at'],
-                            ]);
-                            $updatedCount++;
-                        }
+                                $record->update([
+                                    'emitted_at' => $dataForced,
+                                ]);
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion() // Deseleziona i record dopo l'operazione
+                        ->requiresConfirmation()
+                        ->modalHeading('Imposta data di emissione per i record selezionati')
+                        ->modalSubmitActionLabel('Salva'),
+                    BulkAction::make('setExpiredAt')
+                        ->label('Imposta Data Scadenza')
+                        ->icon('heroicon-o-calendar')
+                        ->color('success')
+                        ->form([
+                            DatePicker::make('expired_at')
+                                ->label('Data di Scadenza')
+                                ->required()
+                                ->default(now()), // Imposta la data odierna come default
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $records->each(function ($record) use ($data) {
+                                $record->update([
+                                    'expired_at' => $data['expired_at'],
+                                ]);
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion() // Deseleziona i record dopo l'operazione
+                        ->requiresConfirmation()
+                        ->modalHeading('Imposta data di emissione per i record selezionati')
+                        ->modalSubmitActionLabel('Salva'),
 
-                        Notification::make()
-                            ->title('Aggiornamento completato')
-                            ->body("Aggiornate {$updatedCount} documenti alla nuova data.")
-                            ->success()
-                            ->send();
-                    }),
-                DeleteBulkAction::make(),
-            ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]))
-            ->defaultSort('expires_at', 'desc');
+                    // DeleteBulkAction::make(),
+                    //  ForceDeleteBulkAction::make(),
+                    //  RestoreBulkAction::make(),
+                ]),
+            ]);
 
     }
 }
