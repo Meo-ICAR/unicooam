@@ -131,12 +131,20 @@ class Employee extends Model
      */
     public function scopeAuditors(Builder $query): Builder
     {
-        return $query->whereJsonContains('employee_roles', 'audit');
+        return $query->whereJsonContains('employee_roles', 'internal audit');
     }
 
     public function scopeQuality(Builder $query): Builder
     {
         return $query->whereJsonContains('employee_roles', 'quality');
+    }
+
+    public function scopeAudits(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            $q->whereJsonContains('employee_roles', 'quality')
+                ->orWhereJsonContains('employee_roles', 'internal audit');
+        });
     }
 
     public function scopeEmployee(Builder $query): Builder

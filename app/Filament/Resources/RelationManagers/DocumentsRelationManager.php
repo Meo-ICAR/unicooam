@@ -76,11 +76,12 @@ class DocumentsRelationManager extends RelationManager
                         ->default(fn ($get) => $get('document_type_id') ? DocumentType::find($get('document_type_id'))->name : null)
                         ->required()
                         ->columnSpanFull(),
+                    /*
                     Select::make('status')
                         ->label('Stato')
                         ->options(DocumentStatus::class)
-                        ->default(DocumentStatus::PENDING)
-                        ->required(),
+                        ->default(DocumentStatus::PENDING),
+                      */
 
                     DatePicker::make('emitted_at')
                         ->label('Data emissione')

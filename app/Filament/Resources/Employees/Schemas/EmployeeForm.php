@@ -32,14 +32,23 @@ class EmployeeForm
                             ->maxLength(50),
 
                         Select::make('employee_roles')
-                            ->label('Funzionni')
+                            ->label('Ruoli')
                             ->multiple() // Abilita la selezione multipla combinabile
                             ->options([
                                 'dipendente' => 'Dipendente',
+                                'istruttore' => 'Istruttore',
+                                'amministrativo' => 'Amministrativo',
+                                'segreteria' => 'Segreteria',
+                                'quality' => 'Qualita',
+                                'reclami' => 'Reclami',
+                                'dpo' => 'Privacy',
                                 'cda' => 'CdA',
                                 'compliance' => 'Compliance',
-                                'audit' => 'Auditor',
-                                'quality' => 'Qualita',
+                                'internal audit' => 'Auditor',
+                                'AML' => 'AML',
+                                'SOS' => 'Resp. SOS',
+                                'legale' => 'Legale',
+
                             ])
                             ->nullable(),
                         TextInput::make('email')
@@ -62,7 +71,7 @@ class EmployeeForm
                     ->description('Dati di impiego e organizzazione')
                     ->schema([
                         DatePicker::make('hire_date')
-                            ->label('Assunzione')
+                            ->label('Inizio')
                             ->required(),
                         DatePicker::make('termination_date')
                             ->label('Cessazione')
