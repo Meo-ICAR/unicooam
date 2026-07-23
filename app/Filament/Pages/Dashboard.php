@@ -1,18 +1,18 @@
 <?php
+
 namespace App\Filament\Pages;
 
 use App\Filament\Widgets\IstruzioniWidget;
-use Filament\Pages\Dashboard as BaseDashboard;
-use Filament\Support\Icons\Heroicon;
-// use Filament\Widgets\Widget;
 use BackedEnum;
+// use Filament\Widgets\Widget;
+use Filament\Pages\Dashboard as BaseDashboard;
 use UnitEnum;
 
 class Dashboard extends BaseDashboard
 {
     // ...
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-book-open';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-home';
 
     /*
      * protected static ?string $navigationLabel = 'Manuale';
