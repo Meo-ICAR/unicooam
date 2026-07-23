@@ -31,7 +31,7 @@ class ListOamPratiches extends ListRecords
             //  CreateAction::make(),
             Action::make('stornoProvvigione')
                 ->label('Storno Provvigioni')
-                ->icon('heroicon-o-arrow-path-back')
+                ->icon('heroicon-o-minus')
                 ->color('danger')
                 ->modalHeading('Registra uno Storno Provvigionale')
                 ->modalSubmitActionLabel('Conferma e Storna')
@@ -56,6 +56,7 @@ class ListOamPratiches extends ListRecords
                     // 2. Selezione della Pratica (Erogata e non stornata)
                     Select::make('id_pratica')
                         ->label('Cliente / Pratica da stornare')
+
                         ->placeholder(fn (Get $get) => $get('istituto_id') ? 'Seleziona la pratica...' : 'Prima seleziona un istituto')
                         ->disabled(fn (Get $get) => ! $get('istituto_id'))
                         ->required()
@@ -185,6 +186,7 @@ class ListOamPratiches extends ListRecords
                 }),
             Action::make('rigeneraReport')
                 ->label('Ricalcola Aggregati Semestrali')
+                ->icon('heroicon-o-calculator')
                 ->action(function (OamSemestraleService $service) {
                     $count = $service->aggregate();
 

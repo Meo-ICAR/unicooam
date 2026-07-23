@@ -35,9 +35,7 @@ class OamPratichesTable
                 TextColumn::make('istituto')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('agente')
-                    ->sortable()
-                    ->searchable(),
+
                 TextColumn::make('cliente')
                     ->sortable()
                     ->searchable(),
@@ -57,6 +55,9 @@ class OamPratichesTable
                     ->label('Rifiutata')
                     ->date()
                     ->sortable(),
+                TextColumn::make('agente')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('storned_at')
                     ->label('Stornata')
                     ->date()
