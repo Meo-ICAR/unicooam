@@ -168,7 +168,7 @@ class AuditForm
                                 ->nullable()
                                 ->placeholder('seleziona un esito...')
                                 ->options([
-                                    'nessuna' => 'Nessuna difformità',
+                                    'conforme' => 'Conforme, nessuna difformità',
                                     'con_rilievi' => 'Con Rilievi (Non conformità minori)',
                                     'fallito' => 'Fallito / Grave non conformità',
                                 ])
@@ -182,7 +182,12 @@ class AuditForm
                                     'Medio' => 'Medio',
                                     'Basso' => 'Basso',
                                 ])
-                                ->visible(fn (Get $get) => filled($get('outcome'))),
+                                ->visible(function (Get $get) {
+                                    $outcome = $get('outcome');
+
+                                    // Visibile se è null, vuoto oppure uguale a 'nessuna'
+                                    return blank($outcome) || $outcome === 'conforme';
+                                }),
 
                             Select::make('rilievi_codes')
                                 ->label('Codici Rilievi')
@@ -205,7 +210,12 @@ class AuditForm
                                 ->default('Altro')
                                 ->placeholder('Seleziona uno o più codici')
                                 ->columnSpanFull()
-                                ->visible(fn (Get $get) => filled($get('outcome'))),
+                                ->visible(function (Get $get) {
+                                    $outcome = $get('outcome');
+
+                                    // Visibile se è null, vuoto oppure uguale a 'nessuna'
+                                    return blank($outcome) || $outcome === 'conforme';
+                                }),
 
                         ]),
                     ]),
@@ -215,7 +225,12 @@ class AuditForm
                     ->description('Da compilare se sono emerse non conformità.')
                     ->icon('heroicon-o-wrench-screwdriver')
                     ->collapsed()
-                    ->visible(fn (Get $get) => filled($get('outcome'))) // <-- Visibile solo se outcome non è null/vuoto
+                    ->visible(function (Get $get) {
+                        $outcome = $get('outcome');
+
+                        // Visibile se è null, vuoto oppure uguale a 'nessuna'
+                        return blank($outcome) || $outcome === 'conforme';
+                    }) // <-- Visibile solo se outcome non è null/vuoto
                     ->schema([
                         Grid::make(2)->schema([
                             Textarea::make('remediation_plan')
