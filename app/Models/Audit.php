@@ -137,7 +137,8 @@ class Audit extends Model
     {
         return $query->where('executed_at', '<=', $semester->end)
             ->where('executed_at', '>=', $semester->start)
-            ->whereNotNull('outcome');
+            ->whereNotNull('outcome')
+            ->where('outcome', '!=', 'nessuna');
 
     }
 

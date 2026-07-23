@@ -166,8 +166,9 @@ class AuditForm
                             Select::make('outcome')
                                 ->label('Difformità riscontrata')
                                 ->nullable()
-                                ->placeholder('solo se difforme seleziona un esito...')
+                                ->placeholder('seleziona un esito...')
                                 ->options([
+                                    'nessuna' => 'Nessuna difformità',
                                     'con_rilievi' => 'Con Rilievi (Non conformità minori)',
                                     'fallito' => 'Fallito / Grave non conformità',
                                 ])
