@@ -63,7 +63,7 @@ class EmployeeForm
                 Section::make('Informazioni Lavorative')
                     ->description('Dati di impiego e organizzazione')
                     ->schema([
-                        DatePicker::make('hire_date')
+                        DatePicker::make('hiring_date')
                             ->label('Inizio')
                             ->required(),
                         DatePicker::make('termination_date')
