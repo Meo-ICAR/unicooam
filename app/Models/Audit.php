@@ -132,4 +132,40 @@ class Audit extends Model
             ->where('executed_at', '>=', $semester->start);
 
     }
+
+    public function scopeRilieviOam(Builder $query, OamSemester $semester): Builder
+    {
+        return $query->where('executed_at', '<=', $semester->end)
+            ->where('executed_at', '>=', $semester->start)
+            ->whereNotNull('outcome');
+
+    }
+
+    /**
+     * Calcola il numero di audit previsti (funzione Compliance).
+     */
+    public static function auditEffettuatiPerPeriodo($inizio, $fine): int
+    {
+        return (int) static::query()
+         //   ->where('funzione', 'compliance')
+            ->where('execution_method', 'audit')
+            ->whereNotNull('executed_at')
+            ->where('executed_at', '<=', $fine)
+            ->where('executed_at', '>=', $inizio)
+            ->count();
+    }
+
+    /**
+     * Calcola il numero di ispezioni previsti (funzione Compliance).
+     */
+    public static function ispezioniEffettuatiPerPeriodo($inizio, $fine): int
+    {
+        return (int) static::query()
+          //  ->where('funzione', 'compliance')
+            ->where('execution_method', 'ispezione')
+            ->whereNotNull('executed_at')
+            ->where('executed_at', '<=', $fine)
+            ->where('executed_at', '>=', $inizio)
+            ->count();
+    }
 }

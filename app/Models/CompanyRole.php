@@ -62,6 +62,22 @@ class CompanyRole extends Model
     {
         return (int) static::query()
             ->where('funzione', 'compliance')
+            ->where('execution_method', 'audit')
+            ->whereNotNull('dal')
+            ->whereNotNull('al')
+            ->where('dal', '<=', $fine)
+            ->where('al', '>=', $inizio)
+            ->sum('n');
+    }
+
+    /**
+     * Calcola il numero di audit previsti (funzione Compliance).
+     */
+    public static function ispezioniPrevistiPerPeriodo($inizio, $fine): int
+    {
+        return (int) static::query()
+            ->where('funzione', 'compliance')
+            ->where('execution_method', 'ispezione')
             ->whereNotNull('dal')
             ->whereNotNull('al')
             ->where('dal', '<=', $fine)
@@ -76,6 +92,7 @@ class CompanyRole extends Model
     {
         $role = static::query()
             ->where('funzione', 'compliance')
+            ->where('execution_method', 'audit')
             ->whereNotNull('dal')
             ->whereNotNull('al')
             ->where('dal', '<=', $fine)
@@ -90,6 +107,35 @@ class CompanyRole extends Model
                 'company_id' => $companyId, // <-- Risolve l'errore SQL 1364
                 'name' => 'Controllo Semestrale',
                 'funzione' => 'compliance',
+                'execution_method' => 'audit',
+                'dal' => $inizio->format('Y-m-d'),
+                'al' => $fine->format('Y-m-d'),
+                'n' => $nuovoNumero,
+                'is_external' => false,
+            ]);
+        }
+    }
+
+    public static function salvaIspezionePrevistiPerPeriodo($inizio, $fine, int $nuovoNumero): void
+    {
+        $role = static::query()
+            ->where('funzione', 'compliance')
+            ->where('execution_method', 'ispezione')
+            ->whereNotNull('dal')
+            ->whereNotNull('al')
+            ->where('dal', '<=', $fine)
+            ->where('al', '>=', $inizio)
+            ->first();
+
+        if ($role) {
+            $role->update(['n' => $nuovoNumero]);
+        } else {
+            $companyId = static::value('company_id') ?? Company::first()?->id;
+            static::create([
+                'company_id' => $companyId, // <-- Risolve l'errore SQL 1364
+                'name' => 'Controllo Semestrale',
+                'funzione' => 'compliance',
+                'execution_method' => 'ispezione',
                 'dal' => $inizio->format('Y-m-d'),
                 'al' => $fine->format('Y-m-d'),
                 'n' => $nuovoNumero,

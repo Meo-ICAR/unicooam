@@ -103,6 +103,14 @@ class Pratica extends Model
         return $this->belongsTo(Fornitore::class, 'partita_iva_agente', 'piva');
     }
 
+    /**
+     * Get the agent (fornitore) associated with the pratica.
+     */
+    public function istituto()
+    {
+        return $this->belongsTo(Clienti::class, 'denominazione_banca', 'name');
+    }
+
     public function oamCode()
     {
         return $this->belongsTo(OamCode::class, 'tipo_prodotto', 'tipo_prodotto');

@@ -43,7 +43,7 @@ class ListAudits extends ListRecords
             CreateAction::make(),
 
             Action::make('calendarioSemestrale')
-                ->label('Pianificazione Semestrale Audit')
+                ->label('Pianificazione Audit')
                 ->icon('heroicon-o-calendar-days')
                 ->color('info')
             //    ->visible(fn (Action $action) => checkPiano($action->getName()))
@@ -63,6 +63,8 @@ class ListAudits extends ListRecords
                     return [
                         'previsti_s1' => CompanyRole::auditPrevistiPerPeriodo($s1Inizio, $s1Fine),
                         'previsti_s2' => CompanyRole::auditPrevistiPerPeriodo($s2Inizio, $s2Fine),
+                        'ispezioni_s1' => CompanyRole::ispezioniPrevistiPerPeriodo($s1Inizio, $s1Fine),
+                        'ispezioni_s2' => CompanyRole::ispezioniPrevistiPerPeriodo($s2Inizio, $s2Fine),
                     ];
                 })
 
@@ -75,8 +77,10 @@ class ListAudits extends ListRecords
                         's2Fine' => $s2Fine,
                     ] = $this->getPeriodiSemestrali();
 
-                    $effettuatiS1 = Audit::whereBetween('executed_at', [$s1Inizio, $s1Fine])->count();
-                    $effettuatiS2 = Audit::whereBetween('executed_at', [$s2Inizio, $s2Fine])->count();
+                    $effettuatiS1 = Audit::auditEffettuatiPerPeriodo($s1Inizio, $s1Fine);
+                    $effettuatiS2 = Audit::auditEffettuatiPerPeriodo($s2Inizio, $s2Fine);
+                    $ispezioniS1 = Audit::ispezioniEffettuatiPerPeriodo($s1Inizio, $s1Fine);
+                    $ispezioniS2 = Audit::ispezioniEffettuatiPerPeriodo($s2Inizio, $s2Fine);
 
                     return [
                         Grid::make(2)
@@ -84,30 +88,50 @@ class ListAudits extends ListRecords
                                 Section::make('1° Semestre')
                                     ->description($s1Inizio->format('d/m/Y').' - '.$s1Fine->format('d/m/Y'))
                                     ->icon('heroicon-o-calendar')
+                                    ->columns(2)
                                     ->schema([
-                                        Placeholder::make('s1_effettuati')
-                                            ->label('Audit Effettuati (Lettura)')
-                                            ->content("{$effettuatiS1}"),
                                         TextInput::make('previsti_s1')
                                             ->label('Audit Previsti')
                                             ->numeric()
                                             ->minValue(0)
                                             ->required(),
+                                        Placeholder::make('s1_effettuati')
+                                            ->label('Audit Effettuati')
+                                            ->content("{$effettuatiS1}"),
+                                        TextInput::make('ispezioni_s1')
+                                            ->label('Ispezioni Previste')
+                                            ->numeric()
+                                            ->minValue(0)
+                                            ->required(),
+                                        Placeholder::make('s1_ispezioni')
+                                            ->label('Ispezioni Effettuate')
+                                            ->content("{$ispezioniS1}"),
+
                                     ])
                                     ->columnSpan(1),
 
                                 Section::make('2° Semestre')
                                     ->description($s2Inizio->format('d/m/Y').' - '.$s2Fine->format('d/m/Y'))
                                     ->icon('heroicon-o-calendar')
+                                    ->columns(2)
                                     ->schema([
-                                        Placeholder::make('s2_effettuati')
-                                            ->label('Audit Effettuati (Lettura)')
-                                            ->content("{$effettuatiS2}"),
                                         TextInput::make('previsti_s2')
                                             ->label('Audit Previsti')
                                             ->numeric()
                                             ->minValue(0)
                                             ->required(),
+                                        Placeholder::make('s2_effettuati')
+                                            ->label('Audit Effettuati')
+                                            ->content("{$effettuatiS2}"),
+                                        TextInput::make('ispezioni_s2')
+                                            ->label('Ispezioni Previste')
+                                            ->numeric()
+                                            ->minValue(0)
+                                            ->required(),
+                                        Placeholder::make('s2_ispezioni')
+                                            ->label('Ispezioni Effettuate')
+                                            ->content("{$ispezioniS2}"),
+
                                     ])
                                     ->columnSpan(1),
                             ]),
