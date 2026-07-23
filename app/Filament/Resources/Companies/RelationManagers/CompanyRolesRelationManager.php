@@ -52,17 +52,18 @@ class CompanyRolesRelationManager extends RelationManager
                         'AML' => 'AML',
                         'ALTRO' => 'Altro',
                     ]),
+                Select::make('execution_method')
+                    ->label('Metodo di esecuzione')
+                    ->options(['audit' => 'audit', 'ispezione' => 'ispezione', 'altro' => 'Altro']),
                 Toggle::make('is_external')
                     ->label('Esterno'),
+                TextInput::make('expertName')
+                    ->label('Incaricato'),
                 DatePicker::make('dal')
                     ->label('Dal'),
                 DatePicker::make('al')
                     ->label('Al'),
-                Select::make('execution_method')
-                    ->label('Metodo di esecuzione')
-                    ->options(['documentale' => 'Documentale', '' => '', 'onsite' => 'In loco']),
-                TextInput::make('expertName')
-                    ->label('Incaricato'),
+
                 TextInput::make('n')
                     ->label('Numero')
                     ->numeric(),

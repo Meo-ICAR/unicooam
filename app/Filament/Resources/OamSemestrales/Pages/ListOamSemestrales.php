@@ -222,23 +222,19 @@ class ListOamSemestrales extends ListRecords
         $reclami = ComplaintRegistry::perSemestreOam($semestre)->count();
         $sars = SuspiciousActivityReport::perSemestreOam($semestre)->count();
 
-        $compliance_doc = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'documentale')->count();
-        $compliance_onsite = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'onsite')->count();
+        $compliance_doc = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'audit')->count();
+        $compliance_onsite = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'ispezione')->count();
 
         $audit_doc = Audit::perSemestreOam($semestre)->where('company_id', $azienda?->id)->count();
         $audit_onsite = Audit::perSemestreOam($semestre)->where('company_id', $azienda?->id)->count();
 
-        $auditsRegistrati = Audit::get();
+        $auditsRegistrati = Audit::RilieviOam($semestre)->get();
         $rilievi_lista = [];
 
         foreach ($auditsRegistrati as $audit) {
-            $nomeSoggetto = 'Soggetto sconosciuto';
 
-            if ($audit->auditable_type === 'employee') {
-                $nomeSoggetto = Employee::where('id', $audit->auditable_id)->value('name');
-            } elseif ($audit->auditable_type === 'fornitore') {
-                $nomeSoggetto = Fornitore::where('id', $audit->auditable_id)->value('name');
-            }
+            // Usa la relazione polimorfica già definita nel modello Audit
+            $nomeSoggetto = $audit->auditable?->name ?? 'Soggetto sconosciuto';
 
             $rilievi_lista[] = [
                 'collaboratore' => $nomeSoggetto,

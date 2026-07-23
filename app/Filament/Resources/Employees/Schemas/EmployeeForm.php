@@ -23,13 +23,6 @@ class EmployeeForm
                             ->label('Nominativo')
                             ->required()
                             ->maxLength(255),
-                        TextInput::make('employee_types')
-
-                            ->label('Ruolo')
-
-                            ->nullable()
-
-                            ->maxLength(50),
 
                         Select::make('employee_roles')
                             ->label('Ruoli')

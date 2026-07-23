@@ -48,7 +48,7 @@ class EmployeesTable
                     ->label('Nominativo')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('employee_types')
+                TextColumn::make('employee_roles')
                     ->label('Ruolo')
                     ->sortable()
                     ->searchable(),

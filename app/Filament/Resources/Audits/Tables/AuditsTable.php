@@ -47,21 +47,19 @@ class AuditsTable
                     ->sortable()
                     ->toggleable(),
                 // 6. Stati ed Esiti (Visualizzazione a Badge avanzata)
-                TextColumn::make('auditor_name')
-                    ->label('Auditor'),
+                TextColumn::make('execution_method')
+                    ->badge()
+                    ->label('Tipologia'),
 
                 TextColumn::make('status')
                     ->label('Stato')
-                    ->badge()
-                    ->sortable(),  // Se usi l'Enum con HasColor/HasLabel, Filament fa tutto da solo
-                TextColumn::make('rilievi_codes')
-                    ->label('Codici')
                     ->badge()
                     ->sortable(),  // Se usi l'Enum con HasColor/HasLabel, Filament fa tutto da solo
                 TextColumn::make('severity')
                     ->label('Severity')
                     ->badge()
                     ->sortable(),  // Se usi l'Enum con HasColor/HasLabel, Filament fa tutto da solo
+
                 TextColumn::make('remediation_plan')
                     ->label('Remediation Plan')
                     ->sortable(),
@@ -70,9 +68,7 @@ class AuditsTable
                     ->date('d/m/y')
                     ->sortable(),
                 //  ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('collaboratore')
-                    ->label('Collaboratore/U.O')
-                    ->sortable(),
+
                 TextColumn::make('organization.acronym')
                     ->label('Ente Vigilante')
                     ->badge()
@@ -114,9 +110,7 @@ class AuditsTable
                         default => $state,
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('execution_method')
-                    ->label('Metodo')
-                    ->toggleable(isToggledHiddenByDefault: true),
+
             ])
             ->filters([
                 Filter::make('semestre_attuale')
