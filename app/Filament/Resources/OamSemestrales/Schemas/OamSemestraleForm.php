@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\OamSemestrales\Schemas;
 
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -11,36 +10,25 @@ class OamSemestraleForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(5)
             ->components([
-                Select::make('company_id')
-                    ->label('Azienda')
-                    ->relationship('company', 'name'),
-                TextInput::make('period')
-                    ->label('Periodo'),
-                TextInput::make('numero_iscrizione_m510')
-                    ->label('N. iscrizione M510'),
+
                 TextInput::make('prodotto_creditizio')
                     ->label('Prodotto creditizio'),
-                TextInput::make('intermediari_convenzionati')
-                    ->label('Intermediari convenzionati')
-                    ->numeric()
-                    ->default(0),
-                TextInput::make('intermediari_non_convenzionati')
-                    ->label('Intermediari non convenzionati')
-                    ->numeric()
-                    ->default(0),
+
                 TextInput::make('pratiche_intermediate')
                     ->label('Pratiche intermedie')
-                    ->numeric()
-                    ->default(0),
-                TextInput::make('pratiche_lavorazione')
-                    ->label('Pratiche in lavorazione')
                     ->numeric()
                     ->default(0),
                 TextInput::make('erogato_lordo')
                     ->label('Erogato lordo')
                     ->numeric()
                     ->default(0.0),
+                TextInput::make('pratiche_lavorazione')
+                    ->label('Pratiche in lavorazione')
+                    ->numeric()
+                    ->default(0),
+
                 TextInput::make('erogato_lavorazione')
                     ->label('Erogato in lavorazione')
                     ->numeric()

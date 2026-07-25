@@ -53,7 +53,7 @@ class ClientiForm
                                         ->label('Modalità Inoltro Pratiche'),
 
                                 ]),
-                                Grid::make(3)->schema([]),
+                                Grid::make(4)->schema([]),
                                 Section::make('Stato Operativo')
                                     ->compact()
                                     ->schema([
@@ -62,9 +62,9 @@ class ClientiForm
                                                 ->required()
                                                 ->maxLength(255)
                                                 ->label('Dizione in istruttoria'),
-                                            TextInput::make('piva')
-                                                ->maxLength(16)
-                                                ->label('Partita IVA'),
+                                            TextInput::make('abi_name')
+                                                ->maxLength(255)
+                                                ->label('Dizione Finanziatore da elenco'),
 
                                             Toggle::make('is_active')
                                                 ->default(true)

@@ -159,7 +159,7 @@ class Audit extends Model
     /**
      * Calcola il numero di ispezioni previsti (funzione Compliance).
      */
-    public static function rilieviPerPeriodo($inizio, $fine): int
+    public static function ispezioniEffettuatiPerPeriodo($inizio, $fine): int
     {
         return (int) static::query()
           //  ->where('funzione', 'compliance')

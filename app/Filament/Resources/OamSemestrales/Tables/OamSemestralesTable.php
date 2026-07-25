@@ -149,10 +149,12 @@ class OamSemestralesTable
                     ->summarize(Sum::make()->money('EUR')->label(''))
 
                     ->sortable(),
+                /*
                 TextColumn::make('is_convenzione')
                     ->label('Convenzione')
                     ->formatStateUsing(fn ($state) => $state ? 'SI' : 'NO')
                     ->sortable(),
+                    */
                 TextColumn::make('gestione')
                     ->label('Gestione')
                     ->sortable()

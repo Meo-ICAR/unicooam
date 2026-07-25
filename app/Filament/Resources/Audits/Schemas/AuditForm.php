@@ -96,7 +96,7 @@ class AuditForm
                     ->description('Dettagli operativi, date e stato di avanzamento.')
                     ->icon('heroicon-o-calendar')
                     ->schema([
-                        Grid::make(2)->schema([
+                        Grid::make(5)->schema([
                             DatePicker::make('scheduled_at')
                                 ->label('Data Pianificata')
                                 ->displayFormat('d/m/y')
@@ -138,6 +138,7 @@ class AuditForm
                                 ->options(AuditStatus::class)
                                 ->default(AuditStatus::PLANNED)
                                 ->inline()
+                                ->columnSpanFull()
                                 ->required(),
                         ]),
                     ]),

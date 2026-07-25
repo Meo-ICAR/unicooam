@@ -51,11 +51,11 @@ class DocumentScheduleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static ?string $navigationLabel = 'Scadenziario documenti';
+    protected static ?string $navigationLabel = 'Scadenziario';
 
-    protected static ?string $modelLabel = 'Scadenziario documenti';
+    protected static ?string $modelLabel = 'Scadenza';
 
-    protected static ?string $pluralModelLabel = 'Scadenziario documenti';
+    protected static ?string $pluralModelLabel = 'Scadenze';
 
     //    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 

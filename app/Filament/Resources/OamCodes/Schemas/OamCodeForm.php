@@ -14,15 +14,18 @@ class OamCodeForm
     {
         return $schema
             ->components([
+                TextInput::make('tipo_prodotto')
+                    ->label('Tipo prodotto'),
+                TextInput::make('description')
+                    ->label('Descrizione'),
+                /*
                 TextInput::make('code')
                     ->label('Codice OAM'),
                 TextInput::make('name')
                     ->label('Nome'),
-                TextInput::make('description')
-                    ->label('Descrizione'),
-                TextInput::make('tipo_prodotto')
-                    ->label('Tipo prodotto'),
-                /*
+
+
+
                 Section::make('Associazione mandanti')
                     ->description('Seleziona i mandanti convenzionati a cui associare questo codice OAM.')
                     ->schema([

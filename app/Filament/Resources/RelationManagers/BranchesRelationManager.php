@@ -36,6 +36,10 @@ class BranchesRelationManager extends RelationManager
 
     protected static ?string $title = 'Sedi';
 
+    protected static ?string $modelLabel = 'Sede';
+
+    protected static ?string $pluralModelLabel = 'Sedi';
+
     public function form(Schema $schema): Schema
     {
         return $schema

@@ -28,10 +28,12 @@ class OamCodesTable
                     ->label('Descrizione')
                     ->sortable()
                     ->searchable(),
+                /*
                 TextColumn::make('clienti_count')
                     ->counts('clienti')
                     ->label('N. Convenzioni')
                     ->sortable(),
+                    */
                 // STATO E INQUADRAMENTO
                 ToggleColumn::make('is_active')
                     ->label('Attivo')

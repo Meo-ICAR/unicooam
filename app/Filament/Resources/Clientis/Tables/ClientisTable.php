@@ -74,6 +74,10 @@ class ClientisTable
                     ->searchable()
                     ->sortable()
                     ->label('Istruttoria'),
+                TextColumn::make('abi_name')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Finanziatore da ABI'),
 
             ])
             ->filters([
