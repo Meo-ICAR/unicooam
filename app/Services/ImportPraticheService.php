@@ -88,13 +88,19 @@ class ImportPraticheService
             o.pratiche_lavorazione = IF(o.erogated_at IS NULL, 1, 0),
             o.pratiche_intermediate = IF(o.erogated_at IS NOT NULL, 1, 0); ');
 
-        DB::update("UPDATE oam_pratiches o
-
+        DB::update("UPDATE oam_pratiches o 
         SET
             o.prodotto_creditizio =
             IF(o.tipo_prodotto = 'Mutuo','Segnalazione Mutuo',o.prodotto_creditizio)
 
-            where (o.tipo_prodotto = 'Mutuo') and (not (o.istituto like '%banca%') or (o.istituto is null))");
+            where (o.tipo_prodotto = 'Mutuo') and (o.erogato = 0); ");
+
+        DB::update("UPDATE oam_pratiches o 
+        SET
+            o.prodotto_creditizio =
+            IF(o.tipo_prodotto <> 'Mutuo','Segnalazione Finanziamento',o.prodotto_creditizio)
+
+            where (o.tipo_prodotto <> 'Mutuo') and (o.erogato = 0); ");
 
         DB::update('UPDATE oam_pratiches o
             SET
@@ -148,6 +154,25 @@ class ImportPraticheService
         $payout_rete_credito = Provvigione::getProvvigioneAgenti($id_pratica);
         $storno = Provvigione::getProvvigioneStorno($id_pratica);
 
+        $tipoProdotto = $pratica->tipo_prodotto;
+        $cliente = Clienti::find('name', $istitutox)->first();
+        if ($cliente->principal_type != 'banca') {
+            $erogato = 0;
+        } else {
+            if (($tipoProdotto === 'Cessione') || ($tipoProdotto === 'Delega')) {
+                $erogato = $pratica->amount;
+            } else {
+                $erogato = $pratica->net;
+            }
+        }
+        $abiName = $pratica->abi_name;
+        if ($abiName < '0') {
+            $abiName = $cliente->abi_name;
+            if ($abiName < '0') {
+                $abiName = $istitutox;
+            }
+        }
+
         return OamPratiche::updateOrCreate(
             [
                 // Usiamo il codice pratica come chiave di identificazione per non duplicare i record
@@ -160,7 +185,7 @@ class ImportPraticheService
                 'intermediari_non_convenzionati' => $istituto > 'A' ? 0 : 1,
                 'agente' => $agente,
                 'cliente' => $cliente ?: null,
-                'tipo_prodotto' => $pratica->tipo_prodotto,
+                'tipo_prodotto' => $tipoProdotto,
                 'erogato_lordo' => $erogato,
                 'sended_at' => $sended,
                 'approved_at' => $approved,
@@ -173,7 +198,7 @@ class ImportPraticheService
                 'importo_retrocesse' => $storno,
                 'num_rivalse' => $storno != 0 ? 1 : 0,
 
-                'abi_name' => $pratica->abi_name,
+                'abi_name' => $abiName,
             ]
         );
     }
