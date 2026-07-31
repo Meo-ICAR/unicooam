@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Schemas;
 
+use App\Models\EmployeeType;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -26,23 +27,13 @@ class EmployeeForm
 
                         Select::make('employee_roles')
                             ->label('Ruoli')
-                            ->multiple() // Abilita la selezione multipla combinabile
-                            ->options([
-                                'dipendente' => 'Dipendente',
-                                'istruttore' => 'Istruttore',
-                                'amministrativo' => 'Amministrativo',
-                                'segreteria' => 'Segreteria',
-                                'quality' => 'Qualita',
-                                'reclami' => 'Reclami',
-                                'dpo' => 'Privacy',
-                                'cda' => 'CdA',
-                                'compliance' => 'Compliance',
-                                'internal audit' => 'Auditor',
-                                'AML' => 'AML',
-                                'SOS' => 'Resp. SOS',
-                                'legale' => 'Legale',
-
-                            ])
+                            ->multiple()
+                            ->options(
+                                EmployeeType::query()
+                                    ->pluck('name', 'name')
+                                    ->map(fn (string $name) => ucfirst($name))
+                            )
+                            ->searchable()
                             ->nullable(),
                         TextInput::make('email')
                             ->label('Indirizzo email')

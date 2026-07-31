@@ -55,6 +55,9 @@ class AuditsTable
                     ->label('Difformita')
                     ->badge()
                     ->sortable(),  // Se usi l'Enum con HasColor/HasLabel, Filament fa tutto da solo
+                TextColumn::make('rilievi_codes')
+                    ->label('Cod.'),
+
                 TextColumn::make('severity')
                     ->label('Severity')
                     ->badge()

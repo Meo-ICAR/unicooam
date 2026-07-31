@@ -127,36 +127,33 @@ class Employee extends Model
     }
 
     /**
-     * Scope per selezionare solo gli auditor.
+     * Scope generico per filtrare per qualsiasi tipologia di ruolo (JSON).
      */
+    public function scopeHasRole(Builder $query, string $role): Builder
+    {
+        return $query->whereJsonContains('employee_roles', $role);
+    }
+
     public function scopeAuditors(Builder $query): Builder
     {
-        return $query->whereJsonContains('employee_roles', 'internal audit');
+        return $query->whereJsonContains('employee_roles', 'audit');
     }
 
     public function scopeQuality(Builder $query): Builder
     {
-        return $query->whereJsonContains('employee_roles', 'quality');
+        return $query->whereJsonContains('employee_roles', 'qualita');
     }
 
     public function scopeAudits(Builder $query): Builder
     {
         return $query->where(function (Builder $q) {
-            $q->whereJsonContains('employee_roles', 'quality')
-                ->orWhereJsonContains('employee_roles', 'internal audit');
+            $q->whereJsonContains('employee_roles', 'qualita')
+                ->orWhereJsonContains('employee_roles', 'audit');
         });
     }
 
     public function scopeEmployee(Builder $query): Builder
     {
         return $query->whereJsonContains('employee_roles', 'dipendente');
-    }
-
-    /**
-     * Scope generico per filtrare per qualsiasi tipologia di ruolo.
-     */
-    public function scopeHasType(Builder $query, string $type): Builder
-    {
-        return $query->whereJsonContains('employee_types', $type);
     }
 }

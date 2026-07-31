@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\RelationManagers;
 
-use App\Filament\Traits\HasPlanAccess;
+use App\Filament\Traits\HasRelationPlanAccess;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -29,7 +29,7 @@ use Filament\Tables\Table; // <-- Importa il trait
 
 class WebsitesRelationManager extends RelationManager
 {
-    use HasPlanAccess; // <-- Basta questo! Controlla automaticamente checkPiano('websites')
+    use HasRelationPlanAccess;  // <-- Basta questo! Controlla automaticamente checkPiano('websites')
 
     protected static string $relationship = 'websites';
 

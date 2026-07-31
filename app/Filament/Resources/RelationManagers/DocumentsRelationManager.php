@@ -4,7 +4,7 @@ namespace App\Filament\Resources\RelationManagers;
 
 use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
-use App\Filament\Traits\HasPlanAccess;
+use App\Filament\Traits\HasRelationPlanAccess;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\ValueObjects\OamSemester;
@@ -38,7 +38,7 @@ use pxlrbt\FilamentExcel\Actions\ExportAction; // <-- Importa il trait
 
 class DocumentsRelationManager extends RelationManager
 {
-    use HasPlanAccess; // <-- Basta questo! Controlla automaticamente checkPiano('websites')
+    use HasRelationPlanAccess;  // <-- Basta questo! Controlla automaticamente checkPiano('websites')
 
     protected static string $relationship = 'documents';
 
