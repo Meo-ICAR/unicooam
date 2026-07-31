@@ -81,6 +81,6 @@ class EmployeeType extends Model
 
     public function permissions(): HasMany
     {
-        return $this->hasMany(EmployeeTypePermission::class);
+        return $this->hasMany(EmployeeTypePermission::class, 'employee_type_id');
     }
 }
