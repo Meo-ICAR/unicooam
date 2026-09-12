@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ModelFieldsApiController;
 use App\Http\Controllers\Api\ModelFieldValueApiController;
+use App\Http\Controllers\Api\UserLookupApiController;
 use Illuminate\Support\Facades\Route;
 
 // Consumato da UnicoBPM per configurare i processi (select dei campi
@@ -10,3 +11,6 @@ use Illuminate\Support\Facades\Route;
 // produzione), da aggiungere prima del rilascio.
 Route::get('/models/{model}/fields', [ModelFieldsApiController::class, 'show'])->name('api.models.fields');
 Route::patch('/models/{model}/{id}', [ModelFieldValueApiController::class, 'update'])->name('api.models.update-field');
+
+// Consumato da UnicoBPM per verificare se l'utente loggato ha un account anche qui.
+Route::get('/users/lookup', [UserLookupApiController::class, 'show'])->name('api.users.lookup');
