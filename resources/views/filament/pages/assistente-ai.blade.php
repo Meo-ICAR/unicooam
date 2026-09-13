@@ -9,19 +9,7 @@
                 Risponde usando il manuale operativo dell'applicazione. Se non trova la risposta nel manuale, te lo dirà invece di inventarla.
             </p>
 
-            <form wire:submit="send" class="space-y-4">
-                <x-filament::input.wrapper>
-                    <x-filament::input.textarea
-                        wire:model="prompt"
-                        rows="3"
-                        placeholder="Es: come emetto un proforma?"
-                    />
-                </x-filament::input.wrapper>
-
-                <x-filament::button type="submit" icon="heroicon-o-paper-airplane">
-                    Chiedi
-                </x-filament::button>
-            </form>
+            {{ $this->form }}
 
             <div wire:loading wire:target="send" class="mt-4 text-sm text-gray-500 dark:text-gray-400">
                 Sto cercando nel manuale...
@@ -35,7 +23,29 @@
 
             @if ($answer)
                 <div class="mt-4 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 prose dark:prose-invert max-w-none">
-                    {!! Str::markdown($answer) !!}
+                    {!! Str::markdown($answer, ['html_input' => 'strip', 'allow_unsafe_links' => false]) !!}
+                </div>
+
+                @if ($inputTokens !== null)
+                    <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+                        Token Anthropic — input: {{ $inputTokens }}, output: {{ $outputTokens }}
+                        @if ($cachedInputTokens)
+                            , da cache: {{ $cachedInputTokens }}
+                        @endif
+                        (totale: {{ $inputTokens + $outputTokens }})
+                    </div>
+                @endif
+            @endif
+
+            @if ($escalationCode)
+                <div class="mt-4 rounded-lg bg-success-50 dark:bg-success-500/10 p-4 text-sm text-success-700 dark:text-success-400">
+                    Richiesta inoltrata al supporto (codice <strong>{{ $escalationCode }}</strong>). Riceverai una copia dell'email inviata.
+                </div>
+            @endif
+
+            @if ($escalationError)
+                <div class="mt-4 rounded-lg bg-danger-50 dark:bg-danger-500/10 p-4 text-sm text-danger-700 dark:text-danger-400">
+                    {{ $escalationError }}
                 </div>
             @endif
         </x-filament::section>

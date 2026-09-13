@@ -15,3 +15,7 @@ Route::get('/bpm-landing/{subject_id}', [BpmBridgeController::class, 'handle'])
 Route::get('/documents/{document}/download', DocumentDownloadController::class)
     ->middleware('auth')
     ->name('documents.download');
+
+Route::get('/manuale-operativo-oam', function () {
+    return response()->file(resource_path('manuals/manuale-operativo-oam.html'));
+})->middleware('auth')->name('manuale-operativo-oam');

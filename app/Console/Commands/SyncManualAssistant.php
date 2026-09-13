@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Neuron\ManualAssistantAgent;
+use App\Neuron\PlainHtmlReader;
 use Illuminate\Console\Command;
 use NeuronAI\RAG\DataLoader\FileDataLoader;
 
@@ -34,7 +35,12 @@ class SyncManualAssistant extends Command
                 continue;
             }
 
-            $documents = FileDataLoader::for($path)->getDocuments();
+            // Registriamo un reader per i manuali .html: senza reader dedicato
+            // FileDataLoader indicizzerebbe l'HTML grezzo (tag compresi) invece
+            // del solo testo.
+            $documents = FileDataLoader::for($path)
+                ->addReader('html', new PlainHtmlReader)
+                ->getDocuments();
             $agent->addDocuments($documents);
             $totalChunks += count($documents);
 

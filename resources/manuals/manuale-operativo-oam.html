@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Manuale operativo OAM — UnicoOAM</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; max-width: 880px; margin: 2rem auto; padding: 0 1.5rem; line-height: 1.55; color: #1a1a1a; }
+  h1 { border-bottom: 3px solid #d97706; padding-bottom: .5rem; }
+  h2 { margin-top: 2.5rem; border-bottom: 1px solid #ddd; padding-bottom: .3rem; color: #92400e; }
+  h3 { margin-top: 1.5rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: .4rem .6rem; text-align: left; vertical-align: top; }
+  th { background: #fef3c7; }
+  code { background: #f3f4f6; padding: .1rem .3rem; border-radius: 3px; }
+  .nota { background: #fffbeb; border-left: 4px solid #d97706; padding: .6rem 1rem; margin: 1rem 0; }
+  .attenzione { background: #fef2f2; border-left: 4px solid #dc2626; padding: .6rem 1rem; margin: 1rem 0; }
+  .toc a { display: block; margin: .2rem 0; }
+</style>
+</head>
+<body>
+
+<h1>Manuale operativo OAM — UnicoOAM</h1>
+
+<p>UnicoOAM è l'applicativo con cui la società di mediazione creditizia gestisce gli
+adempimenti previsti dall'iscrizione all'<strong>OAM</strong> (Organismo degli Agenti
+e dei Mediatori): tenuta del registro reclami, delle segnalazioni di operazioni
+sospette (SOS/antiriciclaggio), degli audit periodici e la compilazione della
+<strong>relazione semestrale</strong> da inviare all'OAM. I dati sulle pratiche di
+finanziamento e sulle provvigioni non si inseriscono qui a mano: arrivano importati
+dal gestionale Proforma, che gira sullo stesso server MySQL ma su un database
+separato, in sola lettura.</p>
+
+<div class="toc">
+<strong>Indice</strong>
+<a href="#accessi">1. Accesso e ruoli</a>
+<a href="#anagrafiche">2. Anagrafiche</a>
+<a href="#import">3. Import delle pratiche da Proforma</a>
+<a href="#semestrale">4. Relazione semestrale OAM (M510)</a>
+<a href="#audit">5. Audit interni e rilievi</a>
+<a href="#reclami">6. Registro reclami</a>
+<a href="#sos">7. Segnalazioni operazioni sospette (SOS)</a>
+<a href="#documenti">8. Documenti e scadenzario</a>
+<a href="#comunicazioni">9. Modelli email e plichi documentali</a>
+<a href="#organismi">10. Organismi di vigilanza e piani di rimedio</a>
+<a href="#permessi">11. Utenti, ruoli e permessi</a>
+<a href="#assistente">12. Assistente AI</a>
+<a href="#glossario">13. Glossario</a>
+</div>
+
+<h2 id="accessi">1. Accesso e ruoli</h2>
+
+<p>Si accede dal pannello all'indirizzo <code>/admin</code>, con login Microsoft o
+Google (pulsanti "Accedi con Microsoft" / "Accedi con Google" nella pagina di
+login) oppure con email e password se l'account è già stato creato manualmente.</p>
+
+<p>Ogni utente ha un <strong>ruolo</strong> (campo <code>role</code> sulla scheda
+utente) che determina cosa può vedere, indipendentemente dal menu:</p>
+
+<table>
+<tr><th>Ruolo</th><th>Cosa può usare</th></tr>
+<tr><td><code>admin</code> / <code>user</code></td><td>Tutte le funzionalità abilitate dal piano attivo.</td></tr>
+<tr><td><code>inspector</code> (Ispettore)</td><td>Solo Audit, Reclami, Segnalazioni SOS, Semestrale OAM e la scheda documenti dei fascicoli.</td></tr>
+<tr><td><code>quality</code> (Qualità)</td><td>Solo Audit e la scheda documenti.</td></tr>
+<tr><td><code>sos</code></td><td>Ruolo riservato all'ambito antiriciclaggio.</td></tr>
+</table>
+
+<p>Se una voce di menu non compare, o si prova ad aprirne l'indirizzo direttamente e
+si riceve un errore di autorizzazione, è perché il ruolo o il piano attivo non
+comprendono quella funzionalità: non è un guasto, va richiesto all'amministratore
+di cambiare ruolo.</p>
+
+<p>Oltre al ruolo generale esiste un secondo livello di permessi, più fine, legato al
+profilo <strong>Collaboratore</strong> (scheda "Organigramma") e ai suoi
+<strong>Ruoli/Moduli</strong> (vedi <a href="#permessi">§11</a>): serve per
+distinguere, ad esempio, chi può solo consultare un elenco da chi può anche
+crearne o cancellarne le righe.</p>
+
+<h2 id="anagrafiche">2. Anagrafiche</h2>
+
+<p>Nel gruppo di menu <strong>Anagrafiche</strong>:</p>
+
+<h3>Azienda</h3>
+<p>Scheda unica con i dati della società di mediazione: ragione sociale, partita
+IVA, numero di iscrizione OAM e data iscrizione/rinnovo, eventuale iscrizione
+IVASS (sezione RUI, numero, data), gruppo/sponsor di appartenenza. Questi dati
+alimentano il foglio "Anagrafica" della relazione semestrale, quindi vanno
+tenuti aggiornati prima di generare l'export.</p>
+
+<h3>Sedi</h3>
+<p>Elenco delle sedi operative e della sede legale (una sola marcata come "Sede
+principale"). Per ciascuna: indirizzo completo, responsabile di sede, data di
+apertura ed eventuale chiusura. Alimentano il foglio "Sedi" della relazione
+semestrale.</p>
+
+<h3>Siti web</h3>
+<p>Domini istituzionali o commerciali collegati alla società, con la data di
+pubblicazione del foglio informativo/trasparenza: alimenta il foglio
+"Informativo" della relazione semestrale.</p>
+
+<h3>Istituti Eroganti e Produttori</h3>
+<p>"Istituti Eroganti" è l'anagrafica delle banche/istituti finanziari mandanti
+(dati importati da Proforma, in sola lettura); "Produttori" è l'anagrafica degli
+agenti/collaboratori commerciali (anch'essa da Proforma). Da qui si verifica se
+un istituto è convenzionato e si consultano eventuali blacklist.</p>
+
+<h3>Codici OAM</h3>
+<p>Tabella di corrispondenza tra il tipo di prodotto gestito internamente (es.
+"Mutuo", "Cessione del Quinto") e la classificazione di prodotto creditizio
+richiesta dall'OAM. Va mantenuta aggiornata: se manca la corrispondenza per un
+nuovo tipo di prodotto, l'importazione delle pratiche (§3) non riesce a
+classificarlo correttamente nella relazione.</p>
+
+<h3>Organigramma (Collaboratori)</h3>
+<p>Anagrafica dei dipendenti e collaboratori interni, con iscrizioni professionali
+(OAM, RUI/IVASS), sede di appartenenza, responsabile diretto e ruoli
+privacy/GDPR. Da qui si assegna anche il <strong>tipo di collaboratore</strong>
+usato per calcolare i permessi granulari (§11).</p>
+
+<h2 id="import">3. Import delle pratiche da Proforma</h2>
+
+<p>Le pratiche di finanziamento e le relative provvigioni sono gestite nel
+gestionale <strong>Proforma</strong>, su un database separato dello stesso
+server MySQL, collegato in <strong>sola lettura</strong>: da UnicoOAM non si
+crea né si modifica mai una pratica direttamente.</p>
+
+<p>Per portare i dati di un semestre dentro UnicoOAM si usa l'importazione,
+disponibile in due modi:</p>
+
+<ul>
+<li><strong>Dal pannello</strong>: sezione "Semestrale OAM", pulsante
+<strong>"Importa Pratiche"</strong> nella pagina elenco. Importa sempre il
+semestre corrente (quello in corso o appena chiuso, calcolato automaticamente
+in base alla data odierna).</li>
+<li><strong>Da riga di comando</strong> (per un tecnico): <code>php artisan
+oam:import-pratiche</code>, con le opzioni <code>--year=</code> e
+<code>--semester=</code> (1 o 2) per forzare un periodo diverso da quello
+corrente. È anche schedulato automaticamente ogni lunedì alle 03:00 per tenere
+allineati i dati di lavoro.</li>
+</ul>
+
+<div class="attenzione">
+<strong>Attenzione:</strong> lanciare l'importazione <strong>ricostruisce da
+zero</strong> i dati di lavoro del periodo interessato (tabella pratiche OAM e
+il relativo aggregato semestrale): eventuali correzioni manuali fatte su quel
+periodo vengono sovrascritte. Non tocca invece gli altri periodi già chiusi.
+Se un'importazione è già in corso, un tentativo concorrente viene rifiutato con
+un messaggio esplicito, non genera un doppio conteggio.
+</div>
+
+<p>Durante l'importazione il sistema, per ogni pratica del semestre:</p>
+<ol>
+<li>recupera l'istituto erogante, il produttore/agente e le provvigioni
+(cliente, istituto, premio, agente, eventuali storni) sommandole da Proforma;</li>
+<li>calcola l'erogato lordo (0 se l'istituto non è una banca convenzionata,
+altrimenti l'importo netto o l'importo lordo a seconda del tipo di prodotto);</li>
+<li>classifica il prodotto creditizio tramite i Codici OAM (§2) e distingue le
+pratiche già erogate da quelle ancora in lavorazione;</li>
+<li>riporta separatamente gli eventuali storni/rivalse su provvigioni di
+pratiche erogate in periodi precedenti.</li>
+</ol>
+
+<p>L'esito (numero di pratiche importate, o l'errore riscontrato) compare in una
+notifica a fine operazione. I dati importati sono consultabili in sola lettura
+in "OAM Dettaglio" (riga per riga) e vengono riepilogati in "Semestrale OAM"
+(aggregati per istituto e prodotto).</p>
+
+<h2 id="semestrale">4. Relazione semestrale OAM (M510)</h2>
+
+<p>La sezione <strong>Semestrale OAM</strong> mostra l'aggregato del periodo
+(pratiche intermediate, erogato, provvigioni, storni, ripartiti per istituto e
+prodotto creditizio) ed è il punto da cui si genera il file da inviare all'OAM.</p>
+
+<p>Dalla pagina elenco, i pulsanti di esportazione producono un file Excel
+multi-foglio con la struttura richiesta dal modello M510:</p>
+
+<table>
+<tr><th>Foglio</th><th>Contenuto</th></tr>
+<tr><td>Anagrafica</td><td>Dati della società (§2 "Azienda").</td></tr>
+<tr><td>Profilo economico base</td><td>Pratiche intermediate/in lavorazione, erogato, provvigioni per prodotto (dalla Semestrale OAM aggregata).</td></tr>
+<tr><td>Profilo prudenziale</td><td>Reclami e segnalazioni SOS del semestre, audit/ispezioni effettuati e relativi rilievi (§5, §6, §7).</td></tr>
+<tr><td>Profilo informativo</td><td>Siti web, procedure e modulistica pubblicate, funzioni esternalizzate.</td></tr>
+<tr><td>Elenco sedi territoriali</td><td>Sedi operative (§2 "Sedi").</td></tr>
+</table>
+
+<p>Il pulsante <strong>"Completo"</strong> genera il file con tutti i fogli in una
+sola cartella di lavoro; i pulsanti "Analitico", "Anagrafica", "Informativo",
+"Sedi", "Prudenziale" generano il singolo foglio isolato, utile per verificare
+un dato prima dell'invio ufficiale.</p>
+
+<div class="nota">
+Prima di esportare la relazione, verificare di aver eseguito l'importazione del
+periodo corretto (§3) e che anagrafica azienda, sedi e siti web siano
+aggiornati: l'esportazione fotografa i dati presenti in quel momento, non li
+ricalcola.
+</div>
+
+<h2 id="audit">5. Audit interni e rilievi</h2>
+
+<p>La sezione <strong>Audit</strong> è il registro dei controlli periodici,
+documentali o in loco, svolti sulla rete (dipendenti, agenti, sedi). Ogni audit
+ha:</p>
+<ul>
+<li>un <strong>soggetto controllato</strong> e, se richiesto da un ente esterno
+(es. la stessa OAM), l'organismo di riferimento (§10);</li>
+<li>una modalità di esecuzione (documentale, audit, ispezione) e le date di
+programmazione ed esecuzione;</li>
+<li>un numero di protocollo, assegnato <strong>automaticamente</strong> in
+sequenza per anno (formato <code>AAAA/NNNN</code>) se lasciato vuoto;</li>
+<li>un esito (conforme / non conforme) e, se non conforme, un piano di rimedio e
+una data di follow-up.</li>
+</ul>
+
+<p>Se dall'audit emergono criticità puntuali, si aprono uno o più
+<strong>rilievi</strong> (scheda "Rilievi audit", accessibile dal dettaglio
+dell'audit): ciascun rilievo ha una gravità (osservazione, minore, maggiore,
+critica), uno stato (aperto, in lavorazione, risolto, rischio accettato,
+chiuso), può richiedere un approfondimento e/o un'azione correttiva con
+scadenza propria. La dashboard segnala nel riquadro "Audit in corso" quanti
+rilievi sono ancora aperti o in lavorazione.</p>
+
+<p>Ogni modifica ad audit e rilievi (creazione, cambio di stato, chiusura) resta
+tracciata nel registro attività, conservato per 10 anni: è la prova, in caso di
+ispezione OAM, di chi ha fatto cosa e quando.</p>
+
+<h2 id="reclami">6. Registro reclami</h2>
+
+<p>Il <strong>Registro reclami</strong> è l'adempimento verso i clienti: ogni
+reclamo ricevuto va protocollato qui, indipendentemente dal canale con cui è
+arrivato.</p>
+
+<p>Campi principali alla creazione:</p>
+<ul>
+<li>data e <strong>canale di ricezione</strong> (PEC, raccomandata, email,
+consegna a mano) ed eventuale casella email che lo ha ricevuto;</li>
+<li>dati del reclamante (nome, email; può essere collegato a un cliente,
+dipendente o produttore già censito);</li>
+<li>macro-categoria (finanziario, privacy, assicurativo, operativo) e categoria
+di dettaglio (ritardo, comportamento, frode, tassi, accesso GDPR, cancellazione
+GDPR, trasparenza);</li>
+<li>l'agente e/o l'istituto/banca coinvolti nel prodotto contestato;</li>
+<li>descrizione, eventuale impatto economico stimato;</li>
+<li>esito (aperto, in istruttoria, accolto, respinto, escalation) e, se
+concluso, note di risoluzione.</li>
+</ul>
+
+<p>Il numero di protocollo (<code>AAAA/NNNN</code>) viene assegnato
+automaticamente in sequenza per anno se non indicato a mano. La
+<strong>scadenza</strong> di gestione viene impostata alla creazione (45 giorni
+dalla ricezione, come da regolamento reclami) e, se il termine è superato senza
+che il reclamo risulti accolto o respinto, il record compare come scaduto nella
+dashboard ("Reclami in corso").</p>
+
+<h2 id="sos">7. Segnalazioni operazioni sospette (SOS)</h2>
+
+<p>La sezione <strong>Segnalazioni SOS</strong> è il registro interno delle
+operazioni ritenute sospette ai fini antiriciclaggio, propedeutico
+all'eventuale segnalazione alla UIF. Per ciascuna segnalazione si registra: il
+cliente interessato, chi ha segnalato l'anomalia (dipendente o agente),
+la data, i codici anomalia rilevati, una descrizione dei fatti e lo stato
+(bozza, in valutazione, segnalata, archiviata).</p>
+
+<div class="attenzione">
+Questa sezione contiene informazioni riservate per legge: va trattata con la
+massima cautela, condivisa solo con chi ha necessità di conoscerla (referente
+antiriciclaggio, compliance), mai discussa con il cliente segnalato né citata
+per esteso fuori dall'applicativo.
+</div>
+
+<h2 id="documenti">8. Documenti e scadenzario</h2>
+
+<p>Ogni documento caricato in UnicoOAM (allegato a un dipendente, una sede, una
+pratica, un audit, un reclamo...) è un record nella sezione <strong>Elenco
+Documenti</strong>, con: tipo documento, data di emissione e di scadenza, stato
+(richiesto, caricato, approvato, respinto, provvisorio, scaduto, non
+leggibile, revocato, non applicabile), ed eventuali note interne.</p>
+
+<p>I <strong>Tipi Documento</strong> (menu System) definiscono, per ciascuna
+tipologia (es. "Iscrizione OAM", "Visura camerale", "Documento d'identità"): a
+chi si può associare (dipendente, agente, cliente, azienda, pratica...), se va
+monitorato per la scadenza, la durata di validità e con quanto anticipo
+avvisare (giorni di preavviso).</p>
+
+<p>I documenti marcati "monitorato" e con una scadenza compaiono nello
+<strong>Scadenziario</strong>. Un job programmato (<code>documents:send-reminders</code>,
+ogni giorno alle 8:00) invia automaticamente un promemoria via email al
+referente competente man mano che ci si avvicina alla scadenza (secondo le
+soglie configurate sul tipo documento), e registra ogni invio per non
+sollecitare due volte la stessa scadenza a distanza di pochi giorni. La
+dashboard mostra in "Documenti scaduti" quelli monitorati già oltre la data di
+scadenza, con collegamento diretto allo scadenzario.</p>
+
+<p>Il download di un allegato richiede sempre di essere autenticati
+nell'applicativo: un link al singolo file non è mai accessibile pubblicamente.</p>
+
+<h2 id="comunicazioni">9. Modelli email e plichi documentali</h2>
+
+<p><strong>Modelli email</strong> (menu System) sono i testi standard usati dai
+promemoria automatici e da altre comunicazioni: contengono segnaposto (es.
+<code>{agente_nome}</code>, <code>{documento_nome}</code>, <code>{elenco_documenti}</code>)
+sostituiti automaticamente con i dati reali al momento dell'invio.</p>
+
+<p><strong>Plico documentale</strong> è l'elenco di documenti richiesti in blocco
+per completare una pratica o un onboarding (es. tutti i documenti necessari per
+attivare un nuovo collaboratore): raggruppa più Tipi Documento in un'unica
+checklist da seguire fino al completamento.</p>
+
+<h2 id="organismi">10. Organismi di vigilanza e piani di rimedio</h2>
+
+<p><strong>Organismi</strong> (menu System) è l'anagrafica degli enti esterni che
+possono richiedere o disporre un controllo (OAM, IVASS, altri organismi di
+vigilanza): si collega agli Audit quando il controllo non è di iniziativa
+interna.</p>
+
+<p><strong>Piani di rimedio</strong> raccoglie le azioni correttive strutturate
+aperte a seguito di un audit non conforme o di un rilievo importante, con
+responsabile e scadenza, per tenere traccia della loro chiusura nel tempo.</p>
+
+<h2 id="permessi">11. Utenti, ruoli e permessi</h2>
+
+<p>Oltre al ruolo generale dell'utente (§1), l'accesso alle singole sezioni può
+essere affinato con il motore di permessi basato su:</p>
+<ul>
+<li><strong>Moduli</strong> (menu System, sezione "Moduli"): il catalogo delle
+risorse gestibili (es. "Audit", "Registro Reclami", "Dipendenti"...), ciascuna
+con un piano minimo richiesto;</li>
+<li><strong>Ruoli</strong> (tipi di collaboratore, es. "Responsabile
+Compliance", "Backoffice"): per ciascun ruolo si definisce, modulo per modulo,
+quali azioni sono permesse (elenco, dettaglio, creazione, modifica,
+eliminazione) tramite una matrice di interruttori nella scheda del ruolo;</li>
+<li>ogni collaboratore (§2 "Organigramma") viene poi associato a uno o più
+ruoli, ereditandone i permessi.</li>
+</ul>
+
+<p>Chi non ha il permesso su un modulo non lo vede nel menu e non può aprirne le
+pagine nemmeno digitando l'indirizzo a mano.</p>
+
+<h2 id="assistente">12. Assistente AI</h2>
+
+<p>La voce di menu <strong>"Assistente AI"</strong> permette di fare due tipi di
+domande:</p>
+<ul>
+<li><strong>domande procedurali</strong> ("come si registra un reclamo?", "dove
+si trova lo scadenzario documenti?"): la risposta viene cercata in questo
+manuale;</li>
+<li><strong>domande sui dati operativi</strong> ("quante pratiche OAM in
+lavorazione ci sono questo semestre?", "quali documenti scadono questo mese?"):
+l'assistente interroga il database in sola lettura, limitatamente alle tabelle
+di dominio (mai credenziali, password o token).</li>
+</ul>
+
+<p>Se la risposta non è quella cercata, il pulsante <strong>"Non è la risposta
+che cercavo, contatta il supporto"</strong> invia una email al supporto con la
+domanda posta e la risposta ricevuta, in copia anche all'utente che l'ha
+richiesta.</p>
+
+<h2 id="glossario">13. Glossario</h2>
+
+<table>
+<tr><th>Termine</th><th>Significato</th></tr>
+<tr><td>OAM</td><td>Organismo degli Agenti e dei Mediatori: l'ente di vigilanza a cui la società è iscritta.</td></tr>
+<tr><td>M510</td><td>Il modello di relazione semestrale richiesto dall'OAM.</td></tr>
+<tr><td>Proforma</td><td>Il gestionale esterno, sullo stesso server MySQL, da cui vengono importate pratiche e provvigioni (in sola lettura).</td></tr>
+<tr><td>Pratica</td><td>Un'operazione di finanziamento seguita da un agente/collaboratore per conto di un cliente presso un istituto erogante.</td></tr>
+<tr><td>Erogato</td><td>L'importo effettivamente liquidato dall'istituto su una pratica.</td></tr>
+<tr><td>Storno / rivalsa</td><td>Restituzione, totale o parziale, di una provvigione già percepita su una pratica successivamente estinta o annullata.</td></tr>
+<tr><td>SOS</td><td>Segnalazione di Operazione Sospetta ai fini antiriciclaggio.</td></tr>
+<tr><td>RUI</td><td>Registro Unico degli Intermediari assicurativi (competenza IVASS), quando la società opera anche in ambito assicurativo.</td></tr>
+</table>
+
+</body>
+</html>

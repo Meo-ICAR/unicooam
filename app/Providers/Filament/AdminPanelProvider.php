@@ -37,6 +37,12 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()->label('Anagrafiche'),  // ->collapsed(),
                 NavigationGroup::make()->label('System')->collapsed(),
             ])
+            ->navigationItems([
+                NavigationItem::make('Manuale operativo OAM')
+                    ->url(fn () => route('manuale-operativo-oam'), shouldOpenInNewTab: true)
+                    ->icon('heroicon-o-book-open')
+                    ->sort(100),
+            ])
             ->brandLogo(asset('images/unicoOAM_banner.png'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
             //   ->brandLogoHeight('3rem')
