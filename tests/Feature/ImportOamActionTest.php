@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\OamSemestrales\Pages\ListOamSemestrales;
 use App\Models\Company;
 use App\Models\User;
 use Carbon\Carbon;
@@ -46,6 +47,49 @@ class ImportOamActionTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Completo');
+    }
+
+    public function test_base_export_action_is_registered_on_list_page(): void
+    {
+        Company::factory()->create();
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->get(route('filament.admin.resources.oam-semestrales.index'));
+
+        $response->assertOk();
+        $response->assertSee('Base');
+    }
+
+    public function test_list_page_uses_the_default_full_width_breadcrumbs_and_heading(): void
+    {
+        $page = new ListOamSemestrales;
+
+        $this->assertTrue($page->hasResourceBreadcrumbs());
+    }
+
+    public function test_list_page_heading_renders_on_its_own_row_above_the_header_actions(): void
+    {
+        Company::factory()->create();
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->get(route('filament.admin.resources.oam-semestrales.index'));
+
+        $response->assertOk();
+        $response->assertSee('flex-direction: column', false);
+    }
+
+    public function test_list_page_shows_the_convenzione_column(): void
+    {
+        Company::factory()->create();
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $response = $this->get(route('filament.admin.resources.oam-semestrales.index'));
+
+        $response->assertOk();
+        $response->assertSee('Convenzione');
     }
 
     /**

@@ -72,7 +72,7 @@ class ClientiForm
 
                                         ]),
                                     ]),
-                                /*
+
                                 Section::make('Associazione prodotti')
                                     ->description('Seleziona i prodotti convenzionati con questa mandante.')
                                     ->collapsible()
@@ -92,7 +92,7 @@ class ClientiForm
                                             ->gridDirection('row'),
                                     ])
                                     ->columnSpanFull(),
-                                    */
+
                             ]),
                         /*
                         // TAB 2: DATI MANDATO E VIGILANZA (OAM / IVASS)

@@ -4,9 +4,11 @@ namespace App\Filament\Resources\OamSemestrales\Tables;
 
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\OamPratiches\OamPraticheResource;
+use App\Models\OamCode;
 use App\Models\OamSemestrale;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
@@ -37,6 +39,11 @@ class OamSemestralesTable
                   //  ->getTitleFromRecordUsing(fn (OamSemestrale $record): string => $record->abi_name)
                     ->collapsible(),
             ])
+            // Quando il toggle "Solo riepilogo" della pagina elenco è attivo,
+            // raggruppa per prodotto creditizio e mostra solo le righe di
+            // totale del gruppo, nascondendo il dettaglio per istituto.
+            ->defaultGroup(fn (Table $table): ?string => $table->getLivewire()->onlySummary ? 'prodotto_creditizio' : null)
+            ->groupsOnly(fn (Table $table): bool => (bool) $table->getLivewire()->onlySummary)
             ->columns([
                 TextColumn::make('abi_name')
                     ->label('Finanziatore')->sortable()
@@ -45,6 +52,17 @@ class OamSemestralesTable
                 TextColumn::make('prodotto_creditizio')
                     ->sortable()
                     ->searchable(),
+
+                // Vero se il finanziatore (abi_name) risulta convenzionato per
+                // questo prodotto creditizio nell'anagrafica Mandanti/Prodotti
+                // (Clienti::oamCodes(), tabella pivot clienti_oam); nessuna
+                // icona (stato null) se non c'è convenzione.
+                IconColumn::make('has_convenzione')
+                    ->label('Convenzione')
+                    ->getStateUsing(fn (OamSemestrale $record): ?bool => OamCode::isIstitutoConvenzionato($record->abi_name, $record->prodotto_creditizio) ?: null)
+                    ->icon(fn (?bool $state): ?string => $state ? 'heroicon-o-check-circle' : null)
+                    ->color('success')
+                    ->alignCenter(),
 
                 TextColumn::make('pratiche_intermediate')
                     ->label('Intermediate')

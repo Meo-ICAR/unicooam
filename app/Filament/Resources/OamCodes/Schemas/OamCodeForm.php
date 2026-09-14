@@ -24,7 +24,7 @@ class OamCodeForm
                 TextInput::make('name')
                     ->label('Nome'),
 
-
+ */
 
                 Section::make('Associazione mandanti')
                     ->description('Seleziona i mandanti convenzionati a cui associare questo codice OAM.')
@@ -36,7 +36,11 @@ class OamCodeForm
                                 titleAttribute: 'nome',
                                 modifyQueryUsing: fn (Builder $query) => $query
                                     ->whereNull('dismissed_at')
-                                    ->where('principal_type', 'banca'),
+                                    ->where('principal_type', 'banca')
+                                    // Esclude i mandanti senza denominazione (campo "nome"): la
+                                    // checklist ha bisogno di un'etichetta per ogni opzione.
+                                    ->whereNotNull('nome')
+                                    ->where('nome', '!=', ''),
                             )
                             ->searchable()
                             ->bulkToggleable()
@@ -45,7 +49,7 @@ class OamCodeForm
 
                     ])
                     ->columnSpanFull(),
-                    */
+
             ]);
     }
 }

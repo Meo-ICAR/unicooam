@@ -10,6 +10,8 @@ class OamCompletoExport implements WithMultipleSheets
 
     protected array $datiEconomici;
 
+    protected array $datiEconomiciBase;
+
     protected array $datiInformativo;
 
     protected array $datiSedi;
@@ -21,13 +23,15 @@ class OamCompletoExport implements WithMultipleSheets
         array $datiEconomici,
         array $datiInformativo,
         array $datiSedi,
-        array $datiPrudenziale
+        array $datiPrudenziale,
+        array $datiEconomiciBase
     ) {
         $this->datiAnagrafica = $datiAnagrafica;
         $this->datiEconomici = $datiEconomici;
         $this->datiInformativo = $datiInformativo;
         $this->datiSedi = $datiSedi;
         $this->datiPrudenziale = $datiPrudenziale;
+        $this->datiEconomiciBase = $datiEconomiciBase;
     }
 
     /**
@@ -37,6 +41,7 @@ class OamCompletoExport implements WithMultipleSheets
     {
         return [
             new M510AnagraficaSheet($this->datiAnagrafica),
+            new M510EconomicoOldSheet($this->datiEconomiciBase),
             new M510EconomicoBaseSheet($this->datiEconomici),
             new M510InformativoSheet($this->datiInformativo),
             new M510SediSheet($this->datiSedi),

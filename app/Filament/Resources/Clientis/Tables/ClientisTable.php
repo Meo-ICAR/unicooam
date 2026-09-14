@@ -57,14 +57,13 @@ class ClientisTable
                     ->date('d/m/y')
                     ->sortable()
                     ->label('Recesso'),
-                /*
                 TextColumn::make('oam_codes_count')
                     ->counts('oamCodes')
-                    ->label('Convenzioni')
+                    ->label('N. Prodotti')
                     ->sortable()
                     ->badge()  // Opzionale: racchiude il numero in un badge grafico molto pulito
                     ->color('primary'),
-
+                /*
                 TextColumn::make('piva')
                     ->searchable()
                     ->sortable()

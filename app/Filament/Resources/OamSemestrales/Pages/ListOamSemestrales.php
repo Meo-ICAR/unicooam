@@ -5,6 +5,7 @@ namespace App\Filament\Resources\OamSemestrales\Pages;
 use App\Filament\Actions\ImportOamAction;
 use App\Filament\Exports\Sheets\M510AnagraficaSheet;
 use App\Filament\Exports\Sheets\M510EconomicoBaseSheet;
+use App\Filament\Exports\Sheets\M510EconomicoOldSheet;
 use App\Filament\Exports\Sheets\M510InformativoSheet;
 use App\Filament\Exports\Sheets\M510PrudenzialeSheet;
 use App\Filament\Exports\Sheets\M510SediSheet;
@@ -17,6 +18,7 @@ use App\Models\CompanyRole;
 use App\Models\ComplaintRegistry;
 use App\Models\Document;
 use App\Models\Employee;
+use App\Models\OamCode;
 use App\Models\OamSemestrale;
 use App\Models\PROFORMA\Fornitore;
 use App\Models\SuspiciousActivityReport;
@@ -25,6 +27,7 @@ use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 // CORRETTO
+use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -32,9 +35,39 @@ class ListOamSemestrales extends ListRecords
 {
     protected static string $resource = OamSemestraleResource::class;
 
+    /**
+     * Quando attivo, la tabella mostra solo le righe di riepilogo per
+     * prodotto creditizio (raggruppamento + groupsOnly), nascondendo il
+     * dettaglio per istituto erogante.
+     */
+    public bool $onlySummary = true;
+
+    /**
+     * Il titolo va sempre su una riga separata rispetto ai tasti header
+     * actions (numerosi, altrimenti spingono il titolo a capo su desktop).
+     */
+    public function getHeader(): ?View
+    {
+        return view('filament.resources.oam-semestrales.list-header', [
+            'actions' => $this->getCachedHeaderActions(),
+            'actionsAlignment' => $this->getHeaderActionsAlignment(),
+            'breadcrumbs' => filament()->hasBreadcrumbs() ? $this->getBreadcrumbs() : [],
+            'heading' => $this->getHeading(),
+            'subheading' => $this->getSubheading(),
+        ]);
+    }
+
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('toggleOnlySummary')
+                ->label(fn (): string => $this->onlySummary ? 'Mostra dettaglio' : 'Solo riepilogo')
+                ->icon(fn (): string => $this->onlySummary ? 'heroicon-o-eye' : 'heroicon-o-eye-slash')
+                ->color('gray')
+                ->action(function (): void {
+                    $this->onlySummary = ! $this->onlySummary;
+                }),
+
             ImportOamAction::make()
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('info'),
@@ -51,12 +84,22 @@ class ListOamSemestrales extends ListRecords
                         $this->getDatiEconomici(),
                         $this->getDatiInformativo(),
                         $this->getDatiSedi(),
-                        $this->getDatiPrudenziale()
+                        $this->getDatiPrudenziale(),
+                        $this->getDatiEconomiciAggregatiPerProdotto()
                     ),
                     'OAM_Completo.xlsx'
                 )),
 
             // --- SINGOLI FOGLI ISOLATI ---
+            Action::make('Base')
+                ->label('Base')
+                ->icon('heroicon-o-chart-pie')
+                ->color('info')
+                ->action(fn (): BinaryFileResponse => Excel::download(
+                    new M510EconomicoOldSheet($this->getDatiEconomiciAggregatiPerProdotto()),
+                    'OAM_Base.xlsx'
+                )),
+
             Action::make('Analitico')
                 ->label('Analitico')
                 ->icon('heroicon-o-chart-bar')
@@ -137,6 +180,73 @@ class ListOamSemestrales extends ListRecords
     protected function getDatiEconomici(): array
     {
         return OamSemestrale::all()->toArray();
+    }
+
+    /**
+     * Dati per il foglio "Profilo Economico Base": una sola riga per
+     * prodotto creditizio (senza il dettaglio per istituto erogante),
+     * ottenuta sommando le righe di OamSemestrale — equivale alle sole
+     * righe di raggruppamento della tabella "OAM Semestrale" quando
+     * raggruppata/ordinata per prodotto_creditizio. Include anche:
+     * - colonna C: il numero di convenzioni che il prodotto OamCode ha
+     *   in anagrafica, a prescindere da cosa risulti in OamSemestrale;
+     * - colonna D: il numero di finanziatori presenti in OamSemestrale
+     *   per quel prodotto che NON risultano convenzionati.
+     */
+    protected function getDatiEconomiciAggregatiPerProdotto(): array
+    {
+        $nonConvenzionatiPerProdotto = $this->contaIstitutiNonConvenzionatiPerProdotto();
+
+        return OamSemestrale::query()
+            ->selectRaw('prodotto_creditizio')
+            ->selectRaw('SUM(pratiche_intermediate) as pratiche_intermediate')
+            ->selectRaw('SUM(pratiche_lavorazione) as pratiche_lavorazione')
+            ->selectRaw('SUM(erogato_lordo) as erogato_lordo')
+            ->selectRaw('SUM(erogato_lavorazione) as erogato_lavorazione')
+            ->selectRaw('SUM(provv_clientela) as provv_clientela')
+            ->selectRaw('SUM(provv_istituto_comp) as provv_istituto_comp')
+            ->selectRaw('SUM(premi_istituto_comp) as premi_istituto_comp')
+            ->selectRaw('SUM(payin_ass_banche) as payin_ass_banche')
+            ->selectRaw('SUM(payin_ass_broker) as payin_ass_broker')
+            ->selectRaw('SUM(payin_ass_broker_cap) as payin_ass_broker_cap')
+            ->selectRaw('SUM(payout_rete_credito) as payout_rete_credito')
+            ->selectRaw('SUM(payout_rete_ass_banche) as payout_rete_ass_banche')
+            ->selectRaw('SUM(payout_rete_ass_broker) as payout_rete_ass_broker')
+            ->selectRaw('SUM(payout_rete_ass_broker_cap) as payout_rete_ass_broker_cap')
+            ->selectRaw('SUM(num_rivalse) as num_rivalse')
+            ->selectRaw('SUM(importo_retrocesse) as importo_retrocesse')
+            ->groupBy('prodotto_creditizio')
+            ->orderBy('prodotto_creditizio')
+            ->get()
+            ->map(fn (OamSemestrale $riga): array => [
+                ...$riga->toArray(),
+                'intermediari_convenzionati' => OamCode::countConvenzioniPerProdotto($riga->prodotto_creditizio),
+                'intermediari_non_convenzionati' => $nonConvenzionatiPerProdotto[$riga->prodotto_creditizio] ?? 0,
+            ])
+            ->all();
+    }
+
+    /**
+     * Per ogni prodotto creditizio presente nello scadenziario OAM, conta i
+     * finanziatori (abi_name distinti) che compaiono in OamSemestrale ma
+     * NON risultano convenzionati per quel prodotto (OamCode::clienti()).
+     *
+     * @return array<string, int>
+     */
+    protected function contaIstitutiNonConvenzionatiPerProdotto(): array
+    {
+        return OamSemestrale::query()
+            ->select('prodotto_creditizio', 'abi_name')
+            ->distinct()
+            ->get()
+            ->groupBy('prodotto_creditizio')
+            ->map(fn ($righe, string $prodottoCreditizio): int => $righe
+                ->pluck('abi_name')
+                ->unique()
+                ->filter()
+                ->reject(fn (string $abiName): bool => OamCode::isIstitutoConvenzionato($abiName, $prodottoCreditizio))
+                ->count())
+            ->all();
     }
 
     protected function getDatiInformativo(): array

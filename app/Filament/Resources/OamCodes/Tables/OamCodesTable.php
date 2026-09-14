@@ -10,6 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class OamCodesTable
 {
@@ -28,12 +29,10 @@ class OamCodesTable
                     ->label('Descrizione')
                     ->sortable()
                     ->searchable(),
-                /*
                 TextColumn::make('clienti_count')
                     ->counts('clienti')
                     ->label('N. Convenzioni')
                     ->sortable(),
-                    */
                 // STATO E INQUADRAMENTO
                 ToggleColumn::make('is_active')
                     ->label('Attivo')
@@ -42,11 +41,20 @@ class OamCodesTable
             ])
             ->filters([
                 TernaryFilter::make('is_active')
-                    ->label('Stato Agente')
+                    ->label('Prodotto')
                     ->placeholder('Tutti')
                     ->trueLabel('Solo Attivi')
                     ->falseLabel('Solo Inattivi')
                     ->default(true),
+                TernaryFilter::make('clienti_count')
+                    ->label('Convenzioni')
+                    ->placeholder('Tutti')
+                    ->trueLabel('Con convenzioni')
+                    ->falseLabel('Senza convenzioni')
+                    ->queries(
+                        true: fn (Builder $query) => $query->hasConvenzioni(),
+                        false: fn (Builder $query) => $query->doesntHaveConvenzioni(),
+                    ),
             ])
             ->recordActions([
                 EditAction::make(),
