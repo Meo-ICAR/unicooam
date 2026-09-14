@@ -37,12 +37,6 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()->label('Anagrafiche'),  // ->collapsed(),
                 NavigationGroup::make()->label('System')->collapsed(),
             ])
-            ->navigationItems([
-                NavigationItem::make('Manuale operativo OAM')
-                    ->url(fn () => route('manuale-operativo-oam'), shouldOpenInNewTab: true)
-                    ->icon('heroicon-o-book-open')
-                    ->sort(100),
-            ])
             ->brandLogo(asset('images/unicoOAM_banner.png'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
             //   ->brandLogoHeight('3rem')
@@ -56,11 +50,17 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->navigationItems([
+
                 NavigationItem::make('Manuale Utente')
-                    ->url(asset('docs/manuale_UnicoOAM.pdf'), shouldOpenInNewTab: true)
+                    ->url(fn (): string => route('manuale-oam'), shouldOpenInNewTab: true)
                     ->icon('heroicon-o-document-arrow-down')
                     ->group('Documentazione') // Opzionale: raggruppa l'elemento in una sezione
                     ->sort(99), // Opzionale: posizionalo in fondo al menu
+                NavigationItem::make('Manuale tecnico OAM')
+                    ->url(fn (): string => route('manuale-operativo-oam'), shouldOpenInNewTab: true)
+                    ->group('Documentazione') // Opzionale: raggruppa l'elemento in una sezione
+                    ->icon('heroicon-o-book-open')
+                    ->sort(100),
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([

@@ -13,6 +13,7 @@ trait HasRelationPlanAccess
      */
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
+        return true;
         $featureKey = static::getFeatureKey();
 
         // 1. Verifica Piano

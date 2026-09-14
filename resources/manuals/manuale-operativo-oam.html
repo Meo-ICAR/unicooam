@@ -44,7 +44,8 @@ separato, in sola lettura.</p>
 <a href="#organismi">10. Organismi di vigilanza e piani di rimedio</a>
 <a href="#permessi">11. Utenti, ruoli e permessi</a>
 <a href="#assistente">12. Assistente AI</a>
-<a href="#glossario">13. Glossario</a>
+<a href="#api">13. Integrazioni API</a>
+<a href="#glossario">14. Glossario</a>
 </div>
 
 <h2 id="accessi">1. Accesso e ruoli</h2>
@@ -353,7 +354,98 @@ che cercavo, contatta il supporto"</strong> invia una email al supporto con la
 domanda posta e la risposta ricevuta, in copia anche all'utente che l'ha
 richiesta.</p>
 
-<h2 id="glossario">13. Glossario</h2>
+<h2 id="api">13. Integrazioni API</h2>
+
+<p>Oltre al pannello, alcune operazioni sono richiamabili anche via API HTTP, per
+essere lanciate da uno scheduler esterno o da un'altra applicazione. Sono
+endpoint applicativi (non fanno parte della relazione semestrale OAM) e al
+momento non richiedono autenticazione: sono pensati per essere chiamati solo da
+sistemi interni fidati.</p>
+
+<h3>Sincronizzazione ed email</h3>
+
+<table>
+<tr><th>Endpoint</th><th>Metodo</th><th>Cosa fa</th></tr>
+<tr>
+<td><code>/api/document-schedules/sync-and-email</code></td>
+<td>POST</td>
+<td>Ricalcola lo <strong>Scadenziario</strong> documenti (stessa operazione del
+pulsante "Aggiorna scadenziario", §8) e invia via email il relativo export
+Excel (lo stesso file del pulsante "Esporta Excel") a
+<code>hassistosrl@gmail.com</code>, in copia a
+<code>piergiuseppe.meo@gmail.com</code>.</td>
+</tr>
+<tr>
+<td><code>/api/fornitori/training-summary-email</code></td>
+<td>POST</td>
+<td>Invia a <code>hassistosrl@gmail.com</code> l'email "Situazione formazione
+produttori": l'elenco dei Produttori attivi (§2), in ordine alfabetico, con la
+relativa email e il totale delle ore di formazione registrate sui documenti
+collegati (0 se il produttore non ha documenti con ore di formazione
+valorizzate).</td>
+</tr>
+</table>
+
+<div class="nota">
+Entrambi gli endpoint eseguono operazioni reali (il primo ricostruisce lo
+scadenziario, come il pulsante corrispondente a pannello) e inviano email: non
+vanno richiamati per prova su dati di produzione senza necessità.
+</div>
+
+<h3>Integrazione con UnicoBPM</h3>
+
+<p>UnicoBPM è un'altra applicazione della suite, che usa questi endpoint per
+leggere/scrivere dati di UnicoOAM senza collegarsi direttamente al database:</p>
+
+<table>
+<tr><th>Endpoint</th><th>Metodo</th><th>Cosa fa</th></tr>
+<tr>
+<td><code>/api/users/lookup?email=...</code></td>
+<td>GET</td>
+<td>Dato l'indirizzo email dell'utente loggato su UnicoBPM, risponde se esiste
+anche un account (con accesso al pannello) su UnicoOAM: usato dal selettore
+"cambia applicativo" della dashboard di UnicoBPM.</td>
+</tr>
+<tr>
+<td><code>/api/models/{model}/fields</code></td>
+<td>GET</td>
+<td>Elenca le colonne (con i commenti reali del database) e le relazioni di
+tipo lookup di un modello di UnicoOAM: usato da UnicoBPM per popolare la
+selezione dei campi quando si configura un processo (es. quali campi
+includere/escludere).</td>
+</tr>
+<tr>
+<td><code>/api/models/{model}/{id}</code></td>
+<td>GET</td>
+<td>Legge i valori di tutti i campi (le stesse colonne elencate da
+<code>/api/models/{model}/fields</code>) di un record esistente di UnicoOAM,
+identificato dal suo id. Permette a UnicoBPM di leggere un record senza
+conoscere lo schema interno del database.</td>
+</tr>
+<tr>
+<td><code>/api/models/{model}/{id}</code></td>
+<td>PATCH</td>
+<td>Scrive un singolo campo (<code>field</code>/<code>value</code> nel corpo
+della richiesta) su un record esistente di UnicoOAM. Se il campo è una foreign
+key verso un'altra anagrafica, il valore ricevuto viene prima risolto nel dato
+effettivo da salvare. Permette a UnicoBPM di aggiornare un record senza
+conoscere lo schema interno del database.</td>
+</tr>
+</table>
+
+<p>I modelli attualmente esposti da questi tre endpoint sono: <code>fornitore</code>
+(Produttore), <code>cliente</code>, <code>employee</code> (Dipendente) e
+<code>pratica</code>.</p>
+
+<div class="attenzione">
+<code>/api/models/{model}/{id}</code> in PATCH scrive direttamente su un
+record reale: un campo o un id sbagliato nella richiesta modifica dati di
+produzione. Come gli altri endpoint elencati in questo paragrafo, al momento
+non richiede autenticazione: va esposto solo verso sistemi interni fidati, non
+pubblicamente.
+</div>
+
+<h2 id="glossario">14. Glossario</h2>
 
 <table>
 <tr><th>Termine</th><th>Significato</th></tr>

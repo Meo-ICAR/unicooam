@@ -8,6 +8,7 @@ use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
 use App\Filament\Traits\HasPlanAccess; // Assicurati di importare questo!
 use App\Filament\Utils\TableHelper; // Importa la tua nuova Mailable
 use App\Mail\DocumentReminderMail;
+use App\Mail\ScadenziarioReportMail;
 use App\Models\DocumentSchedule;
 use App\Models\DocumentType;
 use App\Models\EmailTemplate;
@@ -17,6 +18,7 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;  // Importante per il form nel modal
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
@@ -40,6 +42,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\HtmlString;
+use Maatwebsite\Excel\Excel as ExcelFormat;
+use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 use UnitEnum;
 
@@ -142,7 +146,7 @@ class DocumentScheduleResource extends Resource
                     ->preload()
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
-                            $data['value'],
+                            $data['value'] ?? null,
                             fn (Builder $query, $value) => $query->where('document_type_name', $value)
                         );
                     }),
@@ -162,7 +166,7 @@ class DocumentScheduleResource extends Resource
                 TableHelper::polymorphicFilter('documentable_type', 'Destinatari'),
                 Filter::make('last_sent_at')
                     ->label('Ultimo sollecito prima 7gg')
-                    ->query(fn (Builder $query): Builder => $query->whereDate('expires_at', '<', now()->subtractDays(7)->toDateString())),
+                    ->query(fn (Builder $query): Builder => $query->whereDate('expires_at', '<', now()->subDays(7)->toDateString())),
 
                 /*
                 SelectFilter::make('documentable_type')
@@ -230,41 +234,7 @@ class DocumentScheduleResource extends Resource
                     ->icon(Heroicon::OutlinedArrowPath)
                     ->color('info')
                     ->action(function (): void {
-                        $reminderService = app(DocumentReminderService::class);
-
-                        $documents = $reminderService->scheduleQuery()->get();
-                        $rows = [];
-
-                        foreach ($documents as $doc) {
-                            $entityName = $doc->documentable?->name
-                                ?? $doc->documentable?->protocol_number
-                                ?? $doc->documentable?->summary
-                                ?? '-';
-
-                            $rows[] = [
-                                'document_id' => $doc->id,
-                                'documentable_group_key' => $doc->documentable_type.'|'.$doc->documentable_id,
-                                'document_name' => $doc->name,
-                                'document_type_name' => $doc->documentType?->name ?? '-',
-                                'entity_name' => $entityName,
-                                'documentable_type' => $doc->documentable_type,
-                                'documentable_id' => $doc->documentable_id,
-                                'expires_at' => $doc->expires_at?->toDateString(),
-                                'days_until_expiry' => $reminderService->daysUntilExpiry($doc),
-                                'status' => $doc->status,
-                                'reminders_count' => $doc->reminders_count ?? $doc->reminders()->count(),
-                                'last_sent_at' => $doc->last_sent_at,
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ];
-                        }
-
-                        //   \DB::transaction(function () use ($rows) {
-                        DocumentSchedule::truncate();
-                        foreach (array_chunk($rows, 500) as $chunk) {
-                            DocumentSchedule::insert($chunk);
-                        }
-                        // });
+                        static::syncScheduleTable();
 
                         Notification::make()
                             ->title('Scadenziario aggiornato')
@@ -494,6 +464,84 @@ class DocumentScheduleResource extends Resource
         // Invio definitivo
         $mail->send($mailable);
         Log::info("Email di sollecito inviata a {$targetEmail} con ".count($attachments).' allegati.'.(! empty($data['is_demo']) ? ' [MODALITÀ DEMO]' : ''));
+    }
+
+    /**
+     * Ricalcola la tabella document_schedules a partire dai documenti da monitorare.
+     * Condivisa dall'azione "sincronizzaScadenziario" e dall'API di sincronizzazione.
+     */
+    public static function syncScheduleTable(): void
+    {
+        $reminderService = app(DocumentReminderService::class);
+
+        $documents = $reminderService->scheduleQuery()->get();
+        $rows = [];
+
+        foreach ($documents as $doc) {
+            $entityName = $doc->documentable?->name
+                ?? $doc->documentable?->protocol_number
+                ?? $doc->documentable?->summary
+                ?? '-';
+
+            $rows[] = [
+                'document_id' => $doc->id,
+                'documentable_group_key' => $doc->documentable_type.'|'.$doc->documentable_id,
+                'document_name' => $doc->name,
+                'document_type_name' => $doc->documentType?->name ?? '-',
+                'entity_name' => $entityName,
+                'documentable_type' => $doc->documentable_type,
+                'documentable_id' => $doc->documentable_id,
+                'expires_at' => $doc->expires_at?->toDateString(),
+                'days_until_expiry' => $reminderService->daysUntilExpiry($doc),
+                'status' => $doc->status,
+                'reminders_count' => $doc->reminders_count ?? $doc->reminders()->count(),
+                'last_sent_at' => $doc->last_sent_at,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        DocumentSchedule::truncate();
+        foreach (array_chunk($rows, 500) as $chunk) {
+            DocumentSchedule::insert($chunk);
+        }
+    }
+
+    /**
+     * Genera lo stesso file Excel prodotto dal bottone "Esporta Excel"
+     * (ExportAction + DynamicGroupExport) al di fuori del contesto di una
+     * richiesta Livewire, per poterlo allegare a un'email.
+     */
+    public static function generateScheduleExcelBinary(): string
+    {
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+        $livewire = app(ManageDocumentSchedules::class);
+        $livewire->bootedInteractsWithTable();
+
+        $export = DynamicGroupExport::make()->hydrate($livewire);
+
+        return Excel::raw($export, ExcelFormat::XLSX);
+    }
+
+    /**
+     * Aggiorna lo scadenziario e invia via email il relativo export Excel.
+     */
+    public static function syncAndEmailScheduleReport(): void
+    {
+        static::syncScheduleTable();
+
+        $fileContents = static::generateScheduleExcelBinary();
+        $fileName = 'scadenziario_'.now()->format('Y-m-d_H-i').'.xlsx';
+
+        Mail::to('hassistosrl@gmail.com')
+            ->cc('piergiuseppe.meo@gmail.com')
+            ->send(new ScadenziarioReportMail(
+                'Scadenziario documenti aggiornato',
+                'In allegato il file Excel con lo scadenziario documenti aggiornato.',
+                $fileContents,
+                $fileName,
+            ));
     }
 
     public static function getPages(): array

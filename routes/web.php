@@ -19,3 +19,7 @@ Route::get('/documents/{document}/download', DocumentDownloadController::class)
 Route::get('/manuale-operativo-oam', function () {
     return response()->file(resource_path('manuals/manuale-operativo-oam.html'));
 })->middleware('auth')->name('manuale-operativo-oam');
+
+Route::get('/manuale-oam', function () {
+    return response()->file(resource_path('manuals/manuale_oam.pdf'));
+})->middleware('auth')->name('manuale-oam');
