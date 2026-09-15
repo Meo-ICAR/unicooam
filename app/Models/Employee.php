@@ -122,7 +122,7 @@ class Employee extends Model
         return $query->where('hiring_date', '<=', $semester->end)
             ->where(function ($q) use ($semester) {
                 $q->whereNull('termination_date')
-                    ->orWhere('termination_date', '>=', $semester->start);
+                    ->orWhere('termination_date', '>=', $semester->end);
             });
     }
 
