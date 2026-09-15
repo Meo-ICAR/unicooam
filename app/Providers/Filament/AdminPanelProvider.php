@@ -14,6 +14,7 @@ use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -21,6 +22,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -35,6 +37,7 @@ class AdminPanelProvider extends PanelProvider
                 //  NavigationGroup::make()->label('Pratiche'),
                 //  NavigationGroup::make()->label('Contabilita'),
                 NavigationGroup::make()->label('Anagrafiche'),  // ->collapsed(),
+                NavigationGroup::make()->label('Documentazione')->collapsed(),
                 NavigationGroup::make()->label('System')->collapsed(),
             ])
             ->brandLogo(asset('images/unicoOAM_banner.png'))
@@ -55,12 +58,12 @@ class AdminPanelProvider extends PanelProvider
                     ->url(fn (): string => route('manuale-oam'), shouldOpenInNewTab: true)
                     ->icon('heroicon-o-document-arrow-down')
                     ->group('Documentazione') // Opzionale: raggruppa l'elemento in una sezione
-                    ->sort(99), // Opzionale: posizionalo in fondo al menu
+                    ->sort(10), // Opzionale: posizionalo in fondo al menu
                 NavigationItem::make('Manuale tecnico OAM')
                     ->url(fn (): string => route('manuale-operativo-oam'), shouldOpenInNewTab: true)
                     ->group('Documentazione') // Opzionale: raggruppa l'elemento in una sezione
                     ->icon('heroicon-o-book-open')
-                    ->sort(100),
+                    ->sort(10),
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
@@ -105,6 +108,25 @@ class AdminPanelProvider extends PanelProvider
             )
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            // Filament salva lo stato aperto/chiuso dei gruppi di navigazione in
+            // localStorage e lo inizializza dai default PHP (->collapsed()) solo
+            // se quella chiave non esiste ancora nel browser. Chi ha già visitato
+            // il pannello prima che "Documentazione"/"System" avessero
+            // ->collapsed() ha quindi uno stato salvato che ignora il nuovo
+            // default. Questo hook azzera una tantum (per browser) quello stato,
+            // cosi' viene ricalcolato dai default correnti; da quel momento in
+            // poi torna a rispettare le scelte manuali dell'utente.
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): HtmlString => new HtmlString(<<<'HTML'
+                    <script>
+                        if (!localStorage.getItem('collapsedGroupsResyncedV1')) {
+                            localStorage.removeItem('collapsedGroups');
+                            localStorage.setItem('collapsedGroupsResyncedV1', '1');
+                        }
+                    </script>
+                    HTML),
+            );
     }
 }

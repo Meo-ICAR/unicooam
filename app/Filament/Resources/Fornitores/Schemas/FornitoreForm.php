@@ -7,6 +7,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Validation\Rules\Unique;
 
 class FornitoreForm
 {
@@ -25,7 +27,19 @@ class FornitoreForm
 
                         TextInput::make('piva')
                             ->label('Partita IVA')
-                            ->maxLength(20),
+                            ->maxLength(20)
+                            ->unique(
+                                ignoreRecord: true,
+                                // Alcuni fornitori storici hanno la piva vuota o un
+                                // placeholder "---": non devono risultare in conflitto
+                                // tra loro, solo i valori realmente duplicati.
+                                modifyRuleUsing: fn (Unique $rule) => $rule->where(
+                                    fn (Builder $query) => $query->whereNotIn('piva', ['', '---'])
+                                ),
+                            )
+                            ->validationMessages([
+                                'unique' => 'Esiste già un produttore con questa partita IVA.',
+                            ]),
 
                         TextInput::make('cf')
                             ->label('Cod. Fiscale')
