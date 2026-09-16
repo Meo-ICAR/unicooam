@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Companies\RelationManagers;
 
+use App\Filament\Traits\HasRelationPlanAccess;
 use App\ValueObjects\OamSemester;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
@@ -25,6 +26,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class CompanyRolesRelationManager extends RelationManager
 {
+    use HasRelationPlanAccess;
+
     protected static string $relationship = 'companyRoles';
 
     protected static ?string $recordTitleAttribute = 'name';

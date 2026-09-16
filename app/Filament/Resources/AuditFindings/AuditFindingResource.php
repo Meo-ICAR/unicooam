@@ -7,6 +7,7 @@ use App\Filament\Resources\AuditFindings\Pages\EditAuditFinding;
 use App\Filament\Resources\AuditFindings\Pages\ListAuditFindings;
 use App\Filament\Resources\AuditFindings\Schemas\AuditFindingForm;
 use App\Filament\Resources\AuditFindings\Tables\AuditFindingsTable;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\AuditFinding;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AuditFindingResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = AuditFinding::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

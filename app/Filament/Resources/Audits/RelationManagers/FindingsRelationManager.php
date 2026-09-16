@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Audits\RelationManagers;
 use App\Enums\FindingSeverity;
 use App\Enums\FindingStatus;
 use App\Filament\Resources\AuditFindings\Schemas\AuditFindingForm;
+use App\Filament\Traits\HasRelationPlanAccess;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -19,6 +20,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 class FindingsRelationManager extends RelationManager
 {
+    use HasRelationPlanAccess;
+
     protected static string $relationship = 'findings';
 
     protected static ?string $title = 'Rilievi e Non Conformità';

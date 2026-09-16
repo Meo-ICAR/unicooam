@@ -7,6 +7,7 @@ use App\Filament\Resources\OamPratiches\Pages\EditOamPratiche;
 use App\Filament\Resources\OamPratiches\Pages\ListOamPratiches;
 use App\Filament\Resources\OamPratiches\Schemas\OamPraticheForm;
 use App\Filament\Resources\OamPratiches\Tables\OamPratichesTable;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\OamPratiche;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class OamPraticheResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = OamPratiche::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;

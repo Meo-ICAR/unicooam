@@ -7,6 +7,7 @@ use App\Filament\Resources\Remediations\Pages\EditRemediation;
 use App\Filament\Resources\Remediations\Pages\ListRemediations;
 use App\Filament\Resources\Remediations\Schemas\RemediationForm;
 use App\Filament\Resources\Remediations\Tables\RemediationsTable;
+use App\Filament\Traits\HasPlanAccess;
 use App\Models\Remediation;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,6 +19,8 @@ use UnitEnum;
 
 class RemediationResource extends Resource
 {
+    use HasPlanAccess;
+
     protected static ?string $model = Remediation::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-wrench-screwdriver';
