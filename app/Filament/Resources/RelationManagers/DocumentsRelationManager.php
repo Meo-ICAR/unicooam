@@ -16,6 +16,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -33,7 +34,9 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 // CORRETTO
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use pxlrbt\FilamentExcel\Actions\ExportAction; // <-- Importa il trait
 
 class DocumentsRelationManager extends RelationManager
@@ -255,25 +258,40 @@ class DocumentsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make(),
-                /*
                 Action::make('renew')
-                    ->label('Aggiorna')
+                    ->label('Rinnova')
                     ->icon('heroicon-o-arrow-path')
                     ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading(fn (Document $record) => "Aggiorna documento: {$record->name}")
-                    ->modalDescription(fn (Document $record) => "Sei sicuro di voler aggiornare \"{$record->name}\"?")
-                    ->action(function (Document $record) {
-                        // Chiamiamo il metodo direttamente sul model
-                        $record->renew();
+                    ->modalHeading(fn (Document $record) => "Rinnova documento: {$record->name}")
+                    ->form([
+                        DatePicker::make('emitted_at')
+                            ->label('Nuova data di emissione')
+                            ->default(now())
+                            ->maxDate(now())
+                            ->required(),
+                        FileUpload::make('new_attachment')
+                            ->label('Nuovo allegato (opzionale)')
+                            ->helperText('Se carichi un file, viene creata una nuova versione del documento con il nuovo allegato; il documento attuale viene conservato come versione precedente con stato "scaduto".')
+                            ->disk('public')
+                            ->directory('document-renewals')
+                            ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                            ->maxSize(20480),
+                    ])
+                    ->action(function (Document $record, array $data): void {
+                        $newDocument = $record->renew($data['emitted_at']);
+
+                        if (filled($data['new_attachment'] ?? null)) {
+                            $newDocument->addMediaFromDisk($data['new_attachment'], 'public')
+                                ->toMediaCollection('documents');
+                            Storage::disk('public')->delete($data['new_attachment']);
+                        }
 
                         Notification::make()
-                            ->title('Aggiornamento effettuato')
-                            ->body("Nuovo aggiornamento generato con successo per \"{$record->name}\".")
+                            ->title('Documento rinnovato')
+                            ->body("Nuova versione generata con successo per \"{$record->name}\".")
                             ->success()
                             ->send();
                     }),
-                    */
                 //  DeleteAction::make(),
             ])
             ->toolbarActions([

@@ -5,15 +5,18 @@ namespace App\Filament\Resources\Documents\Tables;
 use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Utils\TableHelper;
+use App\Models\Document;
 use App\ValueObjects\OamSemester;
+use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -21,6 +24,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class DocumentsTable
@@ -141,7 +145,41 @@ class DocumentsTable
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
+                Action::make('renew')
+                    ->label('Rinnova')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('success')
+                    ->form([
+                        DatePicker::make('emitted_at')
+                            ->label('Nuova data di emissione')
+                            ->default(now())
+                            ->maxDate(now())
+                            ->required(),
+                        FileUpload::make('new_attachment')
+                            ->label('Nuovo allegato (opzionale)')
+                            ->helperText('Se carichi un file, viene creata una nuova versione del documento con il nuovo allegato; il documento attuale viene conservato come versione precedente con stato "scaduto".')
+                            ->disk('public')
+                            ->directory('document-renewals')
+                            ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                            ->maxSize(20480),
+                    ])
+                    ->action(function (Document $record, array $data): void {
+                        $newDocument = $record->renew($data['emitted_at']);
+
+                        if (filled($data['new_attachment'] ?? null)) {
+                            $newDocument->addMediaFromDisk($data['new_attachment'], 'public')
+                                ->toMediaCollection('documents');
+                            Storage::disk('public')->delete($data['new_attachment']);
+                        }
+
+                        Notification::make()
+                            ->title('Documento rinnovato')
+                            ->body("Nuova versione generata con successo per \"{$record->name}\".")
+                            ->success()
+                            ->send();
+                    }),
+                // L'eliminazione è disponibile solo dalla form di modifica (EditDocument),
+                // non dalla tabella elenco documenti.
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
