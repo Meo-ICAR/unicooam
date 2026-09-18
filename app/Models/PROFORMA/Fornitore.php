@@ -195,8 +195,10 @@ class Fornitore extends Model
         return $query->where('stipulated_at', '<=', $semester->end)
             ->where(function ($q) use ($semester) {
                 $q->whereNull('dismissed_at')
-                    ->orWhere('dismissed_at', '>=', $semester->start);
+                    ->orWhere('dismissed_at', '>=', $semester->end);
             });
+
+    
     }
 
     /**
