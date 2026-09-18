@@ -20,6 +20,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;  // Importante per il form nel modal
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
@@ -41,6 +42,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Maatwebsite\Excel\Excel as ExcelFormat;
 use Maatwebsite\Excel\Facades\Excel;
@@ -186,24 +188,35 @@ class DocumentScheduleResource extends Resource
                     ->label('Aggiorna')
                     ->icon('heroicon-o-pencil-square')
                     ->action(function (DocumentSchedule $record, array $data): void {
-                        // Aggiorna i campi del record
                         $document = $record->document;
+                        $newAttachmentPath = $data['new_attachment'] ?? null;
 
-                        // 2. Assegniamo il valore del form alla colonna del documento
-                        $document->emitted_at = $data['emitted_at'];
+                        if (filled($newAttachmentPath)) {
+                            // Un nuovo allegato è stato caricato: creiamo una nuova versione
+                            // del documento con il file aggiornato, mentre quello attuale
+                            // viene conservato come versione precedente (stato "scaduto").
+                            $newDocument = $document->renew($data['emitted_at']);
+                            $newDocument->addMediaFromDisk($newAttachmentPath, 'public')
+                                ->toMediaCollection('documents');
+                            Storage::disk('public')->delete($newAttachmentPath);
 
-                        // Se la scadenza (expires_at) deve essere calcolata qui (es. + 1 anno):
-                        // $document->expires_at = Carbon::parse($data['emitted_at'])->addYear();
+                            $record->update([
+                                'document_id' => $newDocument->id,
+                                'expires_at' => $newDocument->expires_at,
+                                'status' => $newDocument->status,
+                            ]);
+                        } else {
+                            // Nessun nuovo allegato: aggiorniamo solo la data di emissione
+                            // sul documento esistente.
+                            $document->emitted_at = $data['emitted_at'];
+                            $document->save();
+                            $document->refresh();
 
-                        // 3. Salviamo esplicitamente il documento
-                        $document->save();
-                        $record->document->refresh();
+                            $record->update([
+                                'expires_at' => $document->expires_at,
+                            ]);
+                        }
 
-                        // 2. FIX: Aggiorna il record di DocumentSchedule passando un array corretto
-                        $record->update([
-                            'expires_at' => $record->document->expires_at,
-                        ]);
-                        //   $record->update('expires_at', $record->document->expires_at); // Aggiorna anche il record di DocumentSchedule se necessario
                         Notification::make()
                             ->title('Documento aggiornato')
                             ->success()
@@ -215,7 +228,13 @@ class DocumentScheduleResource extends Resource
                             ->default(now())
                             ->maxDate(now())
                             ->required(),
-
+                        FileUpload::make('new_attachment')
+                            ->label('Nuovo allegato (opzionale)')
+                            ->helperText('Se carichi un file, viene creata una nuova versione del documento con il nuovo allegato; il documento attuale viene conservato come versione precedente con stato "scaduto".')
+                            ->disk('public')
+                            ->directory('document-renewals')
+                            ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                            ->maxSize(20480),
                     ]),
                 //  DeleteAction::make(),
             ])->recordAction('renew')

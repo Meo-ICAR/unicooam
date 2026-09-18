@@ -207,9 +207,9 @@ class Document extends Model implements HasMedia
      *
      * @return Document Il nuovo documento creato
      */
-    public function renew(): self
+    public function renew(\DateTimeInterface|string|null $emittedAt = null): self
     {
-        return DB::transaction(function () {
+        return DB::transaction(function () use ($emittedAt) {
             // 1. Crea il nuovo documento ereditando i dati necessari
             $newDocument = self::create([
                 'company_id' => $this->company_id,
@@ -220,20 +220,20 @@ class Document extends Model implements HasMedia
 
                 'name' => $this->name, // .' Agg. al '.now()->format('d/m/Y'),
                 'doctype' => $this->doctype,
-                'spatie_collection' => $this->spatie_collection,
+                'spatie_collection' => $this->spatie_collection ?? 'default',
                 'description' => $this->description,
                 'internal_notes' => $this->internal_notes,
 
                 'status' => 'approved', // o DocumentStatus::APPROVED->value
-                'is_monitored' => $this->is_monitored,
-                'is_unique' => $this->is_unique,
-                'is_endMonth' => $this->is_endMonth,
+                'is_monitored' => $this->is_monitored ?? false,
+                'is_unique' => $this->is_unique ?? false,
+                'is_endMonth' => $this->is_endMonth ?? false,
                 'is_template' => false,
 
                 'training_hours' => $this->training_hours,
                 'training_organization' => $this->training_organization,
 
-                'emitted_at' => now(),
+                'emitted_at' => $emittedAt ?? now(),
                 'created_by' => Auth::id(),
             ]);
 
