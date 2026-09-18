@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Companies;
 use App\Filament\Resources\Companies\Pages\CreateCompany;
 use App\Filament\Resources\Companies\Pages\EditCompany;
 use App\Filament\Resources\Companies\Pages\ListCompanies;
+use App\Filament\Resources\Companies\RelationManagers\ChatUsageRelationManager;
 use App\Filament\Resources\Companies\RelationManagers\CompanyRolesRelationManager;
 use App\Filament\Resources\Companies\RelationManagers\MailAccountRelationManager;
 use App\Filament\Resources\Companies\Schemas\CompanyForm;
@@ -55,6 +56,7 @@ class CompanyResource extends Resource
             BranchesRelationManager::class,
             WebsitesRelationManager::class,
             MailAccountRelationManager::class,
+            ChatUsageRelationManager::class,
         ];
     }
 

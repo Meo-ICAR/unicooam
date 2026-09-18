@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "48472bc5720b580d6a61e8eb108f17dc",
+    "content-hash": "373ad323234cb17cd8ab7694da8d4025",
     "packages": [
         {
             "name": "alizharb/filament-activity-log",
@@ -4803,6 +4803,80 @@
                 }
             ],
             "time": "2026-09-14T09:26:34+00:00"
+        },
+        {
+            "name": "neuron-core/neuron-laravel",
+            "version": "1.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/neuron-core/neuron-laravel.git",
+                "reference": "5dd3ab7d01cc48fe9e68476b60233ec0b50f38a5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/neuron-core/neuron-laravel/zipball/5dd3ab7d01cc48fe9e68476b60233ec0b50f38a5",
+                "reference": "5dd3ab7d01cc48fe9e68476b60233ec0b50f38a5",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "neuron-core/neuron-ai": "^3.15",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.75",
+                "larastan/larastan": "^3.0",
+                "livewire/livewire": "^3.7",
+                "orchestra/testbench": "^10.0",
+                "rector/rector": "^2.2",
+                "tomasvotruba/type-coverage": "^2.0"
+            },
+            "suggest": {
+                "inspector-apm/inspector-laravel": "^4.18.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Neuron": "NeuronAI\\Laravel\\Facades\\Neuron",
+                        "AIProvider": "NeuronAI\\Laravel\\Facades\\AIProvider",
+                        "VectorStore": "NeuronAI\\Laravel\\Facades\\VectorStore",
+                        "EmbeddingProvider": "NeuronAI\\Laravel\\Facades\\EmbeddingProvider"
+                    },
+                    "providers": [
+                        "NeuronAI\\Laravel\\NeuronAIServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NeuronAI\\Laravel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Valerio Barbera",
+                    "email": "valerio@inspector.dev"
+                }
+            ],
+            "description": "Official Neuron AI Laravel SDK.",
+            "keywords": [
+                "ai",
+                "ai-agent",
+                "laravel",
+                "llm"
+            ],
+            "support": {
+                "issues": "https://github.com/neuron-core/neuron-laravel/issues",
+                "source": "https://github.com/neuron-core/neuron-laravel/tree/1.3.0"
+            },
+            "time": "2026-06-29T10:35:26+00:00"
         },
         {
             "name": "nikic/php-parser",
