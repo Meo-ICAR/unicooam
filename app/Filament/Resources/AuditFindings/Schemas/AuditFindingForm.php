@@ -24,6 +24,7 @@ class AuditFindingForm
             $components[] = Select::make('audit_id')
                 ->label('Audit di Riferimento')
                 ->relationship('audit', 'name')
+                ->getOptionLabelFromRecordUsing(fn ($record): string => $record->name ?? ('Audit #'.$record->id))
                 ->searchable()
                 ->preload()
                 ->required()
