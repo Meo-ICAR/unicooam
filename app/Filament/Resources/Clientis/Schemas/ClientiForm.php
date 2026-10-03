@@ -30,6 +30,10 @@ class ClientiForm
                                     TextInput::make('nome')
                                         ->maxLength(255)
                                         ->label('Denominazione in fatturazione'),
+                                    TextInput::make('piva')
+                                        ->label('Partita IVA')
+                                        ->maxLength(16),
+
                                     Select::make('principal_type')
                                         ->options([
                                             'banca' => 'Banca',
@@ -39,18 +43,6 @@ class ClientiForm
                                             '--' => '--',
                                         ])
                                         ->label('Tipo'),
-                                    Select::make('submission_type')
-                                        ->label('Gestione inoltro')
-                                        ->options([
-
-                                            '--' => '--',
-                                            'accesso portale' => 'Accentrato',
-                                            'inoltro' => 'Decentrato',
-                                            'entrambi' => 'Modalita combinata',
-                                        ])
-                                        ->default('accesso portale')
-                                        ->required()
-                                        ->label('Modalità Inoltro Pratiche'),
 
                                 ]),
                                 Grid::make(4)->schema([]),
@@ -62,13 +54,42 @@ class ClientiForm
                                                 ->required()
                                                 ->maxLength(255)
                                                 ->label('Dizione in istruttoria'),
+                                            Select::make('submission_type')
+                                                ->label('Gestione inoltro')
+                                                ->options([
+
+                                                    '--' => '--',
+                                                    'accesso portale' => 'Accentrato',
+                                                    'inoltro' => 'Decentrato',
+                                                    'entrambi' => 'Modalita combinata',
+                                                ])
+                                                ->default('accesso portale')
+                                                ->required()
+                                                ->label('Modalità Inoltro Pratiche'),
+                                            TextInput::make('abi')
+                                                ->label('Codice ABI / RUI ISVASS')
+                                                ->maxLength(30),
                                             TextInput::make('abi_name')
                                                 ->maxLength(255)
-                                                ->label('Dizione Finanziatore da elenco'),
+                                                ->label('Dizione Finanziatore in ABI'),
 
                                             Toggle::make('is_active')
                                                 ->default(true)
                                                 ->label('Attivo'),
+                                            Grid::make(4)->schema([
+                                                DatePicker::make('stipulated_at')->label('Data Stipula')->native(false),
+                                                DatePicker::make('start_date')->label('Data Decorrenza')->native(false),
+                                                DatePicker::make('end_date')->label('Data Scadenza')->native(false),
+                                                DatePicker::make('dismissed_at')->label('Data Cessazione')->native(false),
+                                            ]),
+                                            TextInput::make('privacy_contact_email')
+                                                ->email()
+                                                ->maxLength(255)
+                                                ->label('Email Contatto Privacy'),
+                                            TextInput::make('dpo_email')
+                                                ->email()
+                                                ->maxLength(255)
+                                                ->label('Email DPO (Responsabile protezione dati)'),
 
                                         ]),
                                     ]),
