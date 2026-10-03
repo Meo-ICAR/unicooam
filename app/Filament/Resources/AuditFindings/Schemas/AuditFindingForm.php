@@ -23,7 +23,7 @@ class AuditFindingForm
         if (! $isRelationManager) {
             $components[] = Select::make('audit_id')
                 ->label('Audit di Riferimento')
-                ->relationship('audit', 'title')
+                ->relationship('audit', 'name')
                 ->searchable()
                 ->preload()
                 ->required()

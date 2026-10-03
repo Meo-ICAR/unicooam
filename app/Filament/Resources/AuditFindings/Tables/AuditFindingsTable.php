@@ -18,7 +18,7 @@ class AuditFindingsTable
     {
         return $table
             ->columns([
-                TextColumn::make('audit.title')
+                TextColumn::make('audit.name')
                     ->label('Audit')
                     ->searchable(),
                 TextColumn::make('title')

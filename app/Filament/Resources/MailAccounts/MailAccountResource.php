@@ -27,6 +27,8 @@ class MailAccountResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static UnitEnum|string|null $navigationGroup = 'System';
+
     protected static bool $shouldRegisterNavigation = false;
 
     public static function form(Schema $schema): Schema
