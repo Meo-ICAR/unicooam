@@ -129,7 +129,7 @@ class DocumentsRelationManager extends RelationManager
                 ->components([
                     TextInput::make('document_url')
                         ->label('URL documento')
-                        ->url(fn ($record) => $record?->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
+                        ->url(fn ($record) => $record?->resolved_url ? (str_starts_with($record->resolved_url, 'http') ? $record->resolved_url : "https://{$record->resolved_url}") : null),
                     SpatieMediaLibraryFileUpload::make('attachments')
                         ->label('Carica file (PDF, immagini, Word)')
                         ->multiple()
@@ -160,7 +160,7 @@ class DocumentsRelationManager extends RelationManager
                     ->formatStateUsing(function ($state, Document $record) {
                         $url = $record->getFirstMedia('documents')
                             ? route('documents.download', $record)
-                            : (! empty($record->document_url) ? $record->document_url : null);
+                            : $record->resolved_url;
 
                         if (! $url) {
                             return $state;

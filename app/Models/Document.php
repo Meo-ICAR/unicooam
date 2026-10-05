@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\DocumentStatus;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -102,6 +103,17 @@ class Document extends Model implements HasMedia
     public function documentType(): BelongsTo
     {
         return $this->belongsTo(DocumentType::class);  // Presume l'esistenza del model DocumentType
+    }
+
+    /**
+     * URL effettivo del documento: document_url, altrimenti metadata.web_url
+     * (valorizzato dagli import da SharePoint quando l'URL supera i 255 caratteri).
+     */
+    protected function resolvedUrl(): Attribute
+    {
+        return Attribute::get(fn (): ?string => filled($this->document_url)
+            ? $this->document_url
+            : (filled($this->metadata['web_url'] ?? null) ? $this->metadata['web_url'] : null));
     }
 
     /**
