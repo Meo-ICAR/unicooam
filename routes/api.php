@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CheckStatusApiController;
 use App\Http\Controllers\Api\DocumentScheduleSyncApiController;
 use App\Http\Controllers\Api\ModelFieldsApiController;
 use App\Http\Controllers\Api\ModelFieldValueApiController;
@@ -27,3 +28,9 @@ Route::post('/document-schedules/sync-and-email', [DocumentScheduleSyncApiContro
 // totalizzate. Nessuna autenticazione per ora (ambiente non di produzione),
 // da aggiungere prima del rilascio.
 Route::post('/fornitori/training-summary-email', [ProducerTrainingSummaryApiController::class, 'store'])->name('api.fornitori.training-summary-email');
+
+// Consumato da UnicoBPM per conoscere lo stato (valore + severity) dei controlli; è
+// UnicoBPM, in base alla RACI, a decidere chi avvisare e con quale email. Nessuna
+// autenticazione per ora (ambiente non di produzione), da aggiungere prima del rilascio.
+Route::get('/checks', [CheckStatusApiController::class, 'index'])->name('api.checks.index');
+Route::get('/checks/{command}', [CheckStatusApiController::class, 'show'])->name('api.checks.show');

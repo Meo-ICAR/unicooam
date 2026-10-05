@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\DocumentStatus;
+use App\Enums\Severity;
 use App\Mail\DocumentReminderMail;
 use App\Models\Document;
 use App\Models\DocumentReminder;
@@ -47,6 +48,48 @@ class DocumentReminderService
                     ->orWhere('status', DocumentStatus::PENDING->value);
             })
             ->orderBy('expires_at');
+    }
+
+    /**
+     * Stato dello scadenziario per UnicoBPM: numero di documenti monitorati scaduti o in scadenza
+     * entro 30 giorni. Il grado dipende dal più urgente: scaduto = alert, entro 7 giorni = warning,
+     * entro 30 = regular. Non invia nulla.
+     */
+    public function expiryStatus(int $windowDays = 30): CheckStatus
+    {
+        $documents = Document::query()
+            ->with('documentType')
+            ->where('is_monitored', true)
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '<=', now()->addDays($windowDays)->toDateString())
+            ->whereNotIn('status', [DocumentStatus::REJECTED->value, DocumentStatus::NA->value])
+            ->orderBy('expires_at')
+            ->get();
+
+        if ($documents->isEmpty()) {
+            return new CheckStatus(0, Severity::Ok);
+        }
+
+        $mostUrgentDays = $this->daysUntilExpiry($documents->first());
+
+        $severity = match (true) {
+            $mostUrgentDays < 0 => Severity::Alert,
+            $mostUrgentDays <= 7 => Severity::Warning,
+            default => Severity::Regular,
+        };
+
+        $details = $documents->take(20)->map(fn (Document $document): string => sprintf(
+            '- %s (%s) — %s',
+            $document->name,
+            $document->documentType?->name ?? 'Documento',
+            $this->daysUntilExpiry($document) < 0 ? 'SCADUTO il ' : 'scade il '
+        ).$document->expires_at->format('d/m/Y'))->implode("\n");
+
+        if ($documents->count() > 20) {
+            $details .= "\n... e altri ".($documents->count() - 20).' documenti.';
+        }
+
+        return new CheckStatus($documents->count(), $severity, $details);
     }
 
     /**
