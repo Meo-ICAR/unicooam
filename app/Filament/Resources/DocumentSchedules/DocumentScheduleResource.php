@@ -9,9 +9,12 @@ use App\Filament\Traits\HasPlanAccess; // Assicurati di importare questo!
 use App\Filament\Utils\TableHelper; // Importa la tua nuova Mailable
 use App\Mail\DocumentReminderMail;
 use App\Mail\ScadenziarioReportMail;
+use App\Models\Document;
 use App\Models\DocumentSchedule;
 use App\Models\DocumentType;
 use App\Models\EmailTemplate;
+use App\Models\Employee;
+use App\Models\PROFORMA\Fornitore;
 use App\Services\DocumentReminderService;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -241,7 +244,8 @@ class DocumentScheduleResource extends Resource
             ->headerActions([
                 ExportAction::make()
                     ->exports([
-                        DynamicGroupExport::make(),
+                        DynamicGroupExport::make()
+                            ->modifyQueryUsing(fn (Builder $query) => static::excludeInactiveEntities($query)),
                         //    ->groupBy('Produttore')  // Campo per il raggruppamento
                         //    ->sumColumns(['Provvigione']),  // Campi da sommare
                     ])
@@ -493,7 +497,7 @@ class DocumentScheduleResource extends Resource
     {
         $reminderService = app(DocumentReminderService::class);
 
-        $documents = $reminderService->scheduleQuery()->get();
+        $documents = static::excludeInactiveEntities($reminderService->scheduleQuery())->get();
         $rows = [];
 
         foreach ($documents as $doc) {
@@ -524,6 +528,37 @@ class DocumentScheduleResource extends Resource
         foreach (array_chunk($rows, 500) as $chunk) {
             DocumentSchedule::insert($chunk);
         }
+    }
+
+    /**
+     * Esclude dall'export le scadenze di dipendenti eliminati (deleted_at)
+     * o cessati (termination_date valorizzata) e di fornitori eliminati
+     * (deleted_at) o dismessi (dismissed_at valorizzata).
+     *
+     * Vale per query su DocumentSchedule e Document (stesse colonne documentable_*).
+     *
+     * @param  Builder<DocumentSchedule|Document>  $query
+     * @return Builder<DocumentSchedule|Document>
+     */
+    public static function excludeInactiveEntities(Builder $query): Builder
+    {
+        $inactiveSupplierIds = Fornitore::withTrashed()
+            ->where(fn (Builder $supplier) => $supplier->whereNotNull('deleted_at')->orWhereNotNull('dismissed_at'))
+            ->pluck('id');
+
+        return $query
+            ->where(function (Builder $query): void {
+                $query->where('documentable_type', '!=', (new Employee)->getMorphClass())
+                    ->orWhereHasMorph(
+                        'documentable',
+                        [Employee::class],
+                        fn (Builder $employee) => $employee->whereNull('termination_date'),
+                    );
+            })
+            ->where(function (Builder $query) use ($inactiveSupplierIds): void {
+                $query->where('documentable_type', '!=', (new Fornitore)->getMorphClass())
+                    ->orWhereNotIn('documentable_id', $inactiveSupplierIds);
+            });
     }
 
     /**

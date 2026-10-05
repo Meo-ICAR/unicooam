@@ -15,6 +15,7 @@ use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 
 class OamSemestralesTable
@@ -34,6 +35,13 @@ class OamSemestralesTable
                   //  ->getTitleFromRecordUsing(fn (OamSemestrale $record): string => $record->abi_name)
                     ->collapsible(),
                 Group::make('prodotto_creditizio')
+                    // Ordine naturale dei codici (A.1, A.2, A.4bis, A.10) con le
+                    // voci senza codice (es. "Segnalazione Mutuo") in fondo.
+                    ->orderQueryUsing(fn (Builder $query, string $direction) => $query
+                        ->orderByRaw("prodotto_creditizio NOT REGEXP '^[A-Za-z]+\\\\.[0-9]' {$direction}")
+                        ->orderByRaw("SUBSTRING_INDEX(prodotto_creditizio, '.', 1) {$direction}")
+                        ->orderByRaw("CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(prodotto_creditizio, ' ', 1), '.', -1) AS UNSIGNED) {$direction}")
+                        ->orderBy('prodotto_creditizio', $direction))
                   //  ->label('Finanziatore')
                     ->titlePrefixedWithLabel(false)
                   //  ->getTitleFromRecordUsing(fn (OamSemestrale $record): string => $record->abi_name)
@@ -47,7 +55,8 @@ class OamSemestralesTable
             ->columns([
                 TextColumn::make('abi_name')
                     ->label('Finanziatore')->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->hidden(fn (Table $table): bool => (bool) $table->getLivewire()->onlySummary),
 
                 TextColumn::make('prodotto_creditizio')
                     ->sortable()
