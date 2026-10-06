@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Listeners\QueueSharePointUpload;
 use App\Models\Audit;
 use App\Models\Branch;
 use App\Models\Company;
@@ -18,7 +17,6 @@ use Illuminate\Support\ServiceProvider;
 use SocialiteProviders\Google\GoogleExtendSocialite;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 use SocialiteProviders\Microsoft\MicrosoftExtendSocialite;
-use Spatie\MediaLibrary\MediaCollections\Events\MediaHasBeenAddedEvent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -47,10 +45,6 @@ class AppServiceProvider extends ServiceProvider
             'website' => Website::class,
         ]);
 
-        Event::listen(
-            MediaHasBeenAddedEvent::class,
-            QueueSharePointUpload::class
-        );
         Event::listen(
             SocialiteWasCalled::class,
             [MicrosoftExtendSocialite::class, 'handle']

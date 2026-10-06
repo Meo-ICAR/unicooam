@@ -185,9 +185,10 @@ class DocumentsRelationManager extends RelationManager
                     ->default('Senza documento')
                     ->html()
                     ->formatStateUsing(function ($state, Document $record) {
-                        $url = $record->getFirstMedia('documents')
+                        // Un solo link di download: il controller sceglie la copia locale o l'URL remoto.
+                        $url = $record->getFirstMedia('documents') || $record->resolved_url
                             ? route('documents.download', $record)
-                            : $record->resolved_url;
+                            : null;
 
                         if (! $url) {
                             return $state;
