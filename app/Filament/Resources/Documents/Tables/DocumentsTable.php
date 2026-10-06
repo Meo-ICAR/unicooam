@@ -78,6 +78,8 @@ class DocumentsTable
                     })
                     ->searchable(),
 
+                TableHelper::syncStatusColumn(),
+
             ])
             ->filters([
                 Filter::make('semestre_attuale')
@@ -145,6 +147,8 @@ class DocumentsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                TableHelper::openOnSharePointAction(),
+                TableHelper::retrySharePointUploadAction(),
                 Action::make('renew')
                     ->label('Rinnova')
                     ->icon('heroicon-o-arrow-path')

@@ -2,6 +2,12 @@
 
 namespace App\Filament\Utils;
 
+use App\Enums\SyncStatus;
+use App\Jobs\UploadDocumentToSharePoint;
+use App\Models\Document;
+use App\Services\SharePoint\SharePointUploader;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -125,6 +131,58 @@ class TableHelper
                     $query->orderByRaw("({$caseSql}) {$direction}", $bindings);
                 }
 
+            });
+    }
+
+    /**
+     * Badge dello stato di sincronizzazione con SharePoint.
+     * In caso di errore il tooltip mostra il messaggio salvato in metadata.sync_error.
+     */
+    public static function syncStatusColumn(): TextColumn
+    {
+        return TextColumn::make('sync_status')
+            ->label('Cloud')
+            ->badge()
+            ->formatStateUsing(fn (?string $state): ?string => SyncStatus::tryFrom((string) $state)?->getLabel() ?? $state)
+            ->color(fn (?string $state): string|array|null => SyncStatus::tryFrom((string) $state)?->getColor() ?? 'gray')
+            ->icon(fn (?string $state): ?string => SyncStatus::tryFrom((string) $state)?->getIcon())
+            ->tooltip(fn (Document $record): ?string => $record->sync_status === SyncStatus::FAILED->value
+                ? ($record->metadata['sync_error'] ?? null)
+                : null)
+            ->sortable()
+            ->toggleable();
+    }
+
+    /** Apre il documento su SharePoint, quando l'upload è completato. */
+    public static function openOnSharePointAction(): Action
+    {
+        return Action::make('openOnSharePoint')
+            ->label('Apri su SharePoint')
+            ->icon('heroicon-o-arrow-top-right-on-square')
+            ->color('info')
+            ->url(fn (Document $record): ?string => $record->metadata['web_url'] ?? null, shouldOpenInNewTab: true)
+            ->visible(fn (Document $record): bool => $record->sync_status === SyncStatus::SYNCED->value
+                && filled($record->metadata['web_url'] ?? null));
+    }
+
+    /** Rimette in coda l'upload su SharePoint di un documento fallito o rimasto solo locale. */
+    public static function retrySharePointUploadAction(): Action
+    {
+        return Action::make('retrySharePointUpload')
+            ->label('Riprova upload')
+            ->icon('heroicon-o-cloud-arrow-up')
+            ->color('warning')
+            ->requiresConfirmation()
+            ->visible(fn (Document $record): bool => in_array($record->sync_status, [SyncStatus::FAILED->value, SyncStatus::LOCAL->value], true)
+                && app(SharePointUploader::class)->isConfigured()
+                && $record->getFirstMedia('documents') !== null)
+            ->action(function (Document $record): void {
+                UploadDocumentToSharePoint::dispatch($record->id);
+
+                Notification::make()
+                    ->title('Upload rimesso in coda')
+                    ->success()
+                    ->send();
             });
     }
 }

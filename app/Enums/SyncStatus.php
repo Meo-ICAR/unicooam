@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum SyncStatus: string implements HasLabel, HasColor, HasIcon
+enum SyncStatus: string implements HasColor, HasIcon, HasLabel
 {
     case LOCAL = 'local';
     case SYNCING = 'syncing';
@@ -38,8 +38,8 @@ enum SyncStatus: string implements HasLabel, HasColor, HasIcon
         return match ($this) {
             self::LOCAL => 'heroicon-m-server',
             self::SYNCING => 'heroicon-m-arrow-path',
-            self::SYNCED => 'heroicon-m-cloud-check',
-            self::FAILED => 'heroicon-m-cloud-x',
+            self::SYNCED => 'heroicon-m-check-circle',
+            self::FAILED => 'heroicon-m-x-circle',
         };
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\RelationManagers;
 use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Traits\HasRelationPlanAccess;
+use App\Filament\Utils\TableHelper;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\ValueObjects\OamSemester;
@@ -226,6 +227,8 @@ class DocumentsRelationManager extends RelationManager
                     })
                     ->toggleable(),
 
+                TableHelper::syncStatusColumn(),
+
             ])
             ->filters([
                 Filter::make('semestre_attuale')
@@ -291,6 +294,8 @@ class DocumentsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make(),
+                TableHelper::openOnSharePointAction(),
+                TableHelper::retrySharePointUploadAction(),
                 Action::make('renew')
                     ->label('Rinnova')
                     ->icon('heroicon-o-arrow-path')
