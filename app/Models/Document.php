@@ -13,8 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -210,6 +212,53 @@ class Document extends Model implements HasMedia
                     AND d2.deleted_at IS NULL
                 )', [$semester->end]);
             });
+    }
+
+    /**
+     * Clona il documento (con i relativi allegati) per ogni documento aggiuntivo di un plico,
+     * ognuno con il proprio tipo e la propria data di emissione. Tutti i documenti del plico
+     * condividono lo stesso `metadata.bundle_id`.
+     *
+     * @param  array<int, array{document_type_id: int|string, emitted_at?: string|null, docnumber?: string|null}>  $rows
+     * @return Collection<int, Document>
+     */
+    public function createBundleCopies(array $rows): Collection
+    {
+        $types = collect($rows)->map(fn (array $row): DocumentType => DocumentType::query()->findOrFail($row['document_type_id']));
+
+        return DB::transaction(function () use ($rows, $types): Collection {
+            $bundleId = $this->metadata['bundle_id'] ?? (string) Str::uuid();
+
+            $this->update(['metadata' => [...($this->metadata ?? []), 'bundle_id' => $bundleId]]);
+
+            $attachments = $this->getMedia('documents');
+
+            return $types->map(function (DocumentType $type, int $index) use ($rows, $bundleId, $attachments): self {
+                $row = $rows[$index];
+
+                $copy = self::create([
+                    'company_id' => $this->company_id,
+                    'documentable_type' => $this->documentable_type,
+                    'documentable_id' => $this->documentable_id,
+                    'user_id' => $this->user_id,
+                    'document_type_id' => $type->id,
+                    'name' => $type->name,
+                    'doctype' => $type->doctype,
+                    'docnumber' => $row['docnumber'] ?? null,
+                    'is_monitored' => (bool) $type->is_monitored,
+                    'emitted_at' => $row['emitted_at'] ?? null,
+                    'document_url' => $this->document_url,
+                    'metadata' => ['bundle_id' => $bundleId],
+                    'created_by' => Auth::id(),
+                ]);
+
+                foreach ($attachments as $attachment) {
+                    $attachment->copy($copy, 'documents');
+                }
+
+                return $copy;
+            })->values();
+        });
     }
 
     // Dentro la classe Document...

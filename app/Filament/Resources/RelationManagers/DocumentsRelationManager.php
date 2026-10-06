@@ -17,6 +17,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -139,6 +140,31 @@ class DocumentsRelationManager extends RelationManager
                         ->maxSize(20480)
                         ->columnSpanFull(),
                 ]),
+            Section::make('Plico')
+                ->description('Il file contiene più documenti con scadenze diverse? Aggiungili qui: verranno creati con lo stesso allegato.')
+                ->columnSpanFull()
+                ->collapsed()
+                ->hiddenOn('edit')
+                ->components([
+                    Repeater::make('plico')
+                        ->hiddenLabel()
+                        ->addActionLabel('Aggiungi documento al plico')
+                        ->columns(3)
+                        ->defaultItems(0)
+                        ->components([
+                            Select::make('document_type_id')
+                                ->label('Tipo documento')
+                                ->options(DocumentType::orderBy('name')->pluck('name', 'id'))
+                                ->searchable()
+                                ->required(),
+                            DatePicker::make('emitted_at')
+                                ->label('Data emissione')
+                                ->displayFormat('d/m/y')
+                                ->required(),
+                            TextInput::make('docnumber')
+                                ->label('Protocollo documento'),
+                        ]),
+                ]),
         ]);
     }
 
@@ -248,6 +274,13 @@ class DocumentsRelationManager extends RelationManager
                             ?? $this->getOwnerRecord()->id;
 
                         return $data;
+                    })
+                    ->after(function (CreateAction $action, Document $record): void {
+                        $bundleRows = array_values($action->getData()['plico'] ?? []);
+
+                        if ($bundleRows !== []) {
+                            $record->createBundleCopies($bundleRows);
+                        }
                     }),
                 ExportAction::make()
                     ->exports([
