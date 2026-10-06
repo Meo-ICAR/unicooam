@@ -27,7 +27,7 @@ class DocumentReminderService
         $windowDays = (int) config('documents.schedule_window_days', 90);
         $until = now()->addDays($windowDays)->toDateString();
 
-        return Document::query()
+        $query = Document::query()
             ->with(['documentType', 'documentable'])
             ->where(function (Builder $query) use ($until) {
                 // Opzione 1: Tutte le tue regole attuali raggruppate
@@ -46,8 +46,71 @@ class DocumentReminderService
                 })
                 // Opzione 2: OPPURE qualsiasi documento che sia semplicemente PENDING
                     ->orWhere('status', DocumentStatus::PENDING->value);
+            });
+
+        $this->excludeSupersededVersions($query);
+
+        return $query->orderBy('expires_at');
+    }
+
+    /**
+     * Esclude le vecchie versioni di un documento: quelle rinnovate (metadata.renewed_to_uuid,
+     * status "expired" impostato da Document::renew()) e quelle per cui esiste un documento più
+     * recente dello stesso tipo sullo stesso destinatario (a pari emissione, con scadenza più
+     * lontana) e quelle rinnovate da un altro tipo di documento (renewed_by_id). Una versione più recente respinta,
+     * illeggibile o N/A non sostituisce la precedente.
+     *
+     * @param  Builder<Document>  $query
+     */
+    private function excludeSupersededVersions(Builder $query): void
+    {
+        $query
+            ->whereNull('documents.metadata->renewed_to_uuid')
+            ->where('documents.status', '!=', 'expired')
+            ->whereNotExists(function ($newer): void {
+                $newer->selectRaw('1')
+                    ->from('documents as newer')
+                    ->whereColumn('newer.documentable_type', 'documents.documentable_type')
+                    ->whereColumn('newer.documentable_id', 'documents.documentable_id')
+                    ->whereColumn('newer.document_type_id', 'documents.document_type_id')
+                    ->whereColumn('newer.id', '!=', 'documents.id')
+                    ->whereNull('newer.deleted_at')
+                    ->whereNotNull('newer.emitted_at')
+                    ->whereNotNull('documents.emitted_at')
+                    ->where(function ($later): void {
+                        $later->whereColumn('newer.emitted_at', '>', 'documents.emitted_at')
+                            // A pari data di emissione prevale la scadenza più lontana.
+                            ->orWhere(function ($tie): void {
+                                $tie->whereColumn('newer.emitted_at', '=', 'documents.emitted_at')
+                                    ->whereNotNull('newer.expires_at')
+                                    ->whereNotNull('documents.expires_at')
+                                    ->whereColumn('newer.expires_at', '>', 'documents.expires_at');
+                            });
+                    })
+                    ->whereNotIn('newer.status', [
+                        DocumentStatus::REJECTED->value,
+                        DocumentStatus::NOREADABLE->value,
+                        DocumentStatus::NA->value,
+                    ]);
             })
-            ->orderBy('expires_at');
+            // Tipo rinnovabile da un altro tipo (document_types.renewed_by_id): un documento del
+            // tipo rinnovatore, emesso dalla stessa data in poi, sostituisce quello vecchio.
+            ->whereNotExists(function ($renewer): void {
+                $renewer->selectRaw('1')
+                    ->from('documents as renewer')
+                    ->whereRaw('renewer.document_type_id = (select dt.renewed_by_id from document_types as dt where dt.id = documents.document_type_id)')
+                    ->whereColumn('renewer.documentable_type', 'documents.documentable_type')
+                    ->whereColumn('renewer.documentable_id', 'documents.documentable_id')
+                    ->whereNull('renewer.deleted_at')
+                    ->whereNotNull('renewer.emitted_at')
+                    ->whereNotNull('documents.emitted_at')
+                    ->whereColumn('renewer.emitted_at', '>=', 'documents.emitted_at')
+                    ->whereNotIn('renewer.status', [
+                        DocumentStatus::REJECTED->value,
+                        DocumentStatus::NOREADABLE->value,
+                        DocumentStatus::NA->value,
+                    ]);
+            });
     }
 
     /**

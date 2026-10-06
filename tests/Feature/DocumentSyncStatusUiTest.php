@@ -59,30 +59,23 @@ class DocumentSyncStatusUiTest extends TestCase
             ->filterTable('documentable_type', 'employee');
     }
 
-    public function test_list_shows_the_sync_status_badge(): void
+    public function test_name_links_to_the_download_only_with_an_attachment_or_a_url(): void
     {
-        $document = $this->document(SyncStatus::SYNCED->value, ['web_url' => 'https://sp/item1']);
+        Storage::fake('public');
+        Bus::fake();
+        $withUrl = $this->document(SyncStatus::SYNCED->value, ['web_url' => 'https://sp/item1']);
+        $withFile = $this->document(SyncStatus::LOCAL->value, withMedia: true);
+        $without = $this->document(SyncStatus::LOCAL->value);
 
         $this->listPage()
-            ->assertCanSeeTableRecords([$document])
-            ->assertTableColumnFormattedStateSet('sync_status', SyncStatus::SYNCED->getLabel(), $document);
+            ->assertTableColumnExists('name', fn (TextColumn $column): bool => $column->getUrl() === route('documents.download', $withUrl), $withUrl)
+            ->assertTableColumnExists('name', fn (TextColumn $column): bool => $column->getUrl() === route('documents.download', $withFile), $withFile)
+            ->assertTableColumnExists('name', fn (TextColumn $column): bool => $column->getUrl() === null, $without);
     }
 
-    public function test_failed_documents_expose_the_sync_error_as_tooltip(): void
+    public function test_documents_list_no_longer_shows_the_sync_status_column(): void
     {
-        $document = $this->document(SyncStatus::FAILED->value, ['sync_error' => 'HTTP 403']);
-
-        $this->listPage()->assertTableColumnExists('sync_status', fn (TextColumn $column): bool => $column->getTooltip() === 'HTTP 403', $document);
-    }
-
-    public function test_open_on_sharepoint_is_visible_only_for_synced_documents_with_a_url(): void
-    {
-        $synced = $this->document(SyncStatus::SYNCED->value, ['web_url' => 'https://sp/item1']);
-        $local = $this->document(SyncStatus::LOCAL->value);
-
-        $this->listPage()
-            ->assertActionVisible(TestAction::make('openOnSharePoint')->table($synced))
-            ->assertActionHidden(TestAction::make('openOnSharePoint')->table($local));
+        $this->listPage()->assertTableColumnDoesNotExist('sync_status');
     }
 
     public function test_retry_action_requeues_a_failed_upload(): void

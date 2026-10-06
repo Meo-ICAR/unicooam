@@ -76,6 +76,7 @@ class DocumentScheduleResource extends Resource
     {
         return $table
             // ->recordTitleAttribute('name')
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('document.media'))
             ->defaultPaginationPageOption(50)
             ->reorderableColumns()
             ->defaultSort('expires_at')
@@ -101,7 +102,9 @@ class DocumentScheduleResource extends Resource
                 TextColumn::make('document_name')
                     ->label('Documento')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn (DocumentSchedule $record): ?string => static::downloadUrl($record), shouldOpenInNewTab: true)
+                    ->color(fn (DocumentSchedule $record): ?string => static::downloadUrl($record) ? 'info' : null),
 
                 /*
                  * TextColumn::make('document_type_name')
@@ -131,7 +134,7 @@ class DocumentScheduleResource extends Resource
                     ->placeholder('Mai'),
                 TextColumn::make('documentable.email')
                     ->label('Email')
-                    ->searchable(),
+                    ->searchable(query: fn (Builder $query, string $search): Builder => static::searchByRecipientEmail($query, $search)),
             ])
             ->filters([
                 // FILTRO 2: Selezione per Tipo Documento (Relazione)
@@ -377,6 +380,40 @@ class DocumentScheduleResource extends Resource
                         }),
                 ]),
             ]);
+    }
+
+    /** Link di download del documento collegato, se ha un allegato. */
+    protected static function downloadUrl(DocumentSchedule $record): ?string
+    {
+        return $record->document?->download_url;
+    }
+
+    /**
+     * Cerca per email del destinatario. Dipendenti e fornitori stanno su database diversi
+     * (fornitori su PROFORMA), quindi una whereHas sulla relazione polimorfica non è utilizzabile:
+     * si cercano gli id nel database di ciascun tipo e si filtra per (tipo, id).
+     *
+     * @param  Builder<DocumentSchedule>  $query
+     * @return Builder<DocumentSchedule>
+     */
+    protected static function searchByRecipientEmail(Builder $query, string $search): Builder
+    {
+        return $query->orWhere(function (Builder $query) use ($search): void {
+            foreach ([Employee::class, Fornitore::class] as $modelClass) {
+                $ids = $modelClass::query()
+                    ->where('email', 'like', "%{$search}%")
+                    ->pluck('id')
+                    ->map(fn ($id): string => (string) $id);
+
+                if ($ids->isNotEmpty()) {
+                    $query->orWhere(fn (Builder $query) => $query
+                        ->where('documentable_type', (new $modelClass)->getMorphClass())
+                        ->whereIn('documentable_id', $ids));
+                }
+            }
+
+            $query->orWhereRaw('1 = 0');
+        });
     }
 
     /**

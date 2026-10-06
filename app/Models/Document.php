@@ -119,6 +119,17 @@ class Document extends Model implements HasMedia
     }
 
     /**
+     * Link di download unico (copia locale o URL remoto, scelto da DocumentDownloadController),
+     * presente solo se esiste un allegato o un URL.
+     */
+    protected function downloadUrl(): Attribute
+    {
+        return Attribute::get(fn (): ?string => $this->getFirstMedia('documents') || filled($this->resolved_url)
+            ? route('documents.download', $this)
+            : null);
+    }
+
+    /**
      * I "Booted" del Modello.
      * Intercetta le azioni del ciclo di vita di Eloquent.
      */

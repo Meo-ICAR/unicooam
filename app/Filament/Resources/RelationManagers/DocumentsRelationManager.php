@@ -172,7 +172,7 @@ class DocumentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('media')->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]))
             ->defaultSort('expires_at', 'desc')
@@ -183,23 +183,8 @@ class DocumentsRelationManager extends RelationManager
                     ->searchable()
                     ->sortable()
                     ->default('Senza documento')
-                    ->html()
-                    ->formatStateUsing(function ($state, Document $record) {
-                        // Un solo link di download: il controller sceglie la copia locale o l'URL remoto.
-                        $url = $record->getFirstMedia('documents') || $record->resolved_url
-                            ? route('documents.download', $record)
-                            : null;
-
-                        if (! $url) {
-                            return $state;
-                        }
-
-                        return sprintf(
-                            '<a href="%s" target="_blank" style="color:#2563eb;text-decoration:underline;">%s</a>',
-                            e($url),
-                            e($state)
-                        );
-                    }),
+                    ->url(fn (Document $record): ?string => $record->download_url, shouldOpenInNewTab: true)
+                    ->color(fn (Document $record): ?string => $record->download_url ? 'info' : null),
                 TextColumn::make('status')
                     ->label('Stato')
                     ->badge()
@@ -227,8 +212,6 @@ class DocumentsRelationManager extends RelationManager
                         default => 'gray',
                     })
                     ->toggleable(),
-
-                TableHelper::syncStatusColumn(),
 
             ])
             ->filters([
@@ -295,7 +278,6 @@ class DocumentsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make(),
-                TableHelper::openOnSharePointAction(),
                 TableHelper::retrySharePointUploadAction(),
                 Action::make('renew')
                     ->label('Rinnova')

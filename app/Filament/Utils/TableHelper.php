@@ -134,37 +134,6 @@ class TableHelper
             });
     }
 
-    /**
-     * Badge dello stato di sincronizzazione con SharePoint.
-     * In caso di errore il tooltip mostra il messaggio salvato in metadata.sync_error.
-     */
-    public static function syncStatusColumn(): TextColumn
-    {
-        return TextColumn::make('sync_status')
-            ->label('Cloud')
-            ->badge()
-            ->formatStateUsing(fn (?string $state): ?string => SyncStatus::tryFrom((string) $state)?->getLabel() ?? $state)
-            ->color(fn (?string $state): string|array|null => SyncStatus::tryFrom((string) $state)?->getColor() ?? 'gray')
-            ->icon(fn (?string $state): ?string => SyncStatus::tryFrom((string) $state)?->getIcon())
-            ->tooltip(fn (Document $record): ?string => $record->sync_status === SyncStatus::FAILED->value
-                ? ($record->metadata['sync_error'] ?? null)
-                : null)
-            ->sortable()
-            ->toggleable();
-    }
-
-    /** Apre il documento su SharePoint, quando l'upload è completato. */
-    public static function openOnSharePointAction(): Action
-    {
-        return Action::make('openOnSharePoint')
-            ->label('Apri su SharePoint')
-            ->icon('heroicon-o-arrow-top-right-on-square')
-            ->color('info')
-            ->url(fn (Document $record): ?string => $record->metadata['web_url'] ?? null, shouldOpenInNewTab: true)
-            ->visible(fn (Document $record): bool => $record->sync_status === SyncStatus::SYNCED->value
-                && filled($record->metadata['web_url'] ?? null));
-    }
-
     /** Rimette in coda l'upload su SharePoint di un documento fallito o rimasto solo locale. */
     public static function retrySharePointUploadAction(): Action
     {
