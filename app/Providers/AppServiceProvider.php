@@ -2,8 +2,23 @@
 
 namespace App\Providers;
 
+use App\Listeners\QueueSharePointUpload;
+use App\Models\Audit;
+use App\Models\Branch;
+use App\Models\Company;
+use App\Models\ComplaintRegistry;
+use App\Models\Document;
+use App\Models\Employee;
+use App\Models\PROFORMA\Clienti;
+use App\Models\PROFORMA\Fornitore;
+use App\Models\Website;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
+use SocialiteProviders\Google\GoogleExtendSocialite;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\Microsoft\MicrosoftExtendSocialite;
+use Spatie\MediaLibrary\MediaCollections\Events\MediaHasBeenAddedEvent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,24 +36,28 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::morphMap([
-            'audit' => \App\Models\Audit::class,
-            'branch' => \App\Models\Branch::class,
-            'cliente' => \App\Models\PROFORMA\Clienti::class,
-            'company' => \App\Models\Company::class,
-            'complaint' => \App\Models\ComplaintRegistry::class,
-            'document' => \App\Models\Document::class,
-            'employee' => \App\Models\Employee::class,
-            'fornitore' => \App\Models\PROFORMA\Fornitore::class,
-            'website' => \App\Models\Website::class,
+            'audit' => Audit::class,
+            'branch' => Branch::class,
+            'cliente' => Clienti::class,
+            'company' => Company::class,
+            'complaint' => ComplaintRegistry::class,
+            'document' => Document::class,
+            'employee' => Employee::class,
+            'fornitore' => Fornitore::class,
+            'website' => Website::class,
         ]);
 
-        \Illuminate\Support\Facades\Event::listen(
-            \SocialiteProviders\Manager\SocialiteWasCalled::class,
-            [\SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class, 'handle']
+        Event::listen(
+            MediaHasBeenAddedEvent::class,
+            QueueSharePointUpload::class
         );
-        \Illuminate\Support\Facades\Event::listen(
-            \SocialiteProviders\Manager\SocialiteWasCalled::class,
-            [\SocialiteProviders\Google\GoogleExtendSocialite::class, 'handle']
+        Event::listen(
+            SocialiteWasCalled::class,
+            [MicrosoftExtendSocialite::class, 'handle']
+        );
+        Event::listen(
+            SocialiteWasCalled::class,
+            [GoogleExtendSocialite::class, 'handle']
         );
     }
 }
