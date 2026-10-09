@@ -84,7 +84,7 @@ class ImportPraticheService
      * 5-6 query per ogni pratica.
      *
      * @param  array<int, string>  $codiciPratica
-     * @return array<string, \stdClass>
+     * @return array<string, Provvigione>
      */
     private function loadProvvigioniAggregate(array $codiciPratica): array
     {
@@ -106,7 +106,7 @@ class ImportPraticheService
             ->all();
     }
 
-    private function importSingle(Pratica $pratica, string $companyId, string $period, ?\stdClass $provvigioni): OamPratiche
+    private function importSingle(Pratica $pratica, string $companyId, string $period, ?Provvigione $provvigioni): OamPratiche
     {
         $istitutoNome = $pratica->denominazione_banca;
         $istitutoCanonico = Clienti::getClienteNomeByName($istitutoNome);
@@ -211,7 +211,7 @@ class ImportPraticheService
         DB::update(
             "UPDATE oam_pratiches o
              SET o.prodotto_creditizio = 'Segnalazione Mutuo'
-             WHERE o.tipo_prodotto = 'Mutuo' AND o.erogato = 0
+             WHERE o.tipo_prodotto = 'Mutuo' AND o.erogated_at IS NULL
                AND o.period = ? AND o.company_id = ?",
             [$period, $companyId]
         );
@@ -219,7 +219,7 @@ class ImportPraticheService
         DB::update(
             "UPDATE oam_pratiches o
              SET o.prodotto_creditizio = 'Segnalazione Finanziamento'
-             WHERE o.tipo_prodotto <> 'Mutuo' AND o.erogato = 0
+             WHERE o.tipo_prodotto <> 'Mutuo' AND o.erogated_at IS NULL
                AND o.period = ? AND o.company_id = ?",
             [$period, $companyId]
         );

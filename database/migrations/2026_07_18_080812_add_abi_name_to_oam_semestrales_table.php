@@ -12,10 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('oam_semestrales', function (Blueprint $table) {
-            $table->string('abi_name', 255)->nullable()->after('prodotto_creditizio'); // Sostituisci 'abi' con il campo precedente se diverso
-            $table->boolean('is_convenzione')->default(true)->comment('Convenzione SI/NO');
-            $table->string('submission_type', 255)->nullable()->after('abi_name');
-
+            if (! Schema::hasColumn('oam_semestrales', 'abi_name')) {
+                $table->string('abi_name', 255)->nullable()->after('prodotto_creditizio');
+            }
+            if (! Schema::hasColumn('oam_semestrales', 'is_convenzione')) {
+                $table->boolean('is_convenzione')->default(true)->comment('Convenzione SI/NO');
+            }
+            if (! Schema::hasColumn('oam_semestrales', 'submission_type')) {
+                $table->string('submission_type', 255)->nullable()->after('abi_name');
+            }
         });
     }
 
