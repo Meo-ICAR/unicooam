@@ -59,9 +59,10 @@ class ImportPraticheService
             $importedCount = 0;
 
             Pratica::perSemestreOam($semester)
-                ->chunkById(1000, function (Collection $pratiche) use (&$importedCount, $companyId, $period): void {
+                ->chunkById(1000, function (Collection $pratiche) use (&$importedCount, $companyId, $period, $semester): void {
                     $provvigioni = $this->loadProvvigioniAggregate(
-                        $pratiche->pluck('codice_pratica')->filter()->all()
+                        $pratiche->pluck('codice_pratica')->filter()->all(),
+                        $semester
                     );
 
                     foreach ($pratiche as $pratica) {
@@ -83,10 +84,12 @@ class ImportPraticheService
      * Somma delle provvigioni per codice pratica, in un'unica query invece di
      * 5-6 query per ogni pratica.
      *
+     * Gli storni (rivalse) sono conteggiati solo se contabilizzati nel semestre.
+     *
      * @param  array<int, string>  $codiciPratica
      * @return array<string, Provvigione>
      */
-    private function loadProvvigioniAggregate(array $codiciPratica): array
+    private function loadProvvigioniAggregate(array $codiciPratica, OamSemester $semester): array
     {
         if ($codiciPratica === []) {
             return [];
@@ -99,7 +102,10 @@ class ImportPraticheService
             ->selectRaw("SUM(CASE WHEN tipo = 'Istituto' AND descrizione NOT LIKE '%premio%' THEN importo ELSE 0 END) as provv_istituto_comp")
             ->selectRaw("SUM(CASE WHEN tipo = 'Istituto' AND descrizione LIKE '%premio%' THEN importo ELSE 0 END) as premi_istituto_comp")
             ->selectRaw("SUM(CASE WHEN tipo = 'Agente' THEN importo ELSE 0 END) as payout_rete_credito")
-            ->selectRaw("SUM(CASE WHEN tipo = 'Istituto' AND descrizione LIKE '%storno%' THEN importo ELSE 0 END) as importo_retrocesse")
+            ->selectRaw(
+                "SUM(CASE WHEN tipo = 'Istituto' AND descrizione LIKE '%storno%' AND data_status BETWEEN ? AND ? THEN importo ELSE 0 END) as importo_retrocesse",
+                [$semester->start, $semester->end]
+            )
             ->groupBy('id_pratica')
             ->get()
             ->keyBy('id_pratica')
@@ -114,7 +120,7 @@ class ImportPraticheService
 
         $tipoProdotto = $pratica->tipo_prodotto;
         $erogato = $this->erogatoLordo($pratica, $cliente?->principal_type, $tipoProdotto);
-        $storno = (float) ($provvigioni->importo_retrocesse ?? 0.0);
+        $storno = abs((float) ($provvigioni->importo_retrocesse ?? 0.0));
 
         return OamPratiche::updateOrCreate(
             ['pratica' => $pratica->codice_pratica],
@@ -184,7 +190,7 @@ class ImportPraticheService
                 'provv_istituto_comp' => 0,
                 'premi_istituto_comp' => 0,
                 'payout_rete_credito' => 0,
-                'importo_retrocesse' => $storno,
+                'importo_retrocesse' => abs($storno),
                 'num_rivalse' => 1,
                 'abi_name' => $pratica->abi_name,
             ]

@@ -2,16 +2,17 @@
 
 namespace App\Filament\Exports;
 
+use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class DynamicGroupExport extends ExcelExport implements WithEvents
 {
     protected ?string $groupBy = null;
+
     protected array $sumColumns = [];
 
     const FORMAT_CURRENCY = '#,##0.00" €"';
@@ -20,18 +21,41 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
     {
         return parent::make($name ?? 'export')
             ->fromTable()
-            ->withFilename('report_' . now()->format('Y-m-d_H-i'));
+            ->withFilename('report_'.now()->format('Y-m-d_H-i'));
+    }
+
+    /**
+     * filament-excel inietta il record solo per nome ($record): i closure di
+     * formattazione con un parametro tipizzato Model (es. Model $row) fallivano
+     * con "Target [Model] is not instantiable". Lo iniettiamo anche per tipo.
+     *
+     * @param  array<string, mixed>  $parameters
+     */
+    public function evaluate(mixed $value, array $parameters = []): mixed
+    {
+        $record = $parameters['record'] ?? null;
+
+        $typedInjections = $record instanceof Model
+            ? [Model::class => $record, $record::class => $record]
+            : [];
+
+        return $this->parentEvaluate($value, [
+            ...$parameters,
+            ...$this->getDefaultEvaluationParameters(),
+        ], $typedInjections);
     }
 
     public function groupBy(string $column): static
     {
         $this->groupBy = $column;
+
         return $this;
     }
 
     public function sumColumns(array $columns): static
     {
         $this->sumColumns = $columns;
+
         return $this;
     }
 
@@ -40,7 +64,7 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $this->processSheet($event);
-            }
+            },
         ];
     }
 
@@ -54,12 +78,12 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
 
         $filterStrings = [];
         foreach ($appliedFilters as $name => $data) {
-            if (!empty($data['value'])) {
+            if (! empty($data['value'])) {
                 $val = is_array($data['value']) ? implode(', ', $data['value']) : $data['value'];
-                $filterStrings[] = strtoupper($name) . ': ' . $val;
+                $filterStrings[] = strtoupper($name).': '.$val;
             }
         }
-        $filtersText = 'FILTRI APPLICATI: ' . (empty($filterStrings) ? 'Nessuno' : implode(' | ', $filterStrings));
+        $filtersText = 'FILTRI APPLICATI: '.(empty($filterStrings) ? 'Nessuno' : implode(' | ', $filterStrings));
 
         // Inserimento spazio per i filtri
         $sheet->insertNewRowBefore(1, 2);
@@ -75,17 +99,19 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
         $highestRow = $sheet->getHighestRow();
         $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
 
-        if ($highestRow <= $headerRow)
+        if ($highestRow <= $headerRow) {
             return;
+        }
 
         $headings = $sheet->rangeToArray("A{$headerRow}:{$highestColumn}{$headerRow}", null, true, false)[0];
-        $headingsLower = array_map(fn($h) => strtolower(trim((string) $h)), $headings);
+        $headingsLower = array_map(fn ($h) => strtolower(trim((string) $h)), $headings);
 
         $sumIndices = [];
         foreach ($this->sumColumns as $col) {
             $idx = array_search(strtolower($col), $headingsLower);
-            if ($idx !== false)
+            if ($idx !== false) {
                 $sumIndices[] = $idx;
+            }
         }
 
         $dataStartRow = $headerRow + 1;
@@ -113,7 +139,7 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
                     foreach ($groupRows as $row) {
                         foreach ($row as $colIdx => $value) {
                             $colLetter = Coordinate::stringFromColumnIndex($colIdx + 1);
-                            $sheet->setCellValue($colLetter . $currentRow, $value);
+                            $sheet->setCellValue($colLetter.$currentRow, $value);
                         }
                         foreach ($sumIndices as $idx) {
                             $val = $this->parseNumericValue($row[$idx] ?? 0);
@@ -123,15 +149,17 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
                     }
 
                     // Riga Totale Gruppo
-                    foreach ($sumIndices as $idx)
+                    foreach ($sumIndices as $idx) {
                         $grandTotals[$idx] += $groupSums[$idx];
+                    }
 
-                    $this->writeTotalRow($sheet, $currentRow, $groupByIndex, 'TOTALE ' . strtoupper((string) $groupName), $groupSums, $sumIndices, $highestColumnIndex, false);
+                    $this->writeTotalRow($sheet, $currentRow, $groupByIndex, 'TOTALE '.strtoupper((string) $groupName), $groupSums, $sumIndices, $highestColumnIndex, false);
                     $currentRow += 2;
                 }
 
                 // Gran Totale Finale (dopo i gruppi)
                 $this->writeTotalRow($sheet, $currentRow, $groupByIndex, 'GRAN TOTALE COMPLESSIVO', $grandTotals, $sumIndices, $highestColumnIndex, true);
+
                 return;
             }
         }
@@ -156,6 +184,7 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
             $val = str_replace(['€', '.', ' '], '', $val);
             $val = str_replace(',', '.', $val);
         }
+
         return (float) $val;
     }
 
@@ -163,9 +192,9 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
     protected function writeTotalRow($sheet, $rowIdx, $labelColIdx, $label, $totals, $sumIndices, $maxCol, $isGrandTotal)
     {
         $colLetterLabel = Coordinate::stringFromColumnIndex($labelColIdx + 1);
-        $sheet->setCellValue($colLetterLabel . $rowIdx, $label);
+        $sheet->setCellValue($colLetterLabel.$rowIdx, $label);
 
-        $rowRange = Coordinate::stringFromColumnIndex(1) . $rowIdx . ':' . Coordinate::stringFromColumnIndex($maxCol) . $rowIdx;
+        $rowRange = Coordinate::stringFromColumnIndex(1).$rowIdx.':'.Coordinate::stringFromColumnIndex($maxCol).$rowIdx;
         $style = $sheet->getStyle($rowRange);
         $style->getFont()->setBold(true);
 
@@ -176,7 +205,7 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
 
         foreach ($sumIndices as $idx) {
             $colLetter = Coordinate::stringFromColumnIndex($idx + 1);
-            $cell = $colLetter . $rowIdx;
+            $cell = $colLetter.$rowIdx;
             $sheet->setCellValue($cell, $totals[$idx]);
             $sheet->getStyle($cell)->getNumberFormat()->setFormatCode(self::FORMAT_CURRENCY);
         }

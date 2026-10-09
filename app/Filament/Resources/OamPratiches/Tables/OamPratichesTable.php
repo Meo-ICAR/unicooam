@@ -233,7 +233,7 @@ class OamPratichesTable
                         ->pluck('istituto', 'istituto')
                         ->toArray()),
                 Filter::make('importo_retrocesse')
-                    ->label('Stornate')
+                    ->label('Retrocesse')
                     ->query(fn (Builder $query): Builder => $query->where('importo_retrocesse', '!=', 0)),
                 Filter::make('intermediari_non_convenzionati')
                     ->label('Intermediari Non Convenzionati')
