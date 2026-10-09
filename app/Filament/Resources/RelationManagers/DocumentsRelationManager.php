@@ -5,6 +5,7 @@ namespace App\Filament\Resources\RelationManagers;
 use App\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Traits\HasRelationPlanAccess;
+use App\Filament\Utils\TableHelper;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\ValueObjects\OamSemester;
@@ -17,6 +18,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -139,13 +141,38 @@ class DocumentsRelationManager extends RelationManager
                         ->maxSize(20480)
                         ->columnSpanFull(),
                 ]),
+            Section::make('Plico')
+                ->description('Il file contiene più documenti con scadenze diverse? Aggiungili qui: verranno creati con lo stesso allegato.')
+                ->columnSpanFull()
+                ->collapsed()
+                ->hiddenOn('edit')
+                ->components([
+                    Repeater::make('plico')
+                        ->hiddenLabel()
+                        ->addActionLabel('Aggiungi documento al plico')
+                        ->columns(3)
+                        ->defaultItems(0)
+                        ->components([
+                            Select::make('document_type_id')
+                                ->label('Tipo documento')
+                                ->options(DocumentType::orderBy('name')->pluck('name', 'id'))
+                                ->searchable()
+                                ->required(),
+                            DatePicker::make('emitted_at')
+                                ->label('Data emissione')
+                                ->displayFormat('d/m/y')
+                                ->required(),
+                            TextInput::make('docnumber')
+                                ->label('Protocollo documento'),
+                        ]),
+                ]),
         ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('media')->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]))
             ->defaultSort('expires_at', 'desc')
@@ -156,22 +183,8 @@ class DocumentsRelationManager extends RelationManager
                     ->searchable()
                     ->sortable()
                     ->default('Senza documento')
-                    ->html()
-                    ->formatStateUsing(function ($state, Document $record) {
-                        $url = $record->getFirstMedia('documents')
-                            ? route('documents.download', $record)
-                            : $record->resolved_url;
-
-                        if (! $url) {
-                            return $state;
-                        }
-
-                        return sprintf(
-                            '<a href="%s" target="_blank" style="color:#2563eb;text-decoration:underline;">%s</a>',
-                            e($url),
-                            e($state)
-                        );
-                    }),
+                    ->url(fn (Document $record): ?string => $record->download_url, shouldOpenInNewTab: true)
+                    ->color(fn (Document $record): ?string => $record->download_url ? 'info' : null),
                 TextColumn::make('status')
                     ->label('Stato')
                     ->badge()
@@ -248,6 +261,13 @@ class DocumentsRelationManager extends RelationManager
                             ?? $this->getOwnerRecord()->id;
 
                         return $data;
+                    })
+                    ->after(function (CreateAction $action, Document $record): void {
+                        $bundleRows = array_values($action->getData()['plico'] ?? []);
+
+                        if ($bundleRows !== []) {
+                            $record->createBundleCopies($bundleRows);
+                        }
                     }),
                 ExportAction::make()
                     ->exports([
@@ -258,6 +278,7 @@ class DocumentsRelationManager extends RelationManager
             ])
             ->recordActions([
                 EditAction::make(),
+                TableHelper::retrySharePointUploadAction(),
                 Action::make('renew')
                     ->label('Rinnova')
                     ->icon('heroicon-o-arrow-path')

@@ -40,6 +40,14 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
+    'sharepoint' => [
+        'tenant_id' => env('SHARE_TENANT_ID'),
+        'client_id' => env('SHARE_CLIENT_ID'),
+        'client_secret' => env('SHARE_SECRET_ID'),
+        'drive_id' => env('SHARE_DRIVE_ID'),
+        // Cartella radice del drive in cui finiscono i documenti caricati.
+        'upload_root' => env('SHARE_UPLOAD_ROOT', 'Unicooam'),
+    ],
     'bpm' => [
         'url' => env('BPM_API_URL', 'https://unicobpm.hassisto.com'), // Il secondo parametro è un fallback
     ],

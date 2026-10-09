@@ -33,7 +33,14 @@ class OamPraticheResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'cliente';
 
-    protected static bool $shouldRegisterNavigation = false;
+    /**
+     * Raggiungibile solo dai link (es. Oam Semestrali): HasPlanAccess::shouldRegisterNavigation()
+     * ignora la proprietà $shouldRegisterNavigation, quindi va nascosta con l'override del metodo.
+     */
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 
     public static function form(Schema $schema): Schema
     {

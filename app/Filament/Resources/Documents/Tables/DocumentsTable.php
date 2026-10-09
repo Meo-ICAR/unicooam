@@ -32,6 +32,7 @@ class DocumentsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('media'))
             ->reorderableColumns()
             ->headerActions([
                 ExportAction::make()
@@ -52,7 +53,9 @@ class DocumentsTable
                     ->label('Nome Documento')
                     ->sortable()
                     ->searchable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->url(fn (Document $record): ?string => $record->download_url, shouldOpenInNewTab: true)
+                    ->color(fn (Document $record): ?string => $record->download_url ? 'info' : null),
                 // 4. DATE E SCADENZE
                 // Sostituisci il vecchio TextColumn con questo:
                 TextColumn::make('emitted_at')
@@ -145,6 +148,7 @@ class DocumentsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                TableHelper::retrySharePointUploadAction(),
                 Action::make('renew')
                     ->label('Rinnova')
                     ->icon('heroicon-o-arrow-path')
