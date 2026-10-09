@@ -4,9 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
+        if (Schema::hasTable('task_document_types')) {
+            return;
+        }
+
         Schema::create('task_document_types', function (Blueprint $table) {
             $table->id();
 

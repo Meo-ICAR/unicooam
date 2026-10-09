@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('branches')) {
+            return;
+        }
+
         Schema::create('branches', function (Blueprint $table) {
             $table->comment('Filiali o sedi collegate alle aziende o polimorficamente ad altri modelli (Hotel, Call Center, ecc.)');
 

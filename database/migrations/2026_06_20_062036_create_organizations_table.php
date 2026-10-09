@@ -4,12 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
+        if (Schema::hasTable('organizations')) {
+            return;
+        }
+
         Schema::create('organizations', function (Blueprint $table) {
             // Commento sulla tabella (MySQL Table Comment)
             $table->comment("Organismi di vigilanza e controllo a cui è sottoposto il mediatore creditizio (es. OAM, Banca d'Italia).");

@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('lead_sources')) {
+            return;
+        }
+
         Schema::create('lead_sources', function (Blueprint $blueprint) {
             // ID primario (BigInt Autoincrement) compatibile con la FK 'leadsource_id' della tabella 'clients'
             $blueprint->id();

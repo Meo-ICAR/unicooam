@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('document_types', 'is_versioned')) {
+            return;
+        }
+
         Schema::table('document_types', function (Blueprint $table) {
             $table->boolean('is_versioned')->default(false)
                 ->comment('Mantieni lo storico')->nullable();

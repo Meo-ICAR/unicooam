@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('document_types', 'trigger_field')) {
+            return;
+        }
+
         Schema::table('document_types', function (Blueprint $table) {
             $table->string('trigger_field')->nullable()->comment('Campo del modello da controllare')
                 ->after('is_practice');

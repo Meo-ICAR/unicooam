@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('tipoprodotto_sub_constraints')) {
+            return;
+        }
+
         Schema::create('tipoprodotto_sub_constraints', function (Blueprint $table) {
             $table->id();
 

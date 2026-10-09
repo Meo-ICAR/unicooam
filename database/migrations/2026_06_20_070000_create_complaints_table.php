@@ -4,12 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
+        if (Schema::hasTable('complaints')) {
+            return;
+        }
+
         Schema::create('complaints', function (Blueprint $table) {
             $table->comment('Registro delle segnalazioni e reclami ricevuti');
             $table->id();

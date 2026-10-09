@@ -4,12 +4,17 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
+        if (Schema::hasTable('training_records')) {
+            return;
+        }
+
         Schema::create('training_records', function (Blueprint $table) {
             $table->id();
 
@@ -21,7 +26,7 @@ return new class extends Migration {
 
             // Enum Ambiti Regolatori
             $table->enum('regulatory_framework', [
-                'gdpr', 'oam', 'ivass', 'sicurezza_lavoro', 'antiriciclaggio', 'mifid', 'other'
+                'gdpr', 'oam', 'ivass', 'sicurezza_lavoro', 'antiriciclaggio', 'mifid', 'other',
             ])->nullable();
 
             $table->string('name')->nullable();
@@ -31,7 +36,7 @@ return new class extends Migration {
 
             // Enum Modalità di Erogazione
             $table->enum('delivery_mode', [
-                'in_person', 'online', 'blended', 'on_the_job', 'webinar'
+                'in_person', 'online', 'blended', 'on_the_job', 'webinar',
             ])->default('in_person');
 
             $table->date('training_date')->nullable();
@@ -40,7 +45,7 @@ return new class extends Migration {
 
             // Enum Esito
             $table->enum('outcome', [
-                'passed', 'failed', 'attended', 'partial'
+                'passed', 'failed', 'attended', 'partial',
             ])->default('attended');
 
             $table->decimal('score', 5, 2)->nullable();

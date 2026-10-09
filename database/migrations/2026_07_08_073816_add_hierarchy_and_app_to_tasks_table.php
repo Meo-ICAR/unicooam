@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('tasks', 'parent_id')) {
+            return;
+        }
+
         Schema::table('tasks', function (Blueprint $table) {
             // Aggiunge la gerarchia parent/child
             $table->foreignId('parent_id')->nullable()->after('id')->constrained('tasks')->cascadeOnDelete();

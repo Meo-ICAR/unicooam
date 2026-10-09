@@ -4,9 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
+        if (Schema::hasTable('complaint_registry')) {
+            return;
+        }
+
         Schema::create('complaint_registry', function (Blueprint $table) {
             $table->comment('Registro ufficiale Reclami e Segnalazioni (OAM, IVASS, Privacy)');
             $table->id();

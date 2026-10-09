@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('audits', 'severity')) {
+            return;
+        }
+
         Schema::table('audits', function (Blueprint $table) {
             $table->enum('severity', ['Alto', 'Medio', 'Basso'])->nullable()
                 ->comment('Severita rilievo')->after('outcome');

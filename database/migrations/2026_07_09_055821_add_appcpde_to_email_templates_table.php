@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('email_templates', 'app_identifier')) {
+            return;
+        }
+
         Schema::table('email_templates', function (Blueprint $table) {
             // Aggiunge l'identificativo per il multi-tenant/multi-app
             $table->string('app_identifier', 50)->nullable()

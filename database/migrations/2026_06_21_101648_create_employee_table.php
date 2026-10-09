@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('employees')) {
+            return;
+        }
+
         Schema::create('employees', function (Blueprint $table) {
             $table->comment('Anagrafica dipendenti e collaboratori commerciali con ruoli privacy, abilitazioni OAM/IVASS e gerarchie');
 

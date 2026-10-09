@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('documents', 'last_sent_at')) {
+            return;
+        }
+
         Schema::table('documents', function (Blueprint $blueprint) {
             $blueprint->timestamp('last_sent_at')->nullable()->after('status')
                 ->comment('Data e ora ultimo sollecito inviato');

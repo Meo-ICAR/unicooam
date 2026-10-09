@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasIndex('clienti_oam', ['clienti_id', 'oam_code_id'], 'unique')) {
+            return;
+        }
+
         Schema::table('clienti_oam', function (Blueprint $table) {
             $table->unique(['clienti_id', 'oam_code_id']);
         });

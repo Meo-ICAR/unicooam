@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('document_reminders')) {
+            return;
+        }
+
         Schema::create('document_reminders', function (Blueprint $table) {
             $table->id();
             $table->uuid('document_id');

@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('chat_messages')) {
+            return;
+        }
+
         Schema::create('chat_messages', function (Blueprint $table) {
             $table->id();
             $table->foreignUuid('company_id')->nullable()->constrained('companies')->nullOnDelete();
