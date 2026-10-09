@@ -99,6 +99,14 @@ class Pratica extends Model
     ];
 
     /**
+     * Etichetta leggibile (usata dalle colonne polimorfiche, es. negli Audit).
+     */
+    public function getNameAttribute(): string
+    {
+        return trim($this->codice_pratica.' - '.$this->cognome_cliente.' '.$this->nome_cliente);
+    }
+
+    /**
      * Get the agent (fornitore) associated with the pratica.
      */
     public function agente()

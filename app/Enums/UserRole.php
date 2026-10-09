@@ -31,6 +31,7 @@ enum UserRole: string
 
             self::QUALITY => [
                 'audits',
+                'quality-reviews',
                 'document-relation-manager',
             ],
             // L'Utente standard vede solo alcune risorse base

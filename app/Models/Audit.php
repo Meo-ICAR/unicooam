@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,6 +28,7 @@ class Audit extends Model
      */
     protected $fillable = [
         'company_id',
+        'quality_review_id',
         'auditable_type',
         'auditable_id',
         'auditor_name',
@@ -142,6 +144,16 @@ class Audit extends Model
         return $this->belongsTo(User::class, 'requested_by_user_id');
     }
 
+    public function qualityReview(): BelongsTo
+    {
+        return $this->belongsTo(QualityReview::class);
+    }
+
+    public function findings(): HasMany
+    {
+        return $this->hasMany(AuditFinding::class);
+    }
+
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
@@ -159,7 +171,8 @@ class Audit extends Model
         return $query->where('executed_at', '<=', $semester->end)
             ->where('executed_at', '>=', $semester->start)
             ->whereNotNull('outcome')
-            ->where('outcome', '!=', 'conforme');
+            ->where('outcome', '!=', 'conforme')
+            ->where('origin_type', '!=', 'quality');
 
     }
 

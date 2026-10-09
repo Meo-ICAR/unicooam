@@ -335,8 +335,8 @@ class ListOamSemestrales extends ListRecords
         $compliance_doc = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'audit')->count();
         $compliance_onsite = CompanyRole::where('funzione', '=', 'compliance')->where('execution_method', '=', 'ispezione')->count();
 
-        $audit_doc = Audit::perSemestreOam($semestre)->where('company_id', $azienda?->id)->count();
-        $audit_onsite = Audit::perSemestreOam($semestre)->where('company_id', $azienda?->id)->count();
+        $audit_doc = Audit::perSemestreOam($semestre)->where('origin_type', '!=', 'quality')->where('company_id', $azienda?->id)->count();
+        $audit_onsite = Audit::perSemestreOam($semestre)->where('origin_type', '!=', 'quality')->where('company_id', $azienda?->id)->count();
 
         $auditsRegistrati = Audit::RilieviOam($semestre)->get();
         $rilievi_lista = [];

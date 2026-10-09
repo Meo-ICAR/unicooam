@@ -51,7 +51,7 @@ class AuditForm
                                 ->searchable()
                                 ->preload()
                                 ->placeholder('Seleziona richiedente')
-                                ->visible(fn (Get $get) => $get('origin_type') !== 'internal')
+                                ->visible(fn (Get $get) => ! in_array($get('origin_type'), ['internal', 'quality'], true))
                                 ->required(fn (Get $get) => $get('origin_type') === 'external_incoming'),
 
                             Select::make('collaboratore')
@@ -64,6 +64,7 @@ class AuditForm
                                     'Ufficio XXX' => 'Ufficio XXX - (N. dipendenti/collaboratori)',
                                 ])
                                 ->default('dipendente/collaboratore')
+                                ->visible(fn (Get $get) => $get('origin_type') !== 'quality')
                                 ->columnSpan(fn (Get $get) => $get('origin_type') === 'internal' ? 2 : 1),
 
                             MorphToSelect::make('auditable')
@@ -85,7 +86,8 @@ class AuditForm
                                 ])
                                 ->searchable()
                                 ->preload()
-                                ->required()
+                                ->visible(fn (Get $get) => $get('origin_type') !== 'quality')
+                                ->required(fn (Get $get) => $get('origin_type') !== 'quality')
                                 ->columns(2) // Dispone tipo e record affiancati su 2 colonne
                                 ->columnSpanFull(),
                         ]),
@@ -130,7 +132,8 @@ class AuditForm
                                     'ispezione' => 'Ispezione in filiale -OAM-',
                                     'intervista' => 'Intervista informale (non riportata in OAM)',
                                 ])
-                                ->required()
+                                ->visible(fn (Get $get) => $get('origin_type') !== 'quality')
+                                ->required(fn (Get $get) => $get('origin_type') !== 'quality')
                                 ->default('audit'),
 
                             ToggleButtons::make('status')
