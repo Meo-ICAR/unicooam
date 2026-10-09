@@ -36,14 +36,14 @@ class OamSemester
     /**
      * Semestre di riferimento in base alla data odierna.
      *
-     * Fino a ottobre incluso si lavora sul 1° semestre dell'anno corrente;
-     * a novembre/dicembre si passa al 2° semestre.
+     * Fino a novembre incluso si lavora sul 1° semestre dell'anno corrente;
+     * a dicembre si passa al 2° semestre.
      */
     public static function current(?CarbonImmutable $now = null): self
     {
         $now ??= CarbonImmutable::now();
 
-        return $now->month <= 10
+        return $now->month <= 11
             ? new self($now->year, 1)
             : new self($now->year, 2);
     }
