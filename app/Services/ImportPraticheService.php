@@ -66,13 +66,13 @@ class ImportPraticheService
                     );
 
                     foreach ($pratiche as $pratica) {
-                        $this->importSingle($pratica, $companyId, $period, $provvigioni[$pratica->codice_pratica] ?? null);
+                        $this->importSingle($pratica, $semester, $companyId, $period, $provvigioni[$pratica->codice_pratica] ?? null);
                         $importedCount++;
                     }
                 });
 
             $this->importStorni($semester, $companyId, $period);
-            $this->applyBusinessRules($period, $companyId);
+            $this->applyBusinessRules($semester, $period, $companyId);
 
             app(OamSemestraleService::class)->aggregate(period: $period, companyId: $companyId);
 
@@ -112,7 +112,7 @@ class ImportPraticheService
             ->all();
     }
 
-    private function importSingle(Pratica $pratica, string $companyId, string $period, ?Provvigione $provvigioni): OamPratiche
+    private function importSingle(Pratica $pratica, OamSemester $semester, string $companyId, string $period, ?Provvigione $provvigioni): OamPratiche
     {
         $istitutoNome = $pratica->denominazione_banca;
         $istitutoCanonico = Clienti::getClienteNomeByName($istitutoNome);
@@ -121,6 +121,9 @@ class ImportPraticheService
         $tipoProdotto = $pratica->tipo_prodotto;
         $erogato = $this->erogatoLordo($pratica, $cliente?->principal_type, $tipoProdotto);
         $storno = abs((float) ($provvigioni->importo_retrocesse ?? 0.0));
+
+        // Un rifiuto successivo alla fine del semestre non esisteva ancora.
+        $rejectedAt = $pratica->rejectedAtNelSemestre($semester);
 
         return OamPratiche::updateOrCreate(
             ['pratica' => $pratica->codice_pratica],
@@ -132,11 +135,12 @@ class ImportPraticheService
                 'agente' => Fornitore::getFornitoreNomeByName($pratica->denominazione_agente),
                 'cliente' => $this->clienteLabel($pratica),
                 'tipo_prodotto' => $tipoProdotto,
+                'principal_type' => $cliente?->principal_type,
                 'erogato_lordo' => $erogato,
-                'sended_at' => $this->sendedAt($pratica),
-                'approved_at' => $this->approvedAt($pratica),
+                'sended_at' => $this->sendedAt($pratica, $pratica->erogated_at),
+                'approved_at' => $this->approvedAt($pratica, $pratica->erogated_at),
                 'erogated_at' => $pratica->erogated_at,
-                'rejected_at' => $pratica->rejected_at,
+                'rejected_at' => $rejectedAt,
                 'provv_clientela' => (float) ($provvigioni->provv_clientela ?? 0.0),
                 'provv_istituto_comp' => (float) ($provvigioni->provv_istituto_comp ?? 0.0),
                 'premi_istituto_comp' => (float) ($provvigioni->premi_istituto_comp ?? 0.0),
@@ -182,8 +186,8 @@ class ImportPraticheService
                 'cliente' => $this->clienteLabel($pratica),
                 'tipo_prodotto' => $pratica->tipo_prodotto,
                 'erogato_lordo' => 0,
-                'sended_at' => $this->sendedAt($pratica),
-                'approved_at' => $this->approvedAt($pratica),
+                'sended_at' => $this->sendedAt($pratica, $pratica->erogated_at),
+                'approved_at' => $this->approvedAt($pratica, $pratica->erogated_at),
                 'erogated_at' => $pratica->erogated_at,
                 'rejected_at' => $pratica->rejected_at,
                 'provv_clientela' => 0,
@@ -201,31 +205,31 @@ class ImportPraticheService
      * Regole di business post-import (classificazione prodotto creditizio,
      * separazione erogato lavorazione / erogato lordo). Ristrette al
      * periodo/azienda in ricostruzione.
+     *
+     * Un'erogazione successiva alla fine del semestre resta salvata in
+     * erogated_at ma, ai fini della classificazione, vale come non erogata
+     * (pratica in lavorazione).
      */
-    private function applyBusinessRules(string $period, string $companyId): void
+    private function applyBusinessRules(OamSemester $semester, string $period, string $companyId): void
     {
+        $semesterEnd = $semester->end->toDateTimeString();
+
         DB::update(
             'UPDATE oam_pratiches o
              INNER JOIN oam_codes c ON c.tipo_prodotto = o.tipo_prodotto
              SET o.prodotto_creditizio = c.description,
-                 o.pratiche_lavorazione = IF(o.erogated_at IS NULL, 1, 0),
-                 o.pratiche_intermediate = IF(o.erogated_at IS NOT NULL, 1, 0)
+                 o.pratiche_lavorazione = IF(o.erogated_at IS NULL OR o.erogated_at > ?, 1, 0),
+                 o.pratiche_intermediate = IF(o.erogated_at IS NOT NULL AND o.erogated_at <= ?, 1, 0)
              WHERE o.period = ? AND o.company_id = ?',
-            [$period, $companyId]
+            [$semesterEnd, $semesterEnd, $period, $companyId]
         );
 
+        // Segnalazione: l'istituto erogante non e' una banca. Un mutuo diventa
+        // sempre Segnalazione Mutuo, ogni altro prodotto Segnalazione Finanziamento.
         DB::update(
             "UPDATE oam_pratiches o
-             SET o.prodotto_creditizio = 'Segnalazione Mutuo'
-             WHERE o.tipo_prodotto = 'Mutuo' AND o.erogated_at IS NULL
-               AND o.period = ? AND o.company_id = ?",
-            [$period, $companyId]
-        );
-
-        DB::update(
-            "UPDATE oam_pratiches o
-             SET o.prodotto_creditizio = 'Segnalazione Finanziamento'
-             WHERE o.tipo_prodotto <> 'Mutuo' AND o.erogated_at IS NULL
+             SET o.prodotto_creditizio = IF(o.tipo_prodotto = 'Mutuo', 'Segnalazione Mutuo', 'Segnalazione Finanziamento')
+             WHERE (o.principal_type IS NULL OR o.principal_type <> 'banca')
                AND o.period = ? AND o.company_id = ?",
             [$period, $companyId]
         );
@@ -268,13 +272,13 @@ class ImportPraticheService
         return $label !== '' ? $label : null;
     }
 
-    private function sendedAt(Pratica $pratica): mixed
+    private function sendedAt(Pratica $pratica, mixed $erogatedAt): mixed
     {
-        return $pratica->sended_at ?? $this->approvedAt($pratica);
+        return $pratica->sended_at ?? $this->approvedAt($pratica, $pratica->erogated_at);
     }
 
-    private function approvedAt(Pratica $pratica): mixed
+    private function approvedAt(Pratica $pratica, mixed $erogatedAt): mixed
     {
-        return $pratica->approved_at ?? $pratica->erogated_at;
+        return $pratica->approved_at ?? $erogatedAt;
     }
 }

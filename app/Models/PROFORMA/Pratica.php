@@ -6,6 +6,7 @@ use App\Models\Document;
 use App\Models\OamCode;
 use App\Models\PraticaStato;
 use App\ValueObjects\OamSemester;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -148,23 +149,45 @@ class Pratica extends Model
         return $this->HasMany(Provvigione::class, 'id_pratica', 'id');
     }
 
+    /**
+     * Data di rifiuto vista dal semestre: l'anno futuro e' riportato all'anno del
+     * semestre; un rifiuto non avvenuto prima della fine del semestre vale NULL.
+     */
+    public function rejectedAtNelSemestre(OamSemester $semester): ?CarbonInterface
+    {
+        if ($this->rejected_at === null) {
+            return null;
+        }
+
+        $rejectedAt = $this->rejected_at->year > $semester->end->year
+            ? $this->rejected_at->copy()->subYears($this->rejected_at->year - $semester->end->year)
+            : $this->rejected_at;
+
+        return $rejectedAt->toDateString() < $semester->end->toDateString() ? $rejectedAt : null;
+    }
+
     public function scopePerSemestreOam(Builder $query, ?OamSemester $semester = null): Builder
     {
         $semester ??= OamSemester::current();
 
         return $query
-            ->whereNull('rejected_at')
+            // Un rifiuto non puo' essere nel futuro (anno > anno del semestre => anno del
+            // semestre) e uno successivo alla fine del semestre non conta per il semestre.
+            ->where(fn (Builder $q) => $q->whereNull('rejected_at')->orWhereRaw(
+                'IF(YEAR(rejected_at) > ?, DATE_SUB(rejected_at, INTERVAL (YEAR(rejected_at) - ?) YEAR), rejected_at) >= ?',
+                [$semester->end->year, $semester->end->year, $semester->end->toDateString()]
+            ))
             ->where('data_inserimento_pratica', '>=', '2025-01-01') // Cutoff storico
-            ->where('data_inserimento_pratica', '<', $semester->end)
             ->where('stato_pratica', '<>', 'INSERITA')
+            ->whereNotIn('stato_pratica', ['DECLINATA', 'RINUNCIA CLIENTE', 'PRATICA RESPINTA'])
             ->where('is_notowned', 0)
+            // Presente prima della fine del semestre: discrimina sended_at; se manca vale
+            // approved_at e, in assenza anche di questo, la data di inserimento.
+            ->whereRaw('COALESCE(sended_at, approved_at, data_inserimento_pratica) <= ?', [$semester->end])
             ->whereNotIn('tipo_prodotto', ['Utenza', 'Polizza'])
             ->where(function (Builder $q) use ($semester) {
                 $q->whereNull('erogated_at')
-                    ->orWhere(function (Builder $subQ) use ($semester) {
-                        $subQ->where('erogated_at', '>=', $semester->start)
-                            ->where('erogated_at', '<', $semester->end);
-                    });
+                    ->orWhere('erogated_at', '>=', $semester->start);
             });
     }
 
