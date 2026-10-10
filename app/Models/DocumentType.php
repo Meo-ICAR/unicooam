@@ -66,7 +66,7 @@ class DocumentType extends CoreDocumentType implements HasMedia
     public function tasks(): BelongsToMany
     {
         return $this
-            ->belongsToMany(Task::class, 'task_document_types')
+            ->belongsToMany(Task::class, 'document_requirements')
             ->withPivot('is_required')
             ->withTimestamps();
     }

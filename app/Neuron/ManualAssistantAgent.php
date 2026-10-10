@@ -39,18 +39,18 @@ class ManualAssistantAgent extends RAG
         'branches',
         'client_relations', 'clienti_oam', 'companies', 'company_roles',
         'complaint_registry', 'complaints',
-        'document_reminders', 'document_schedules', 'document_types', 'documents',
+        'document_reminders', 'document_requests', 'document_requirements', 'document_schedules', 'document_types', 'documents',
         'email_templates', 'employee_type_permissions', 'employee_types', 'employees',
         'lead_sources',
         'media',
         'oam_codes', 'oam_pratiches', 'oam_semestrales', 'onorabilita', 'organizations',
-        'pratica_requisiti', 'pratica_requisiti_operativi', 'pratica_stati', 'pratica_stati_transizioni',
+        'pratica_stati', 'pratica_stati_transizioni',
         'provvigioni_rules',
-        'remediations', 'requisito_tipo_finanziamento', 'resources',
+        'remediations', 'resources',
         'suspicious_activity_reports',
-        'task_document_types', 'tasks', 'tipo_prodottos', 'tipoprodotto_sub_constraints',
+        'tasks', 'tipoprodotto', 'tipoprodotto_sub', 'tipoprodotto_sub_constraints',
         'training_records',
-        'vwdocumenti', 'websites',
+        'websites',
     ];
 
     public static function manualSources(): array

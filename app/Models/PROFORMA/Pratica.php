@@ -4,7 +4,10 @@ namespace App\Models\PROFORMA;
 
 use App\Models\Document;
 use App\Models\OamCode;
+use App\Models\PraticaRequisito;
+use App\Models\PraticaRequisitoOperativo;
 use App\Models\PraticaStato;
+use App\Models\RequisitoTipoFinanziamento;
 use App\ValueObjects\OamSemester;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
@@ -209,7 +212,8 @@ class Pratica extends Model
      */
     public function requisitiOperativi(): HasMany
     {
-        return $this->hasMany(PraticaRequisitoOperativo::class, 'pratica_id');
+        return $this->hasMany(PraticaRequisitoOperativo::class, 'requestable_id')
+            ->withAttributes(['requestable_type' => 'pratica']);
     }
 
     /**
@@ -220,11 +224,12 @@ class Pratica extends Model
     {
         return $this->belongsToMany(
             PraticaRequisito::class,
-            'pratica_requisiti_operativi',
-            'pratica_id',
-            'pratica_requisito_id'
+            'document_requests',
+            'requestable_id',
+            'document_type_id'
         )
-            ->withPivot(['id', 'stato', 'data_richiesta', 'data_completamento', 'note'])
+            ->wherePivot('requestable_type', 'pratica')
+            ->withPivot(['id', 'status', 'requested_at', 'completed_at', 'notes'])
             ->withTimestamps();
     }
 
@@ -239,16 +244,17 @@ class Pratica extends Model
 
         // 1. Recupera le regole definite per questo sottotipo di prodotto
         $regole = RequisitoTipoFinanziamento::where('tipoprodotto_sub_id', $this->tipoprodotto_sub_id)
-            ->orderBy('ordine')
+            ->orderBy('sort_order')
             ->get();
 
         // 2. Crea i record operativi per la pratica
         foreach ($regole as $regola) {
             $this->requisitiOperativi()->firstOrCreate(
-                ['pratica_requisito_id' => $regola->pratica_requisito_id],
+                ['document_type_id' => $regola->document_type_id],
                 [
-                    'stato' => 'da_richiedere',
-                    'data_richiesta' => null,
+                    'status' => 'da_richiedere',
+                    'requested_at' => null,
+                    'is_required' => $regola->is_required,
                 ]
             );
         }
@@ -260,8 +266,8 @@ class Pratica extends Model
     public function haRequisitiObbligatoriIncompleti(): bool
     {
         return $this->requisitiOperativi()
-            ->where('is_obbligatorio', true)
-            ->where('stato', '!=', 'approvato') // o 'completato'
+            ->where('is_required', true)
+            ->where('status', '!=', 'approvato') // o 'completato'
             ->exists();
     }
 
@@ -272,8 +278,8 @@ class Pratica extends Model
     {
         return $this->requisitiOperativi()
             ->with('requisito')
-            ->where('is_obbligatorio', true)
-            ->where('stato', '!=', 'approvato')
+            ->where('is_required', true)
+            ->where('status', '!=', 'approvato')
             ->get();
     }
 
@@ -289,7 +295,7 @@ class Pratica extends Model
         }
 
         $completati = $this->requisitiOperativi()
-            ->where('stato', 'approvato')
+            ->where('status', 'approvato')
             ->count();
 
         return (int) round(($completati / $totale) * 100);

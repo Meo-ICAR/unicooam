@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Unico\Core\Models\TipoProdottoSub as CoreTipoProdottoSub;
 
@@ -62,10 +63,10 @@ class TipoprodottoSub extends CoreTipoProdottoSub
     {
         return $this->belongsToMany(
             PraticaRequisito::class,
-            'requisito_tipo_finanziamento',
+            'document_requirements',
             'tipoprodotto_sub_id',
-            'pratica_requisito_id'
-        )->withPivot(['obbligatorio', 'ordine'])
-            ->orderBy('requisito_tipo_finanziamento.ordine');
+            'document_type_id'
+        )->withPivot(['is_required', 'sort_order'])
+            ->orderBy('document_requirements.sort_order');
     }
 }
