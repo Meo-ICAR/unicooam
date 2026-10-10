@@ -5,43 +5,27 @@ namespace App\Models;
 use App\Models\Concerns\LogsComplianceActivity;
 use Database\Factories\QualityReviewFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Unico\Core\Models\QualityReview as CoreQualityReview;
 
-class QualityReview extends Model
+class QualityReview extends CoreQualityReview
 {
     /** @use HasFactory<QualityReviewFactory> */
     use HasFactory, LogsComplianceActivity, SoftDeletes;
-
-    protected $connection = 'mysql';
-
-    /**
-     * @var list<string>
-     */
-    protected $fillable = [
-        'company_id',
-        'name',
-        'reviewer_user_id',
-        'period_from',
-        'period_to',
-        'sample_size',
-        'filters',
-        'notes',
-    ];
 
     /**
      * @return array<string, string>
      */
     protected function casts(): array
     {
-        return [
+        return array_merge(parent::casts(), [
             'period_from' => 'date',
             'period_to' => 'date',
             'sample_size' => 'integer',
             'filters' => 'array',
-        ];
+        ]);
     }
 
     public function company(): BelongsTo

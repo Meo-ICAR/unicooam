@@ -4,32 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Unico\Core\Models\BlacklistClienteFornitore as CoreBlacklistClienteFornitore;
 
-class BlacklistClienteFornitore extends Model
+class BlacklistClienteFornitore extends CoreBlacklistClienteFornitore
 {
     use HasFactory;
-
-    /**
-     * Il nome della tabella associata al modello.
-     *
-     * @var string
-     */
-    protected $table = 'blacklist_clienti_fornitori';
-
-    /**
-     * Gli attributi assegnabili in massa.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'cliente_id',
-        'fornitore_id',
-        'motivo',
-        'data_inizio',
-        'data_fine',
-    ];
 
     /**
      * Il casting degli attributi (sintassi Laravel 11/12/13).
@@ -38,10 +18,10 @@ class BlacklistClienteFornitore extends Model
      */
     protected function casts(): array
     {
-        return [
+        return array_merge(parent::casts(), [
             'data_inizio' => 'date',
             'data_fine' => 'date',
-        ];
+        ]);
     }
 
     /*

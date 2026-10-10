@@ -2,30 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Unico\Core\Models\TipoProdotto as CoreTipoProdotto;
 
-class Tipoprodotto extends Model
+class Tipoprodotto extends CoreTipoProdotto
 {
-    protected $connection = 'mysql_proforma';
-
-    protected $table = 'proforma.tipoprodotto';
-
-    /**
-     * I campi che possono essere assegnati massivamente.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'name',
-        'code',
-        'is_external',
-        'is_oneclient',
-        'is_active',
-        'oam',
-        'tipo_provvigioni',
-    ];
-
     /**
      * I cast nativi per i tipi di dato.
      *

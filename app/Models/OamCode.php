@@ -5,28 +5,13 @@ namespace App\Models;
 use App\Models\PROFORMA\Clienti; // Assicurati di importarlo
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Unico\Core\Models\OamCode as CoreOamCode;
 
-class OamCode extends Model
+class OamCode extends CoreOamCode
 {
     use HasFactory;
-
-    // Definito esplicitamente per mappare la tabella plurale corretta
-    protected $connection = 'mysql';
-
-    protected $table = 'oam_codes';
-
-    protected $fillable = [
-        'code',
-        'name',
-        'description',
-        'tipo_prodotto',
-        'is_dummy',
-        'is_active',
-        // 'submission_type',
-    ];
 
     public function clienti(): BelongsToMany
     {

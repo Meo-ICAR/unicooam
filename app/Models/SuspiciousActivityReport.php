@@ -6,39 +6,14 @@ use App\Models\Concerns\LogsComplianceActivity;
 use App\Models\PROFORMA\Clienti;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Unico\Core\Models\SuspiciousActivityReport as CoreSuspiciousActivityReport;
 
-class SuspiciousActivityReport extends Model
+class SuspiciousActivityReport extends CoreSuspiciousActivityReport
 {
     use LogsComplianceActivity, SoftDeletes;
-
-    protected $connection = 'mysql';
-
-    /**
-     * Il nome della tabella associata al modello.
-     *
-     * @var string
-     */
-    protected $table = 'suspicious_activity_reports';
-
-    /**
-     * I campi assegnabili in massa (Mass Assignable).
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'company_id',
-        'client_id',
-        'reportable_type',
-        'reportable_id',
-        'reported_at',
-        'anomalies_codes',
-        'description',
-        'status',
-    ];
 
     /**
      * I cast nativi per gli attributi del database.

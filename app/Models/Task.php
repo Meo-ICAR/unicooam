@@ -6,7 +6,6 @@ use App\Events\TaskActivated;
 use Filament\Facades\Filament; // <-- Add this line!
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -17,19 +16,15 @@ use Spatie\MediaLibrary\HasMedia;
      * Caricato automaticamente su tutte le query dell'applicazione.
 */
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Unico\Core\Models\Task as CoreTask;
 
-class Task extends Model implements HasMedia
+class Task extends CoreTask implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
-
-    protected $connection = 'mysql';
 
     protected $orderBy = 'name';
 
     protected $orderDirection = 'asc';
-
-    protected $fillable = ['name', 'description', 'taskable', 'trigger_field', 'trigger_state', 'trigger_value', 'exclude_field', 'exclude_state',
-        'exclude_value', 'is_active', 'parent_id', 'app_identifier'];
 
     /**
      * Get the parent taskable model (Project, User, etc.).
@@ -41,6 +36,7 @@ class Task extends Model implements HasMedia
 
     protected static function booted(): void
     {
+        parent::booted();
         static::addGlobalScope('app_isolation', function (Builder $builder) {
 
             // Evita crash se esegui codice fuori dal contesto HTTP di Filament (es. php artisan db:seed)

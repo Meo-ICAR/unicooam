@@ -6,46 +6,13 @@ use App\Enums\FindingSeverity;
 use App\Enums\FindingStatus;
 use App\Models\Concerns\LogsComplianceActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Unico\Core\Models\AuditFinding as CoreAuditFinding;
 
-class AuditFinding extends Model
+class AuditFinding extends CoreAuditFinding
 {
     use HasFactory, LogsComplianceActivity, SoftDeletes;
-
-    /**
-     * Il nome della tabella associata al modello.
-     * Specificato esplicitamente per evitare ambiguità con la migrazione.
-     *
-     * @var string
-     */
-    protected $connection = 'mysql';
-
-    protected $table = 'audit_findings';
-
-    /**
-     * I campi che possono essere assegnati massivamente.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'audit_id',
-        'company_id',
-        'title',
-        'description',
-        'severity',
-        'requires_investigation',
-        'investigation_notes',
-        'investigation_deadline',
-        'requires_corrective_action',
-        'corrective_action_description',
-        'remediation_id',
-        'corrective_action_deadline',
-        'status',
-        'resolved_at',
-        'resolution_notes',
-    ];
 
     /**
      * I cast nativi per gli attributi del database.

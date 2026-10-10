@@ -5,27 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use NeuronAI\Laravel\Models\ChatMessage as BaseChatMessage;
+use Unico\Core\Models\ChatMessage as CoreChatMessage;
 
 /**
  * Estende il modello NeuronAI aggiungendo l'appartenenza a utente e company:
  * i nuovi messaggi ereditano automaticamente l'utente autenticato e la sua
  * company, così i filtri di visibilità funzionano.
  */
-class ChatMessage extends BaseChatMessage
+class ChatMessage extends CoreChatMessage
 {
-    protected $table = 'chat_messages';
-
-    protected $fillable = [
-        'thread_id',
-        'role',
-        'content',
-        'meta',
-        'company_id',
-        'user_id',
-    ];
-
     protected static function booted(): void
     {
+        parent::booted();
         static::creating(function (self $message): void {
             if ($message->user_id === null && auth()->check()) {
                 $message->user_id = auth()->id();

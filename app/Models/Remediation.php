@@ -4,23 +4,12 @@ namespace App\Models;
 
 use App\Models\Concerns\LogsComplianceActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Unico\Core\Models\Remediation as CoreRemediation;
 
-class Remediation extends Model
+class Remediation extends CoreRemediation
 {
     use HasFactory, LogsComplianceActivity, SoftDeletes;
-
-    protected $connection = 'mysql';
-
-    protected $fillable = [
-        'remediation_type',
-        'name',
-        'code',
-        'description',
-        'timeframe_hours',
-        'timeframe_desc',
-    ];
 
     protected $casts = [
         'timeframe_hours' => 'integer',

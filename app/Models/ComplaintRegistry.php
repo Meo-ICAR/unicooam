@@ -12,46 +12,15 @@ use App\Models\PROFORMA\Fornitore;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Unico\Core\Models\ComplaintRegistry as CoreComplaintRegistry;
 
-class ComplaintRegistry extends Model
+class ComplaintRegistry extends CoreComplaintRegistry
 {
     use HasFactory, LogsComplianceActivity, SoftDeletes;
-
-    // Specifica il nome corretto della tabella se diverso dal plurale standard di Laravel
-    protected $connection = 'mysql';
-
-    protected $table = 'complaint_registry';
-
-    protected $fillable = [
-        'company_id',
-        'protocol_number',
-        'received_at',
-        'reception_channel',
-        'receiving_email',
-        'complainant_type',
-        'complainant_id',
-        'complainant_name',
-        'complainant_email',
-        'macro_category',
-        'category',
-        'subject_type',
-        'subject_id',
-        'agent_id',
-        'bank_id',
-        'description',
-        'financial_impact',
-        'status',
-        'deadline_at',
-        'is_extended',
-        'resolved_at',
-        'resolution_notes',
-        'escalated_to',
-    ];
 
     /**
      * Cast degli attributi per l'integrazione nativa con gli Enum.
@@ -75,6 +44,7 @@ class ComplaintRegistry extends Model
      */
     protected static function booted(): void
     {
+        parent::booted();
         static::creating(function (ComplaintRegistry $complaint) {
             // Se non è già stato specificato un company_id, assegna la prima Company presente
             if (blank($complaint->company_id)) {

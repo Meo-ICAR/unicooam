@@ -4,24 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Model;
+use Unico\Core\Models\OamSemestrale as CoreOamSemestrale;
 
-class OamSemestrale extends Model
+class OamSemestrale extends CoreOamSemestrale
 {
     use HasFactory;
 
-    // Forziamo il nome esatto della tabella in italiano
-    protected $connection = 'mysql';
-    protected $table = 'oam_semestrales';
-
     public $timestamps = false;
-
-    // Campi di sistema protetti che Filament non deve mostrare/modificare
-    protected $guarded = [
-        'id',
-        //  'created_at',
-        //  'updated_at',
-    ];
 
     // Cast precisi per la corretta formattazione dei dati numerici e decimali
     protected $casts = [

@@ -3,26 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Unico\Core\Models\OamPratica as CoreOamPratica;
 
-class OamPratiche extends Model
+class OamPratiche extends CoreOamPratica
 {
     use HasFactory, SoftDeletes;
-
-    // Definito esplicitamente per mappare esattamente il nome della tua tabella
-    protected $connection = 'mysql';
-
-    protected $table = 'oam_pratiches';
-
-    // Proteggiamo i campi di sistema
-    protected $guarded = [
-        'id',
-        'created_at',
-        'updated_at',
-        'deleted_at',
-    ];
 
     // Casting esplicito dei tipi di dato
     protected $casts = [

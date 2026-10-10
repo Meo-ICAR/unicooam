@@ -2,67 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Unico\Core\Models\Client as CoreClient;
 
-class Client extends Model
+class Client extends CoreClient
 {
-    /**
-     * I campi che possono essere assegnati massivamente.
-     * Excluded: id, created_at, updated_at
-     *
-     * @var array<int, string>
-     */
-    protected $connection = 'mysql_proforma';
-
-    protected $table = 'proforma.clients';
-
-    protected $fillable = [
-        'company_id',
-        'is_person',
-        'name',
-        'first_name',
-        'tax_code',
-        'vat_number',
-        'email',
-        'phone',
-        'website',
-        'is_pep',
-        'client_type_id',
-        'is_sanctioned',
-        'is_remote_interaction',
-        'general_consent_at',
-        'privacy_policy_read_at',
-        'consent_special_categories_at',
-        'consent_sic_at',
-        'consent_marketing_at',
-        'consent_profiling_at',
-        'status',
-        'is_company',
-        'is_lead',
-        'leadsource_id',
-        'acquired_at',
-        'contoCOGE',
-        'privacy_consent',
-        'is_client',
-        'subfornitori',
-        'is_requiredApprovation',
-        'is_approved',
-        'is_anonymous',
-        'blacklist_at',
-        'blacklisted_by',
-        'salary',
-        'salary_quote',
-        'is_art108',
-        'is_consultant_gdpr',
-        'privacy_contact_email',
-        'dpo_email',
-        'is_iso27001_certified',
-        'is_dummy',
-    ];
-
     /**
      * Il cast degli attributi ai tipi nativi.
      * Garantisce che i tinyint diventino booleani puri e gestisce i timestamp.

@@ -5,36 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Unico\Core\Models\TrainingRecord as CoreTrainingRecord;
 
-class TrainingRecord extends Model
+class TrainingRecord extends CoreTrainingRecord
 {
     use HasFactory, SoftDeletes;
-
-    protected $connection = 'mysql';
     protected $orderBy = 'expiry_date';
     protected $orderDirection = 'asc';
-
-    protected $fillable = [
-        'company_id',
-        'trainable_type',
-        'trainable_id',
-        'regulatory_framework',
-        'course_title',
-        'course_description',
-        'provider',
-        'trainer',
-        'delivery_mode',
-        'training_date',
-        'expiry_date',
-        'hours',
-        'outcome',
-        'score',
-        'certificate_issued',
-        'certificate_number',
-        'notes',
-    ];
 
     protected $casts = [
         'training_date' => 'date',
