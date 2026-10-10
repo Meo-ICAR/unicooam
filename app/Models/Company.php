@@ -53,7 +53,7 @@ class Company extends CoreCompany
      */
     public function documents(): HasMany
     {
-        return $this->hasMany(Document::class, 'documentable_id')->where('documentable_type', 'company');
+        return $this->hasMany(Document::class, 'documentable_id')->withAttributes(['documentable_type' => 'company']);
     }
 
     public function chatMessages(): HasMany

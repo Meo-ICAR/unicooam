@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\RelationManagers;
 
-use App\Enums\DocumentStatus;
+use Unico\Core\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Traits\HasRelationPlanAccess;
 use App\Filament\Utils\TableHelper;

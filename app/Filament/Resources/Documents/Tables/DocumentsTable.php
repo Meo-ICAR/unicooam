@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Documents\Tables;
 
-use App\Enums\DocumentStatus;
+use Unico\Core\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Utils\TableHelper;
 use App\Models\Document;
@@ -73,12 +73,6 @@ class DocumentsTable
                 TextColumn::make('status')
                     ->label('Stato')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'approvato', 'attivo' => 'success',
-                        'bozza' => 'gray',
-                        'scaduto' => 'danger',
-                        default => 'warning',
-                    })
                     ->searchable(),
 
             ])

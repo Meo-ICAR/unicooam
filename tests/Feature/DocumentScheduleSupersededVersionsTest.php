@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Unico\Core\Enums\DocumentStatus;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\DocumentType;
@@ -86,7 +87,7 @@ class DocumentScheduleSupersededVersionsTest extends TestCase
         $renewed = $this->document(now()->subYear()->toDateString(), now()->addDays(10)->toDateString(), [
             'metadata' => ['renewed_to_uuid' => (string) Str::uuid()],
         ]);
-        $expired = $this->document(now()->subYear()->toDateString(), now()->addDays(10)->toDateString(), ['status' => 'expired']);
+        $expired = $this->document(now()->subYear()->toDateString(), now()->addDays(10)->toDateString(), ['status' => DocumentStatus::EXPIRED->value]);
 
         $this->assertNotContains($renewed->id, $this->scheduledIds());
         $this->assertNotContains($expired->id, $this->scheduledIds());

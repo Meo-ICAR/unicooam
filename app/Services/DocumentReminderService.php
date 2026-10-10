@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Enums\DocumentStatus;
+use Unico\Core\Enums\DocumentStatus;
 use App\Enums\Severity;
 use App\Mail\DocumentReminderMail;
 use App\Models\Document;
@@ -66,7 +66,7 @@ class DocumentReminderService
     {
         $query
             ->whereNull('documents.metadata->renewed_to_uuid')
-            ->where('documents.status', '!=', 'expired')
+            ->where('documents.status', '!=', DocumentStatus::EXPIRED->value)
             ->whereNotExists(function ($newer): void {
                 $newer->selectRaw('1')
                     ->from('documents as newer')
@@ -89,7 +89,7 @@ class DocumentReminderService
                     })
                     ->whereNotIn('newer.status', [
                         DocumentStatus::REJECTED->value,
-                        DocumentStatus::NOREADABLE->value,
+                        DocumentStatus::UNREADABLE->value,
                         DocumentStatus::NA->value,
                     ]);
             })
@@ -107,7 +107,7 @@ class DocumentReminderService
                     ->whereColumn('renewer.emitted_at', '>=', 'documents.emitted_at')
                     ->whereNotIn('renewer.status', [
                         DocumentStatus::REJECTED->value,
-                        DocumentStatus::NOREADABLE->value,
+                        DocumentStatus::UNREADABLE->value,
                         DocumentStatus::NA->value,
                     ]);
             });

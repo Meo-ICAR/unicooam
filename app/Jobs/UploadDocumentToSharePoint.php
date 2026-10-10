@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Enums\SyncStatus;
+use Unico\Core\Enums\SyncStatus;
 use App\Models\Document;
 use App\Services\SharePoint\SharePointUploader;
 use Illuminate\Contracts\Queue\ShouldQueue;

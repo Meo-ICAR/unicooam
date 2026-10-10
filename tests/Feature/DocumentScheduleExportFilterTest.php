@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Enums\DocumentStatus;
+use Unico\Core\Enums\DocumentStatus;
 use App\Filament\Resources\DocumentSchedules\DocumentScheduleResource;
 use App\Models\Document;
 use App\Models\DocumentSchedule;

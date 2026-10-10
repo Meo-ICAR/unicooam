@@ -16,6 +16,7 @@ use Spatie\MediaLibrary\HasMedia;
      * Caricato automaticamente su tutte le query dell'applicazione.
 */
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Unico\Core\Enums\DocumentStatus;
 use Unico\Core\Models\Task as CoreTask;
 
 class Task extends CoreTask implements HasMedia
@@ -108,7 +109,7 @@ class Task extends CoreTask implements HasMedia
             }
             // 3. Uniamo lo stato iniziale richiesto
             $creationData = array_merge($templateData, [
-                'status' => 'pending',
+                'status' => DocumentStatus::PENDING->value,
             ]);
 
             // 4. Eseguiamo il firstOrCreate in sicurezza

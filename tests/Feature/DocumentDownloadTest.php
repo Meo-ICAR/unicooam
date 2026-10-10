@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Unico\Core\Enums\DocumentStatus;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\User;
@@ -25,7 +26,7 @@ class DocumentDownloadTest extends TestCase
             'documentable_type' => 'company',
             'documentable_id' => $company->id,
             'name' => 'Allegato',
-            'status' => 'verified',
+            'status' => DocumentStatus::APPROVED->value,
             ...$attributes,
         ]);
     }

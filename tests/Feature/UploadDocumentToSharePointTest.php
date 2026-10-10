@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Enums\SyncStatus;
+use Unico\Core\Enums\DocumentStatus;
+use Unico\Core\Enums\SyncStatus;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\DocumentType;
@@ -32,7 +33,7 @@ class UploadDocumentToSharePointTest extends TestCase
             'documentable_id' => (string) $employee->id,
             'document_type_id' => $type->id,
             'name' => 'Documento test',
-            'status' => 'pending',
+            'status' => DocumentStatus::PENDING->value,
         ]);
     }
 

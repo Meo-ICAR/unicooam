@@ -8,6 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\DB;
+use Unico\Core\Enums\DocumentStatus;
 
 class EditFornitore extends EditRecord
 {
@@ -28,7 +29,7 @@ class EditFornitore extends EditRecord
                 // Il tasto compare SOLO se il rapporto è terminato (dismissed_at non è null)
                 // E se ci sono documenti non ancora revocati da elaborare
                 ->visible(fn ($record) => $record->dismissed_at !== null &&
-                    $record->documents()->where('status', '!=', 'REVOKED')->exists()
+                    $record->documents()->where('status', '!=', DocumentStatus::REVOKED->value)->exists()
                 )
 
                 ->action(function ($record) {
@@ -37,7 +38,7 @@ class EditFornitore extends EditRecord
 
                         // Aggiornamento massivo di tutti i documenti dell'agente
                         $record->documents()->update([
-                            'status' => 'REVOKED', // O DocumentStatus::REVOKED->value se usi un Enum
+                            'status' => DocumentStatus::REVOKED->value,
                             'updated_by' => auth()->id(),
                         ]);
 

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Utils;
 
-use App\Enums\SyncStatus;
+use Unico\Core\Enums\SyncStatus;
 use App\Jobs\UploadDocumentToSharePoint;
 use App\Models\Document;
 use App\Services\SharePoint\SharePointUploader;

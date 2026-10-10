@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Unico\Core\Enums\DocumentStatus;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\DocumentType;
@@ -43,7 +44,7 @@ class DocumentRenewalTest extends TestCase
             'documentable_id' => (string) $employee->id,
             'document_type_id' => $documentType->id,
             'name' => 'Iscrizione OAM',
-            'status' => 'approved',
+            'status' => DocumentStatus::APPROVED->value,
             'is_monitored' => true,
             'emitted_at' => now()->subYear(),
         ]);
@@ -60,11 +61,11 @@ class DocumentRenewalTest extends TestCase
 
         $this->assertNotSame($document->id, $newDocument->id);
         $this->assertSame($newEmittedAt, $newDocument->emitted_at->toDateString());
-        $this->assertSame('approved', $newDocument->status);
+        $this->assertSame(DocumentStatus::APPROVED, $newDocument->status);
         $this->assertTrue($newDocument->hasMedia('documents'));
         $this->assertSame('nuovo.pdf', $newDocument->getFirstMedia('documents')->file_name);
 
-        $this->assertSame('expired', $document->status);
+        $this->assertSame(DocumentStatus::EXPIRED, $document->status);
         $this->assertSame($newDocument->id, $document->metadata['renewed_to_uuid']);
         $this->assertTrue($document->hasMedia('documents'));
         $this->assertSame('vecchio.pdf', $document->getFirstMedia('documents')->file_name);
@@ -97,7 +98,7 @@ class DocumentRenewalTest extends TestCase
             'documentable_id' => (string) $employee->id,
             'document_type_id' => $documentType->id,
             'name' => 'Iscrizione OAM',
-            'status' => 'approved',
+            'status' => DocumentStatus::APPROVED->value,
             'is_monitored' => true,
             'emitted_at' => now()->subYear(),
         ]);
@@ -120,6 +121,6 @@ class DocumentRenewalTest extends TestCase
         Storage::disk('public')->assertMissing($temporaryPath);
 
         $document->refresh();
-        $this->assertSame('expired', $document->status);
+        $this->assertSame(DocumentStatus::EXPIRED, $document->status);
     }
 }

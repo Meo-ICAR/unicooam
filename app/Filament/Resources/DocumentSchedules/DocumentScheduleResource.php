@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\DocumentSchedules;
 
-use App\Enums\DocumentStatus;
+use Unico\Core\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
 use App\Filament\Traits\HasPlanAccess; // Assicurati di importare questo!

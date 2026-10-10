@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Unico\Core\Enums\DocumentStatus;
 use App\Filament\Resources\Audits\AuditResource;
 use App\Filament\Resources\Employees\EmployeeResource;
 use App\Models\Company;
@@ -75,7 +76,7 @@ class Phase1SecurityTest extends TestCase
             'documentable_type' => 'company',
             'documentable_id' => $company->id,
             'name' => 'Allegato riservato',
-            'status' => 'verified',
+            'status' => DocumentStatus::APPROVED->value,
         ]);
 
         $this->get(route('documents.download', $document))

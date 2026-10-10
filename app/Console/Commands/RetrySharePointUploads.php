@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\SyncStatus;
+use Unico\Core\Enums\SyncStatus;
 use App\Jobs\UploadDocumentToSharePoint;
 use App\Models\Document;
 use Illuminate\Console\Command;
