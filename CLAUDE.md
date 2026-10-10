@@ -22,6 +22,15 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - phpunit/phpunit (PHPUNIT) - v12
 - tailwindcss (TAILWINDCSS) - v4
 
+## Pacchetto unico-core
+Le tabelle condivise (utenti, aziende, documenti, audit, reclami, firma, email...) sono del pacchetto `meo-icar/unico-core` (vedi il suo README e CLAUDE.md).
+- I modelli in `app/Models` sono **sottoclassi** di `Unico\Core\Models\*`: contengono solo ciò che è proprio di unicooam (scope come `PerSemestreOam`, relazioni verso le classi dell'app, `booted`/`casts` che chiamano `parent::`). Non ridefinire `$table`, `$connection`, `$fillable`: li dà il pacchetto.
+- Le migration del pacchetto sono caricate da `AppServiceProvider` (`loadMigrationsFrom`): `php artisan migrate` crea tutto, in un database solo (`UNICO_CORE_DB_CONNECTION=mysql`). Qui restano solo le tabelle di framework e `websites`. Le vecchie migration sono in `database/migrations-legacy/` solo come riferimento.
+- ID **interi**, niente `HasUuids`. Fanno eccezione le colonne polimorfiche e i riferimenti a soggetti letti dal database **Proforma** (clienti e fornitori con UUID, pratiche con codice): sono `varchar(36)` e i modelli `app/Models/PROFORMA/*` restano come sono (connessione `mysql_proforma`, sola lettura).
+- Stati dei documenti: `Unico\Core\Enums\DocumentStatus` (valori italiani), mai stringhe inglesi. Rinnovo: `replaced_by_id` (non più `metadata.renewed_to_uuid`).
+- Requisiti documentali: `PraticaRequisito` = `document_types`, `RequisitoTipoFinanziamento` e documenti dei task = `document_requirements`, `PraticaRequisitoOperativo` = `document_requests` (`requestable_type = 'pratica'`).
+- Mai `migrate:fresh` su un database condiviso con altre app; in sviluppo qui il database è solo di unicooam.
+
 ## Skills Activation
 
 This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
