@@ -15,13 +15,11 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 use Unico\Core\Models\Document as CoreDocument;
 
-class Document extends CoreDocument implements HasMedia
+class Document extends CoreDocument
 {
-    use HasFactory, InteractsWithMedia, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     /**
      * Relazione: Tipo di documento
