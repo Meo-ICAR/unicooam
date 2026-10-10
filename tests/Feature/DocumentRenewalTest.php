@@ -66,7 +66,7 @@ class DocumentRenewalTest extends TestCase
         $this->assertSame('nuovo.pdf', $newDocument->getFirstMedia('documents')->file_name);
 
         $this->assertSame(DocumentStatus::EXPIRED, $document->status);
-        $this->assertSame($newDocument->id, $document->metadata['renewed_to_uuid']);
+        $this->assertSame($newDocument->id, $document->replaced_by_id);
         $this->assertTrue($document->hasMedia('documents'));
         $this->assertSame('vecchio.pdf', $document->getFirstMedia('documents')->file_name);
     }

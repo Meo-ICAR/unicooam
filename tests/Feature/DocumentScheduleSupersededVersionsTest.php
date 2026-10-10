@@ -84,8 +84,9 @@ class DocumentScheduleSupersededVersionsTest extends TestCase
 
     public function test_renewed_versions_are_excluded(): void
     {
+        $newer = $this->document(now()->toDateString(), now()->addYear()->toDateString());
         $renewed = $this->document(now()->subYear()->toDateString(), now()->addDays(10)->toDateString(), [
-            'metadata' => ['renewed_to_uuid' => (string) Str::uuid()],
+            'replaced_by_id' => $newer->id,
         ]);
         $expired = $this->document(now()->subYear()->toDateString(), now()->addDays(10)->toDateString(), ['status' => DocumentStatus::EXPIRED->value]);
 

@@ -54,7 +54,7 @@ class DocumentReminderService
     }
 
     /**
-     * Esclude le vecchie versioni di un documento: quelle rinnovate (metadata.renewed_to_uuid,
+     * Esclude le vecchie versioni di un documento: quelle rinnovate (replaced_by_id,
      * status "expired" impostato da Document::renew()) e quelle per cui esiste un documento più
      * recente dello stesso tipo sullo stesso destinatario (a pari emissione, con scadenza più
      * lontana) e quelle rinnovate da un altro tipo di documento (renewed_by_id). Una versione più recente respinta,
@@ -65,7 +65,7 @@ class DocumentReminderService
     private function excludeSupersededVersions(Builder $query): void
     {
         $query
-            ->whereNull('documents.metadata->renewed_to_uuid')
+            ->whereNull('documents.replaced_by_id')
             ->where('documents.status', '!=', DocumentStatus::EXPIRED->value)
             ->whereNotExists(function ($newer): void {
                 $newer->selectRaw('1')
