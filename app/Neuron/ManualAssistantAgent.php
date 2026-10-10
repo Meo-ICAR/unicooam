@@ -30,7 +30,7 @@ class ManualAssistantAgent extends RAG
      * deliberatamente le tabelle di autenticazione/infrastruttura (users,
      * password_reset_tokens, sessions, socialite_users, activity_log, cache,
      * jobs, migrations) e `mail_accounts`, che contiene credenziali email
-     * in chiaro (incoming_password, smtp_password).
+     * in chiaro (imap_password, smtp_password).
      *
      * @var array<int, string>
      */

@@ -15,6 +15,7 @@ class EmployeeSeeder extends Seeder
      */
     public function run(): void
     {
+        $racesId = DB::table('companies')->where('vat_number', '05822361007')->value('id');
         // Disable foreign key checks temporarily
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
@@ -24,7 +25,7 @@ class EmployeeSeeder extends Seeder
         // Re-enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $companyId = '45d36df8-369f-40ce-b4fd-b5907c342fe9';
+        $companyId = $racesId;
 
         // Employee data from SQL, replacing company_id with the first company's ID
         $employeeId = 1;

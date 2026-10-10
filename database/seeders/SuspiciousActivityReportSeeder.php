@@ -9,7 +9,7 @@ class SuspiciousActivityReportSeeder extends Seeder
 {
     public function run(): void
     {
-        $companyId = '3ff53405-4abb-4468-bff5-f9493badac5b';
+        $companyId = \Illuminate\Support\Facades\DB::table('companies')->value('id');
 
         // reportable_type uses the BPM model FQN
         $agentType = 'fornitore';

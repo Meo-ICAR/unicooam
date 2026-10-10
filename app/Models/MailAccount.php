@@ -13,15 +13,6 @@ class MailAccount extends CoreMailAccount
     protected $orderBy = 'name';
     protected $orderDirection = 'asc';
 
-    protected $casts = [
-        'is_pec' => 'boolean',
-        'is_active' => 'boolean',
-        'incoming_port' => 'integer',
-        'smtp_port' => 'integer',
-        'incoming_password' => 'encrypted',  // Cifra la password nel DB in modo sicuro
-        'smtp_password' => 'encrypted',  // Cifra la password nel DB in modo sicuro
-    ];
-
     /**
      * Relazione Polimorfica che ora supporta sia ID interi che UUID stringhe.
      */

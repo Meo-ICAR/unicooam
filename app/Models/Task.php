@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use App\Events\TaskActivated;
 use Filament\Facades\Filament; // <-- Add this line!
 use Illuminate\Database\Eloquent\Builder;
