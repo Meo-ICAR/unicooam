@@ -2,12 +2,10 @@
 
 namespace App\Filament\Resources\DocumentSchedules;
 
-use Unico\Core\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
 use App\Filament\Traits\HasPlanAccess; // Assicurati di importare questo!
 use App\Filament\Utils\TableHelper; // Importa la tua nuova Mailable
-use App\Mail\DocumentReminderMail;
 use App\Mail\ScadenziarioReportMail;
 use App\Models\Document;
 use App\Models\DocumentSchedule;
@@ -16,6 +14,8 @@ use App\Models\EmailTemplate;
 use App\Models\Employee;
 use App\Models\PROFORMA\Fornitore;
 use App\Services\DocumentReminderService;
+use Unico\Core\Documents\Reminders\DocumentReminderService as CoreDocumentReminderService;
+use Unico\Core\Documents\Reminders\ReminderDraft;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -306,7 +306,10 @@ class DocumentScheduleResource extends Resource
                         ->form([
                             Select::make('email_template_id')
                                 ->label('Template Email')
-                                ->options(EmailTemplate::where('is_active', true)->pluck('name', 'id'))
+                                ->options(EmailTemplate::where('is_active', true)
+                                    ->where(fn ($q) => $q->whereNull('type')->orWhere('type', 'sollecito'))
+                                    ->where(fn ($q) => $q->whereNull('app_identifier')->orWhere('app_identifier', 'unicooam'))
+                                    ->pluck('name', 'id'))
                                 ->searchable()
                                 ->preload()
                                 ->live()
@@ -417,113 +420,60 @@ class DocumentScheduleResource extends Resource
     }
 
     /**
-     * FUNZIONE ESTERNA: Gestisce l'elaborazione dei documenti e l'invio della mail
+     * Invia il sollecito per i documenti di un destinatario con il servizio del pacchetto: grado, template e casella mittente
+     * (company e tipo «sollecito») li decide `compose()`; oggetto e testo scelti o cambiati nel modulo hanno la precedenza.
+     * Demo: va all'indirizzo di prova e non conta come sollecito; altrimenti l'indirizzo di prova è in copia.
      */
     protected static function processAndSendEmailForUserGroup(string $email, $userRecords, array $data, string $fallbackEmail): void
     {
-        $agentName = $userRecords->first()->entity_name ?? 'Agente';
-        $documentNames = [];
+        $agentName = (string) ($userRecords->first()->entity_name ?? 'Agente');
+        $documents = $userRecords->map(fn ($record) => $record->document)->filter()->unique('id')->values();
+
+        if ($documents->isEmpty()) {
+            return; // Nessun documento valido trovato
+        }
+
+        $service = app(CoreDocumentReminderService::class);
+        $draft = $service->compose($documents, 'unicooam');
+        $subject = filled($data['subject'] ?? null) ? $service->renderText($data['subject'], $agentName, $documents) : $draft->subject;
+        $body = filled($data['body'] ?? null) ? $service->renderText($data['body'], $agentName, $documents, appendList: true) : $draft->body;
+        $isDemo = ! empty($data['is_demo']);
+
+        // Il destinatario è quello mostrato nella tabella (email dell'entità).
+        $draft = new ReminderDraft($documents, $agentName, $email, $draft->severity, $draft->template, $draft->sender, $subject, $body);
+
+        $attachments = static::reminderAttachments($userRecords);
+        $result = $service->send($draft, options: [
+            'demo_to' => $isDemo ? $fallbackEmail : null,
+            'cc' => $isDemo ? null : $fallbackEmail,
+            'attachments' => $attachments,
+        ]);
+
+        Log::info('Sollecito: '.$result['sent'].' inviati, '.$result['failed'].' falliti, '.count($attachments).' allegati.'.($isDemo ? ' [MODALITÀ DEMO]' : ''));
+    }
+
+    /** Allegati del sollecito: i file del tipo documento (collection `documents`) o, in mancanza, il suo `document_url`. */
+    protected static function reminderAttachments($userRecords): array
+    {
         $attachments = [];
 
-        // 1. Estrazione Documenti e Allegati
-        foreach ($userRecords as $record) {
-            $documentName = $record->document_name;
-            if ($documentName) {
-                $documentNames[] = '- '.$documentName;
+        foreach ($userRecords->pluck('document_type_name')->filter()->unique() as $name) {
+            $docType = DocumentType::where('name', $name)->first();
 
-                // AGGIORNAMENTO CONTATORI SUL DOCUMENTO REALE (Solo se NON è un invio DEMO)
-                if (empty($data['is_demo']) && $record->document) {
-                    $record->document->update([
-                        'reminders_count' => $record->document->reminders_count + 1,
-                        'last_sent_at' => now(),
-                        'status' => DocumentStatus::PENDING->value,
-                    ]);
+            if ($docType === null) {
+                continue;
+            }
+
+            if ($docType->hasMedia('documents')) {
+                foreach ($docType->getMedia('documents') as $media) {
+                    $attachments[] = $media;
                 }
-
-                // Estrazione allegati dal DocumentType
-                if ($documentType = $record->document_type_name) {
-                    $docType = DocumentType::where('name', $documentType)->first();
-
-                    if ($docType) {
-                        // 1. Controlla se ci sono media nella collection corretta ('documents')
-                        if ($docType->hasMedia('documents')) {
-                            foreach ($docType->getMedia('documents') as $media) {
-                                // FIX: Passiamo l'intero oggetto Media, non più solo il path stringa!
-                                $attachments[] = $media;
-                            }
-                        }
-                        // 2. Fallback sul campo di testo 'document_url' se valorizzato
-                        elseif (filled($docType->document_url)) {
-                            // FIX: Aggiunto le parentesi quadre per evitare di sovrascrivere l'intero array
-                            $attachments[] = $docType->document_url;
-                        }
-                    }
-                }
+            } elseif (filled($docType->document_url)) {
+                $attachments[] = $docType->document_url;
             }
         }
 
-        if (empty($documentNames)) {
-            return; // Salta se nessun documento valido trovato
-        }
-
-        // 2. Sostituzione Variabili Template
-        $documentCount = count($documentNames);
-        $documentListString = implode('<br>', $documentNames);
-
-        // FIX: Preso l'ID dal primo record della Relation Collection (prima faceva ->first() su una stringa)
-        $documentId = $userRecords->first()?->id;
-
-        $subject = str_replace(
-            ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
-            [$agentName, $documentCount, implode(' | ', $documentNames)],
-            $data['subject'] ?? 'Sollecito'
-        );
-
-        $body = str_replace(
-            ['{agente_nome}', '{n_documenti}', '{elenco_documenti}'],
-            [$agentName, $documentCount, $documentListString],
-            $data['body'] ?? ''
-        );
-
-        // 3. Invio effettivo tramite la Mailable di Laravel
-        $isDemo = ! empty($data['is_demo']);
-
-        // Corretta la logica ternaria speculare (Se è demo va a te stesso, altrimenti al cliente)
-        $targetEmail = $isDemo ? $fallbackEmail : $email;
-
-        if ($isDemo) {
-            $subject = '[DEMO] '.$subject;
-            $body = '<p><strong>Modalità demo attiva:</strong> l\'email di sollecito sarebbe stata inviata a <em>'.$email.'</em>, ma verrà inviata a <em>'.$fallbackEmail.'</em> invece.</p><hr>'.$body;
-            Log::info("Modalità demo attiva: l'email di sollecito sarebbe stata inviata a {$email}, ma verrà inviata a {$fallbackEmail} invece.");
-        }
-
-        // Prepariamo l'istanza della Mail (PendingMail accetta to e cc)
-        $mail = Mail::to($targetEmail);
-
-        // Se NON è demo, aggiungiamo il CC
-        if (empty($data['is_demo'])) {
-            $mail->cc($fallbackEmail);
-        }
-
-        // Creiamo l'istanza della Mailable
-        $mailable = new DocumentReminderMail($subject, $body, $attachments);
-
-        if (filled(config('mail.reply_to.address'))) {
-            $mailable->replyTo(
-                config('mail.reply_to.address'),
-                config('mail.reply_to.name') // Il nome può anche essere null, l'importante è l'indirizzo
-            );
-        }
-        if (! empty($documentId)) {
-            $mailable->withSymfonyMessage(function ($message) use ($documentId) {
-                $message->getHeaders()->addTextHeader('In-Reply-To', "<doc-{$documentId}@races.it>");
-                $message->getHeaders()->addTextHeader('References', "<doc-{$documentId}@races.it>");
-            });
-        }
-
-        // Invio definitivo
-        $mail->send($mailable);
-        Log::info("Email di sollecito inviata a {$targetEmail} con ".count($attachments).' allegati.'.(! empty($data['is_demo']) ? ' [MODALITÀ DEMO]' : ''));
+        return $attachments;
     }
 
     /**

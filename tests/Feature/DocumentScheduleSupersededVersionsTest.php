@@ -97,9 +97,10 @@ class DocumentScheduleSupersededVersionsTest extends TestCase
     public function test_a_newer_rejected_version_does_not_supersede_the_previous_one(): void
     {
         $valid = $this->document(now()->subYear()->toDateString(), now()->addDays(10)->toDateString());
-        $this->document(now()->subDays(5)->toDateString(), now()->addYear()->toDateString(), ['status' => 'respinto']);
+        $rejected = $this->document(now()->subDays(5)->toDateString(), now()->addYear()->toDateString(), ['status' => 'respinto']);
 
-        $this->assertSame([$valid->id], $this->scheduledIds());
+        // Il respinto non sostituisce il precedente; resta in scadenziario a sua volta perché va ricaricato (regola del pacchetto).
+        $this->assertEqualsCanonicalizing([$valid->id, $rejected->id], $this->scheduledIds());
     }
 
     public function test_a_newer_soft_deleted_version_does_not_supersede_the_previous_one(): void
@@ -166,6 +167,7 @@ class DocumentScheduleSupersededVersionsTest extends TestCase
         $this->assertContains($current->id, $this->scheduledIds());
         $this->assertContains($olderRenewing->id, $this->scheduledIds());
         $this->assertContains($otherRecipient->id, $this->scheduledIds());
-        $this->assertNotContains($rejectedRenewing->id, $this->scheduledIds());
+        // Il tipo rinnovatore respinto non rinnova nulla, ma si sollecita come ogni documento respinto.
+        $this->assertContains($rejectedRenewing->id, $this->scheduledIds());
     }
 }

@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use Unico\Core\Enums\DocumentStatus;
-use App\Mail\DocumentReminderMail;
+use Unico\Core\Documents\Reminders\ReminderMail;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\DocumentReminder;
@@ -72,7 +72,7 @@ class DocumentReminderServiceTest extends TestCase
         $this->assertSame(1, $stats['groups']);
         $this->assertSame(2, $stats['sent']);
 
-        Mail::assertSent(DocumentReminderMail::class, function (DocumentReminderMail $mail): bool {
+        Mail::assertSent(ReminderMail::class, function (ReminderMail $mail): bool {
             return $mail->hasTo('dipendente@example.com');
         });
 
@@ -117,6 +117,6 @@ class DocumentReminderServiceTest extends TestCase
 
         $this->assertSame(1, $first['sent']);
         $this->assertSame(0, $second['sent']);
-        Mail::assertSent(DocumentReminderMail::class, 1);
+        Mail::assertSent(ReminderMail::class, 1);
     }
 }

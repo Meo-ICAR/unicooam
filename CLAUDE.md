@@ -611,3 +611,5 @@ Key config options in `config/activitylog.php`:
 - `actions.clean_log`: Action class for cleaning old activities
 
 </laravel-boost-guidelines>
+
+- **Solleciti:** la logica è del pacchetto (`Unico\Core\Documents\Reminders\DocumentReminderService`): `App\Services\DocumentReminderService` ne traduce solo lo stato in `CheckStatus` e inoltra il resto. L'azione di gruppo «Invia sollecito» usa `compose()`/`send()`: template per company, app e grado (escalation per scadenza e solleciti già inviati), casella mittente di tipo `sollecito` della company, demo/copia/allegati come prima. Le risposte si ricollegano al documento con l'intestazione `<doc-ID@dominio>` (`Mail\ThreadId`).
