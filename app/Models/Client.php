@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Arr;
 use Unico\Core\Models\Client as CoreClient;
 
 class Client extends CoreClient
@@ -48,7 +49,27 @@ class Client extends CoreClient
         'blacklist_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+
+        'employee_roles' => 'array',
     ];
+
+    /**
+     * Aggiunge un ruolo (nome EmployeeType) a employee_roles se non è già presente.
+     */
+    public function ensureEmployeeRole(string $roleName): void
+    {
+        $roles = collect(Arr::wrap($this->employee_roles))
+            ->filter(fn ($role) => filled($role))
+            ->values();
+
+        if ($roles->containsStrict($roleName)) {
+            return;
+        }
+
+        $this->forceFill([
+            'employee_roles' => $roles->push($roleName)->all(),
+        ])->save();
+    }
 
     // =========================================================================
     // RELAZIONI
