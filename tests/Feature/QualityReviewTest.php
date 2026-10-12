@@ -9,7 +9,7 @@ use App\Filament\Resources\QualityReviews\RelationManagers\AuditsRelationManager
 use App\Models\Audit;
 use App\Models\AuditFinding;
 use App\Models\Company;
-use App\Models\PROFORMA\Pratica;
+use App\Models\Pratica;
 use App\Models\QualityReview;
 use App\Models\User;
 use App\Services\QualityReviewSampler;

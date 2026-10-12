@@ -7,7 +7,7 @@ use App\Filament\Resources\DocumentSchedules\DocumentScheduleResource;
 use App\Models\Document;
 use App\Models\DocumentSchedule;
 use App\Models\Employee;
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 

@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
@@ -11,9 +11,7 @@ use Tests\TestCase;
 /**
  * Verifica la regola di unicità della partita IVA usata dal form Fornitore
  * (App\Filament\Resources\Fornitores\Schemas\FornitoreForm). Le assertion
- * leggono record reali dal database proforma (sola lettura, nessuna
- * scrittura) perché quella connessione non ha migrazioni proprie in questo
- * repo e non va toccata nei test.
+ * leggono record dal database core condiviso.
  */
 class FornitorePivaUniqueRuleTest extends TestCase
 {

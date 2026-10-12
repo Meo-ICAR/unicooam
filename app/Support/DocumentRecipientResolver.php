@@ -8,7 +8,7 @@ use App\Models\ComplaintRegistry;
 use App\Models\Document;
 use App\Models\Employee;
 use App\Models\PROFORMA\Clienti;
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;

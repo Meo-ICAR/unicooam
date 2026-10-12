@@ -6,7 +6,7 @@ use App\Enums\AuditStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\Audits\AuditResource;
 use App\Models\Audit;
-use App\Models\PROFORMA\Pratica;
+use App\Models\Pratica;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;

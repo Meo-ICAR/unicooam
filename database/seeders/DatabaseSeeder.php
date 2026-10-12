@@ -70,7 +70,6 @@ class DatabaseSeeder extends Seeder
             MailAccountSeeder::class,
             CompanyRoleSeeder::class,
             EmployeeSeeder::class,
-            EmployeeTypeSeeder::class,
             ResourceSeeder::class,
             EmailTemplateSeeder::class,
             OamCodeSeeder::class,

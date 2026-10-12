@@ -12,7 +12,7 @@ use App\Models\DocumentSchedule;
 use App\Models\DocumentType;
 use App\Models\EmailTemplate;
 use App\Models\Employee;
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use App\Services\DocumentReminderService;
 use Unico\Core\Documents\Reminders\DocumentReminderService as CoreDocumentReminderService;
 use Unico\Core\Documents\Reminders\ReminderDraft;

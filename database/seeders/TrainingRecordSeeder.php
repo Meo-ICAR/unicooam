@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use App\Models\TrainingRecord;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -21,7 +21,7 @@ class TrainingRecordSeeder extends Seeder
 
         // Per il polimorfismo stabiliamo che il corso sia frequentato da un Fornitore
         $fornitoreId = Fornitore::first()->id;
-        $trainableType = 'App\Models\PROFORMA\Fornitore';
+        $trainableType = Fornitore::class;
         $userId = User::first()->id;
 
         $records = [

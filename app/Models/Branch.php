@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

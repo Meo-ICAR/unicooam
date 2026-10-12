@@ -5,7 +5,7 @@ namespace App\Filament\Resources\QualityReviews\Pages;
 use App\Enums\UserRole;
 use App\Filament\Resources\QualityReviews\QualityReviewResource;
 use App\Models\Company;
-use App\Models\PROFORMA\Pratica;
+use App\Models\Pratica;
 use App\Models\User;
 use App\Services\QualityReviewSampler;
 use Filament\Actions\Action;

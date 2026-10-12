@@ -20,7 +20,7 @@ use App\Models\Document;
 use App\Models\Employee;
 use App\Models\OamCode;
 use App\Models\OamSemestrale;
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use App\Models\SuspiciousActivityReport;
 use App\Models\Website;
 use App\ValueObjects\OamSemester;

@@ -6,7 +6,7 @@ use App\Enums\AuditStatus;
 use App\Models\Branch;
 use App\Models\Company;
 use App\Models\Employee;
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\MorphToSelect;
 use Filament\Forms\Components\MorphToSelect\Type;

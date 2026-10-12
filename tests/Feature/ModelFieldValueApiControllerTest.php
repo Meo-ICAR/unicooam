@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use Tests\TestCase;
 
 class ModelFieldValueApiControllerTest extends TestCase

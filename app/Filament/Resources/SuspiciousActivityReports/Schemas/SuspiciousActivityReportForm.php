@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\SuspiciousActivityReports\Schemas;
 
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use App\Models\Company;
 use App\Models\Employee;
 use Filament\Forms\Components\MorphToSelect\Type;

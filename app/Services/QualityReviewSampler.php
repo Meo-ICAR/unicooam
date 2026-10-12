@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Enums\AuditStatus;
 use App\Models\Audit;
-use App\Models\PROFORMA\Pratica;
+use App\Models\Pratica;
 use App\Models\QualityReview;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -32,8 +32,8 @@ class QualityReviewSampler
         $query
             ->when($filters['period_from'] ?? null, fn (Builder $q, $v) => $q->whereDate('data_inserimento_pratica', '>=', $v))
             ->when($filters['period_to'] ?? null, fn (Builder $q, $v) => $q->whereDate('data_inserimento_pratica', '<=', $v))
-            ->when($filters['stati'] ?? null, fn (Builder $q, $v) => $q->whereIn('stato_pratica', $v))
-            ->when($filters['tipi_prodotto'] ?? null, fn (Builder $q, $v) => $q->whereIn('tipo_prodotto', $v))
+            ->when($filters['stati'] ?? null, fn (Builder $q, $v) => $q->whereHas('praticaStato', fn (Builder $s) => $s->whereIn('codice', $v)))
+            ->when($filters['tipi_prodotto'] ?? null, fn (Builder $q, $v) => $q->whereHas('tipoprodotto', fn (Builder $s) => $s->whereIn('tipo_prodotto', $v)))
             ->when($filters['banche'] ?? null, fn (Builder $q, $v) => $q->whereIn('denominazione_banca', $v))
             ->when($filters['agenti'] ?? null, fn (Builder $q, $v) => $q->whereIn('partita_iva_agente', $v))
             ->when($filters['erogato_min'] ?? null, fn (Builder $q, $v) => $q->where('erogato', '>=', $v))

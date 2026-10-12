@@ -4,7 +4,7 @@ namespace App\Filament\Resources\OamPratiches\Pages;
 
 use App\Filament\Resources\OamPratiches\OamPraticheResource;
 use App\Models\PROFORMA\Clienti;
-use App\Models\PROFORMA\Pratica;
+use App\Models\Pratica;
 use App\Models\PROFORMA\Provvigione;
 use App\Services\OamSemestraleService;
 use Filament\Actions\Action;

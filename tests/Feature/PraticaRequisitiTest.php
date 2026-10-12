@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\DocumentType;
-use App\Models\PROFORMA\Pratica;
+use App\Models\Pratica;
 use App\Models\PraticaRequisito;
 use App\Models\PraticaRequisitoOperativo;
 use App\Models\RequisitoTipoFinanziamento;
@@ -67,8 +67,7 @@ class PraticaRequisitiTest extends TestCase
         RequisitoTipoFinanziamento::create(['tipoprodotto_sub_id' => $sub->id, 'document_type_id' => $a->id, 'is_required' => true, 'sort_order' => 1]);
         RequisitoTipoFinanziamento::create(['tipoprodotto_sub_id' => $sub->id, 'document_type_id' => $b->id, 'is_required' => false, 'sort_order' => 2]);
 
-        $pratica = new Pratica;
-        $pratica->id = 'QT00001';
+        $pratica = Pratica::create(['codice_pratica' => 'QT00001']);
         $pratica->tipoprodotto_sub_id = $sub->id;
 
         $pratica->generaRequisitiDaProdotto();
@@ -77,7 +76,7 @@ class PraticaRequisitiTest extends TestCase
         $righe = PraticaRequisitoOperativo::orderBy('id')->get();
         $this->assertCount(2, $righe);
         $this->assertSame(['pratica', 'pratica'], $righe->pluck('requestable_type')->all());
-        $this->assertSame(['QT00001', 'QT00001'], $righe->pluck('requestable_id')->all());
+        $this->assertSame([(string) $pratica->getKey(), (string) $pratica->getKey()], $righe->pluck('requestable_id')->map(fn ($id) => (string) $id)->all());
         $this->assertSame(['da_richiedere', 'da_richiedere'], $righe->pluck('status')->all());
         $this->assertSame([true, false], $righe->pluck('is_required')->map(fn ($v) => (bool) $v)->all());
 

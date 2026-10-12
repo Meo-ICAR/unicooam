@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\PROFORMA\Fornitore;
+use App\Models\Fornitore;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;

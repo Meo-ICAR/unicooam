@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\OamPratiche;
 use App\Models\PROFORMA\Clienti;
-use App\Models\PROFORMA\Fornitore;
-use App\Models\PROFORMA\Pratica;
+use App\Models\Fornitore;
+use App\Models\Pratica;
 use App\Models\PROFORMA\Provvigione;
 use App\ValueObjects\OamSemester;
 use Illuminate\Support\Collection;
