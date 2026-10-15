@@ -7,7 +7,6 @@ use App\Filament\Resources\Audits\Pages\EditAudit;
 use App\Filament\Resources\Audits\Pages\ListAudits;
 use App\Filament\Resources\Audits\Schemas\AuditForm;
 use App\Filament\Resources\Audits\Tables\AuditsTable;
-use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Traits\HasPlanAccess;
 use App\Models\Audit;
 use BackedEnum;
@@ -16,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Unico\Core\Filament\RelationManagers\DocumentsRelationManager;
 
 class AuditResource extends Resource
 {

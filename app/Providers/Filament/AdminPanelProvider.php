@@ -37,8 +37,10 @@ class AdminPanelProvider extends PanelProvider
                 //  NavigationGroup::make()->label('Pratiche'),
                 //  NavigationGroup::make()->label('Contabilita'),
                 NavigationGroup::make()->label('Anagrafiche'),  // ->collapsed(),
-                NavigationGroup::make()->label('Documentazione')->collapsed(),
                 NavigationGroup::make()->label('System')->collapsed(),
+                NavigationGroup::make()->label('Configurazioni')->collapsed(),
+                NavigationGroup::make()->label('Documentazione')->collapsed(),
+                NavigationGroup::make()->label('Manuali')->collapsed(),
             ])
             ->brandLogo(asset('images/unicooam.png'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
@@ -57,11 +59,11 @@ class AdminPanelProvider extends PanelProvider
                 NavigationItem::make('Manuale Utente')
                     ->url(fn (): string => route('manuale-oam'), shouldOpenInNewTab: true)
                     ->icon('heroicon-o-document-arrow-down')
-                    ->group('Documentazione') // Opzionale: raggruppa l'elemento in una sezione
-                    ->sort(10), // Opzionale: posizionalo in fondo al menu
+                    ->group('Manuali')
+                    ->sort(10),
                 NavigationItem::make('Manuale tecnico OAM')
                     ->url(fn (): string => route('manuale-operativo-oam'), shouldOpenInNewTab: true)
-                    ->group('Documentazione') // Opzionale: raggruppa l'elemento in una sezione
+                    ->group('Manuali')
                     ->icon('heroicon-o-book-open')
                     ->sort(10),
             ])
@@ -98,7 +100,7 @@ class AdminPanelProvider extends PanelProvider
                             ->outlined(false)
                             ->stateless(false),
                     ])
-                    // ->registration(true)
+                // ->registration(true)
             )
             ->plugin(
                 ActivityLogPlugin::make()

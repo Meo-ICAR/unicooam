@@ -7,7 +7,6 @@ use App\Filament\Resources\ComplaintRegistries\Pages\EditComplaintRegistry;
 use App\Filament\Resources\ComplaintRegistries\Pages\ListComplaintRegistries;
 use App\Filament\Resources\ComplaintRegistries\Schemas\ComplaintRegistryForm;
 use App\Filament\Resources\ComplaintRegistries\Tables\ComplaintRegistriesTable;
-use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Traits\HasPlanAccess;
 use App\Models\ComplaintRegistry;
 use BackedEnum;
@@ -16,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Unico\Core\Filament\RelationManagers\DocumentsRelationManager;
 
 class ComplaintRegistryResource extends Resource
 {

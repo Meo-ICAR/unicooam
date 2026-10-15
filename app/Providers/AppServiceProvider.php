@@ -18,6 +18,7 @@ use Illuminate\Support\ServiceProvider;
 use SocialiteProviders\Google\GoogleExtendSocialite;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 use SocialiteProviders\Microsoft\MicrosoftExtendSocialite;
+use Unico\Core\UnicoCoreServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,9 +35,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // unicooam possiede il proprio database: le tabelle del pacchetto si creano con il normale `php artisan migrate`
-        // (e quindi anche con `migrate:fresh`, nei test), registrate nella tabella `migrations` dell'app.
-        $this->loadMigrationsFrom(\Unico\Core\UnicoCoreServiceProvider::migrationsPath());
+        config(['unico-core.documents.oam_semester_filter' => true]);
+
+        // Anagrafiche sul database condiviso (connessione `core`, unico_core_test): le migration del pacchetto
+        // non si eseguono da qui. Nei test UNICO_CORE_DB_CONNECTION coincide col default e le tabelle si creano con `migrate`.
+        if (config('unico-core.connection') === config('database.default')) {
+            $this->loadMigrationsFrom(UnicoCoreServiceProvider::migrationsPath());
+        }
 
         Relation::morphMap([
             'audit' => Audit::class,

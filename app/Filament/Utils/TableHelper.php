@@ -2,16 +2,15 @@
 
 namespace App\Filament\Utils;
 
-use Unico\Core\Enums\SyncStatus;
 use App\Jobs\UploadDocumentToSharePoint;
 use App\Models\Document;
-use App\Services\SharePoint\SharePointUploader;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Unico\Core\Filament\Actions\RetrySharePointUploadAction;
 
 class TableHelper
 {
@@ -137,15 +136,9 @@ class TableHelper
     /** Rimette in coda l'upload su SharePoint di un documento fallito o rimasto solo locale. */
     public static function retrySharePointUploadAction(): Action
     {
-        return Action::make('retrySharePointUpload')
-            ->label('Riprova upload')
-            ->icon('heroicon-o-cloud-arrow-up')
-            ->color('warning')
-            ->requiresConfirmation()
-            ->visible(fn (Document $record): bool => in_array($record->sync_status, [SyncStatus::FAILED->value, SyncStatus::LOCAL->value], true)
-                && app(SharePointUploader::class)->isConfigured()
-                && $record->getFirstMedia('documents') !== null)
+        return RetrySharePointUploadAction::make()
             ->action(function (Document $record): void {
+                // L'app OAM usa ancora il job locale con id stringa.
                 UploadDocumentToSharePoint::dispatch($record->id);
 
                 Notification::make()

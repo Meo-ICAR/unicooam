@@ -2,15 +2,17 @@
 
 namespace App\Filament\Exports;
 
-use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use Unico\Core\Filament\Concerns\InjectsRecordByTypeInExports;
 
 class DynamicGroupExport extends ExcelExport implements WithEvents
 {
+    use InjectsRecordByTypeInExports;
+
     protected ?string $groupBy = null;
 
     protected array $sumColumns = [];
@@ -22,27 +24,6 @@ class DynamicGroupExport extends ExcelExport implements WithEvents
         return parent::make($name ?? 'export')
             ->fromTable()
             ->withFilename('report_'.now()->format('Y-m-d_H-i'));
-    }
-
-    /**
-     * filament-excel inietta il record solo per nome ($record): i closure di
-     * formattazione con un parametro tipizzato Model (es. Model $row) fallivano
-     * con "Target [Model] is not instantiable". Lo iniettiamo anche per tipo.
-     *
-     * @param  array<string, mixed>  $parameters
-     */
-    public function evaluate(mixed $value, array $parameters = []): mixed
-    {
-        $record = $parameters['record'] ?? null;
-
-        $typedInjections = $record instanceof Model
-            ? [Model::class => $record, $record::class => $record]
-            : [];
-
-        return $this->parentEvaluate($value, [
-            ...$parameters,
-            ...$this->getDefaultEvaluationParameters(),
-        ], $typedInjections);
     }
 
     public function groupBy(string $column): static

@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\Companies\Pages\EditCompany;
-use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\User;
@@ -14,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
+use Unico\Core\Filament\RelationManagers\DocumentsRelationManager;
 
 class DocumentsRelationManagerDownloadLinkTest extends TestCase
 {

@@ -11,7 +11,6 @@ use App\Filament\Resources\Companies\RelationManagers\MailAccountRelationManager
 use App\Filament\Resources\Companies\Schemas\CompanyForm;
 use App\Filament\Resources\Companies\Tables\CompaniesTable;
 use App\Filament\Resources\RelationManagers\BranchesRelationManager;
-use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Resources\RelationManagers\WebsitesRelationManager;
 use App\Filament\Traits\HasPlanAccess;
 use App\Models\Company;
@@ -20,6 +19,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Unico\Core\Filament\RelationManagers\DocumentsRelationManager;
 use UnitEnum;
 
 class CompanyResource extends Resource

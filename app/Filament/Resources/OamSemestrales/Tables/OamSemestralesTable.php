@@ -24,7 +24,7 @@ class OamSemestralesTable
     {
         return $table
             ->selectable(false)
-            ->defaultPaginationPageOption(50)
+            ->defaultPaginationPageOption(100)
             ->defaultSort('abi_name')
             ->reorderableColumns()
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)

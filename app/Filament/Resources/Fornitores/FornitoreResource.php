@@ -8,7 +8,6 @@ use App\Filament\Resources\Fornitores\Pages\ListFornitores;
 use App\Filament\Resources\Fornitores\Schemas\FornitoreForm;
 use App\Filament\Resources\Fornitores\Tables\FornitoresTable;
 use App\Filament\Resources\RelationManagers\BranchesRelationManager;
-use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Resources\RelationManagers\WebsitesRelationManager;
 use App\Filament\Traits\HasPlanAccess;
 use App\Models\Fornitore;
@@ -17,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Unico\Core\Filament\RelationManagers\DocumentsRelationManager;
 use UnitEnum; // Assicurati di importare questo!
 
 class FornitoreResource extends Resource

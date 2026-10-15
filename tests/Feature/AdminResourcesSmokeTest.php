@@ -5,8 +5,8 @@ namespace Tests\Feature;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
-use Throwable;
 use Tests\TestCase;
+use Throwable;
 
 /**
  * Ogni risorsa del pannello deve aprire la pagina elenco senza errori sulle tabelle del pacchetto.

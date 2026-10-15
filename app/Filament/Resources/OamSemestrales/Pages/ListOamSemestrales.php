@@ -18,13 +18,21 @@ use App\Models\CompanyRole;
 use App\Models\ComplaintRegistry;
 use App\Models\Document;
 use App\Models\Employee;
-use App\Models\OamCode;
-use App\Models\OamSemestrale;
 use App\Models\Fornitore;
+use App\Models\OamArchivio;
+use App\Models\OamCode;
+use App\Models\OamPratiche;
+use App\Models\OamSemestrale;
 use App\Models\SuspiciousActivityReport;
 use App\Models\Website;
+use App\Services\CompanyResolver;
+use App\Services\OamArchivioService;
 use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 // CORRETTO
 use Illuminate\Contracts\View\View;
@@ -66,6 +74,70 @@ class ListOamSemestrales extends ListRecords
                 ->color('gray')
                 ->action(function (): void {
                     $this->onlySummary = ! $this->onlySummary;
+                }),
+
+            Action::make('storicizza')
+                ->label('Storicizza')
+                ->icon('heroicon-o-archive-box-arrow-down')
+                ->color('gray')
+                ->modalHeading('Storicizza semestre OAM')
+                ->modalDescription('Archivia le righe di OAM Semestrale e OAM Pratiche del semestre scelto, così da poterle richiamare in futuro.')
+                ->schema([
+                    Select::make('period')
+                        ->label('Semestre di riferimento')
+                        ->options(fn (): array => OamSemestrale::query()->distinct()->pluck('period')
+                            ->merge(OamPratiche::query()->distinct()->pluck('period'))
+                            ->unique()
+                            ->sortDesc()
+                            ->mapWithKeys(fn (string $period): array => [$period => $period])
+                            ->all())
+                        ->default(fn (): string => OamSemester::current()->period())
+                        ->required(),
+                    TextInput::make('note')->label('Nota')->maxLength(255),
+                    Toggle::make('svuota')
+                        ->label('Svuota le tabelle di lavoro dopo l\'archiviazione')
+                        ->default(false),
+                ])
+                ->action(function (array $data): void {
+                    $archivio = app(OamArchivioService::class)->archivia(
+                        period: $data['period'],
+                        companyId: app(CompanyResolver::class)->resolveId(),
+                        note: $data['note'] ?? null,
+                        svuota: (bool) $data['svuota'],
+                        userId: auth()->id(),
+                    );
+
+                    Notification::make()
+                        ->title('Semestre storicizzato')
+                        ->body($archivio->label())
+                        ->success()
+                        ->send();
+                }),
+
+            Action::make('richiamaArchivio')
+                ->label('Richiama archivio')
+                ->icon('heroicon-o-archive-box')
+                ->color('gray')
+                ->modalHeading('Richiama un semestre archiviato')
+                ->modalDescription('ATTENZIONE! Le righe attuali dello stesso semestre in OAM Semestrale e OAM Pratiche saranno sostituite con quelle archiviate.')
+                ->schema([
+                    Select::make('archivio_id')
+                        ->label('Archivio')
+                        ->options(fn (): array => OamArchivio::query()
+                            ->latest()
+                            ->get()
+                            ->mapWithKeys(fn (OamArchivio $archivio): array => [$archivio->id => $archivio->label()])
+                            ->all())
+                        ->required(),
+                ])
+                ->action(function (array $data): void {
+                    $righe = app(OamArchivioService::class)->richiama(OamArchivio::findOrFail($data['archivio_id']));
+
+                    Notification::make()
+                        ->title('Archivio richiamato')
+                        ->body("Ripristinate {$righe['semestrali']} righe semestrali e {$righe['pratiche']} pratiche")
+                        ->success()
+                        ->send();
                 }),
 
             ImportOamAction::make()

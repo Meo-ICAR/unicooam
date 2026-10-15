@@ -7,13 +7,13 @@ use App\Filament\Resources\Clientis\Pages\EditClienti;
 use App\Filament\Resources\Clientis\Pages\ListClientis;
 use App\Filament\Resources\Clientis\Schemas\ClientiForm;
 use App\Filament\Resources\Clientis\Tables\ClientisTable;
-use App\Filament\Resources\RelationManagers\DocumentsRelationManager;
 use App\Filament\Traits\HasPlanAccess;
 use App\Models\PROFORMA\Clienti;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Unico\Core\Filament\RelationManagers\DocumentsRelationManager;
 use UnitEnum;
 
 class ClientiResource extends Resource
