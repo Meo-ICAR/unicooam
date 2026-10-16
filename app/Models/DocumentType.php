@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -33,7 +32,7 @@ class DocumentType extends CoreDocumentType implements HasMedia
         'is_sensible' => 'boolean',
         'is_template' => 'boolean',
         'is_stored' => 'boolean',
-        'is_endMonth' => 'boolean',
+        'is_end_month' => 'boolean',
         'is_AiAbstract' => 'boolean',
         'is_AiCheck' => 'boolean',
         'allow_auto_verification' => 'boolean',

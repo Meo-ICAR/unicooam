@@ -188,12 +188,17 @@ class TaskForm
                                             ->placeholder('Tutti')
                                             ->helperText('Persona fisica o giuridica: lo decide il tipo documento.')
                                             ->visible(fn (Get $get) => $get('documentable') === 'client'),
+                                        Select::make('signer_model')
+                                            ->label('Chi firma')
+                                            ->options(['client' => 'Cliente', 'fornitore' => 'Agente / produttore', 'employee' => 'Dipendente', 'company' => 'Azienda'])
+                                            ->placeholder('Come il tipo documento')
+                                            ->helperText('Es. l\'agente nell\'onboarding.'),
                                         Toggle::make('is_required')
                                             ->label('Obbligatorio')
                                             ->default(true)
                                             ->inline(false),
                                     ])
-                                    ->columns(5)
+                                    ->columns(6)
                                     ->addActionLabel('Aggiungi documento')
                                     ->collapsible()
                                     ->columnSpanFull(),
