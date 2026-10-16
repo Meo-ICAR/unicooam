@@ -93,17 +93,17 @@ class TaskConditionsTest extends TestCase
         $this->assertSame(['richiedente', 'garante'], $clone->documentRequirements()->first()->client_roles);
     }
 
-    public function test_edit_page_populates_the_task_from_a_subtask(): void
+    public function test_edit_page_populates_the_task_from_other_tasks(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'admin']));
         Filament::setCurrentPanel('admin');
         $type = DocumentType::create(['name' => 'TEGM', 'code' => 'TEGM']);
         $task = Task::create(['name' => 'Mutuo', 'taskable' => 'pratica']);
-        $sub = Task::create(['name' => 'Documenti comuni', 'taskable' => 'pratica', 'parent_id' => $task->id]);
+        $sub = Task::create(['name' => 'Documenti comuni', 'taskable' => 'pratica']);
         $sub->documentRequirements()->create(['document_type_id' => $type->id, 'sort_order' => 1]);
 
         Livewire::test(EditTask::class, ['record' => $task->getKey()])
-            ->callAction('importaDaSubtask', ['source_id' => $sub->id])
+            ->callAction('popolaDaAltriTask', ['source_ids' => [$sub->id]])
             ->assertNotified();
 
         $this->assertDatabaseHas('document_requirements', ['task_id' => $task->id, 'document_type_id' => $type->id]);
