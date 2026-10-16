@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Events\TaskActivated;
-use Filament\Facades\Filament; // <-- Add this line!
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Builder; // <-- Add this line!
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Spatie\MediaLibrary\HasMedia;
 /*
      * 1. GLOBAL SCOPE ISOLAMENTO E TASK COMUNI
@@ -27,14 +26,6 @@ class Task extends CoreTask implements HasMedia
     protected $orderBy = 'name';
 
     protected $orderDirection = 'asc';
-
-    /**
-     * Get the parent taskable model (Project, User, etc.).
-     */
-    public function taskable(): MorphTo
-    {
-        return $this->morphTo();
-    }
 
     protected static function booted(): void
     {
@@ -138,18 +129,7 @@ class Task extends CoreTask implements HasMedia
      */
     public static function getAvailableFor($record)
     {
-        $taskableType = strtolower(class_basename($record));
-
-        // Prendiamo solo i task attivi che NON hanno un padre (i task figli aspetteranno il loro turno)
-        $rootTasks = self::where('taskable', $taskableType)
-            ->where('is_active', true)
-            ->whereNull('parent_id')
-            ->get();
-
-        // Filtriamo usando il nuovo metodo di istanza
-        return $rootTasks->filter(function ($task) use ($record) {
-            return $task->matchesConditions($record);
-        });
+        return static::applicabiliA($record);
     }
 
     /**
@@ -173,54 +153,6 @@ class Task extends CoreTask implements HasMedia
             // - Lanciare un evento di attivazione
             event(new TaskActivated($childTask, $record));
         }
-    }
-
-    /**
-     * 3. LOGICA DI CONTROLLO CONDIZIONI (Estratta dal tuo metodo originale)
-     * Verifica se il task è compatibile con lo stato attuale del record.
-     */
-    public function matchesConditions(Model $record): bool
-    {
-        // Verifica condizioni di esclusione
-        if (! empty($this->exclude_field)) {
-            $excludeValue = $record->{$this->exclude_field};
-
-            if ($this->exclude_state === 'filled' && ! empty($excludeValue)) {
-                return false;
-            }
-
-            if ($this->exclude_state === 'empty' && empty($excludeValue)) {
-                return false;
-            }
-
-            if ($this->exclude_state === 'equals' && $excludeValue == $this->exclude_value) {
-                return false;
-            }
-        }
-
-        // Se il task non ha condizioni di attivazione particolari, è valido
-        if (empty($this->trigger_field)) {
-            return true;
-        }
-
-        $fieldValue = $record->{$this->trigger_field};
-
-        // Condizione: il campo deve essere valorizzato (NOT NULL)
-        if ($this->trigger_state === 'filled') {
-            return ! empty($fieldValue);
-        }
-
-        // Condizione: il campo deve essere vuoto (NULL)
-        if ($this->trigger_state === 'empty') {
-            return empty($fieldValue);
-        }
-
-        // Condizione: il campo deve essere uguale a un valore specifico
-        if ($this->trigger_state === 'equals') {
-            return $fieldValue == $this->trigger_value;
-        }
-
-        return true;
     }
 
     /**
