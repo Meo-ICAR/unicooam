@@ -79,7 +79,7 @@ class DocumentTypeForm
                     ->description('Indica a quali entità o ruoli si applica questo documento')
                     ->columns(6)
                     ->schema([
-                        Toggle::make('is_person')->label('Persona')->default(true)->inline(false),
+                        Toggle::make('is_person')->label('Persona')->helperText('Documenti sul cliente: acceso = persona fisica, spento = persona giuridica.')->default(true)->inline(false),
                         Toggle::make('is_company')->label('Azienda')->default(false)->inline(false),
                         Toggle::make('is_employee')->label('Dipendente')->default(false)->inline(false),
                         Toggle::make('is_agent')->label('Agente')->default(false)->inline(false),

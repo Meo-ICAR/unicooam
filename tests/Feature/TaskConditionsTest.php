@@ -77,17 +77,18 @@ class TaskConditionsTest extends TestCase
             ->fillForm([
                 'name' => 'Plico con documenti',
                 'taskable' => 'pratica',
-                'documentRequirements' => [['document_type_id' => $type->id, 'is_required' => false, 'documentable' => 'client', 'client_role' => 'garante']],
+                'documentRequirements' => [['document_type_id' => $type->id, 'is_required' => false, 'documentable' => 'client', 'client_roles' => ['richiedente', 'garante']]],
             ])
             ->call('create')
             ->assertHasNoFormErrors();
 
         $task = Task::where('name', 'Plico con documenti')->firstOrFail();
-        $this->assertDatabaseHas('document_requirements', ['task_id' => $task->id, 'document_type_id' => $type->id, 'is_required' => 0, 'sort_order' => 1, 'documentable' => 'client', 'client_role' => 'garante']);
+        $this->assertDatabaseHas('document_requirements', ['task_id' => $task->id, 'document_type_id' => $type->id, 'is_required' => 0, 'sort_order' => 1, 'documentable' => 'client']);
 
         Livewire::test(ListTasks::class)->callTableAction('clone', $task);
 
         $clone = Task::where('name', 'Plico con documenti (Copia)')->firstOrFail();
-        $this->assertDatabaseHas('document_requirements', ['task_id' => $clone->id, 'document_type_id' => $type->id, 'is_required' => 0, 'documentable' => 'client', 'client_role' => 'garante']);
+        $this->assertDatabaseHas('document_requirements', ['task_id' => $clone->id, 'document_type_id' => $type->id, 'is_required' => 0, 'documentable' => 'client']);
+        $this->assertSame(['richiedente', 'garante'], $clone->documentRequirements()->first()->client_roles);
     }
 }

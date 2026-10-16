@@ -181,10 +181,12 @@ class TaskForm
                                             ->options(['client' => 'Cliente della pratica'])
                                             ->placeholder('Il modello del plico')
                                             ->live(),
-                                        Select::make('client_role')
-                                            ->label('Ruolo del cliente')
+                                        Select::make('client_roles')
+                                            ->label('Ruoli nella pratica')
                                             ->options(['richiedente' => 'Richiedente', 'coobbligato' => 'Coobbligato', 'garante' => 'Garante'])
+                                            ->multiple()
                                             ->placeholder('Tutti')
+                                            ->helperText('Persona fisica o giuridica: lo decide il tipo documento.')
                                             ->visible(fn (Get $get) => $get('documentable') === 'client'),
                                         Toggle::make('is_required')
                                             ->label('Obbligatorio')
