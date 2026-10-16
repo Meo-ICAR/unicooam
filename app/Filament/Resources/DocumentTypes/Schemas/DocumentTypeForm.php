@@ -12,6 +12,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Unico\Core\Documents\Api\DocumentApiService;
 
 class DocumentTypeForm
 {
@@ -64,6 +65,11 @@ class DocumentTypeForm
                     ->components([
                         TextInput::make('document_url')
                             ->label('URL documento'),
+                        Select::make('api_service')
+                            ->label('Richiedibile via API')
+                            ->options(fn (): array => app(DocumentApiService::class)->services())
+                            ->placeholder('Solo caricamento')
+                            ->helperText('Se indicato, nei documenti di questo tipo compare «Richiedi via API»: il file ricevuto sostituisce il caricamento. Alcuni servizi sono a pagamento.'),
                         // ->url(fn($record) => $record->document_url ? (str_starts_with($record->document_url, 'http') ? $record->document_url : "https://{$record->document_url}") : null),
                         SpatieMediaLibraryFileUpload::make('attachments')
                             ->label('Carica file (PDF, immagini, Word)')
