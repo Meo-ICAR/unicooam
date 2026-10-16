@@ -183,7 +183,7 @@ class TaskForm
                                             ->live(),
                                         Select::make('client_roles')
                                             ->label('Ruoli nella pratica')
-                                            ->options(['richiedente' => 'Richiedente', 'coobbligato' => 'Coobbligato', 'garante' => 'Garante'])
+                                            ->options(['richiedente' => 'Richiedente', 'coobbligato' => 'Coobbligato', 'garante' => 'Garante', 'amministratore' => 'Amministratore'])
                                             ->multiple()
                                             ->placeholder('Tutti')
                                             ->helperText('Persona fisica o giuridica: lo decide il tipo documento.')
