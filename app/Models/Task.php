@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 /*
@@ -16,7 +17,6 @@ use Spatie\MediaLibrary\HasMedia;
      * Caricato automaticamente su tutte le query dell'applicazione.
 */
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Unico\Core\Enums\DocumentStatus;
 use Unico\Core\Models\Task as CoreTask;
 
 class Task extends CoreTask implements HasMedia
@@ -54,10 +54,10 @@ class Task extends CoreTask implements HasMedia
     /**
      * I tipi di documento associati a questo Task
      */
-    public function documentTypes()
+    public function documentTypes(): BelongsToMany
     {
         return $this
-            ->belongsToMany(DocumentType::class, 'document_requirements')
+            ->belongsToMany(DocumentType::class, 'document_requirements', 'task_id', 'document_type_id')
             ->using(TaskDocumentType::class)  // <-- Usa il nuovo modello Pivot
             ->withPivot('is_required')
             ->withTimestamps();
@@ -66,61 +66,21 @@ class Task extends CoreTask implements HasMedia
     /**
      * Crea la documentazione mancante per questo specifico task.
      *
-     * @param  int  $companyId  ID dell'azienda principale
-     * @param  int  $documentableId  ID del record di destinazione (ID Azienda o ID Fornitore)
+     * @param  string  $companyId  ID dell'azienda principale
+     * @param  string  $documentableId  ID del record di destinazione (ID Azienda o ID Fornitore)
      * @param  bool  $is_debug  Abilita il debug
      * @return int Numero di documenti creati
      */
     public function createDocumentation(string $companyId, string $documentableId, bool $is_debug = false): int
     {
-        $createdCount = 0;
+        $class = $this->taskableClass();
+        $record = $class === null ? null : $class::query()->find($documentableId);
 
-        // Clicliamo sui documentTypes già caricati in memoria
-        foreach ($this->documentTypes as $documentType) {
-            // 1. Estraiamo SOLO i campi del template che la tabella 'documents' è in grado di accogliere
-            $templateData = collect($documentType->toArray())
-                ->only([
-                    'name',
-                    'description',
-                    'emitted_by',
-                    'is_template',
-                    'is_signed',
-                    'is_monitored',
-                    'doctype',
-                ])
-                ->toArray();
-            // ** check trigger fields */
-            if ($is_debug) {
-                $emesso = now()->subDays(rand(3, 400));
-                $templateData['emitted_at'] = $emesso;
-                // 2. Set emitted_at for monitored documents
-                if ($documentType->is_monitored) {
-                    $scade = $documentType->durationCalculate($emesso);
-                    $templateData['expires_at'] = $scade;
-                }
-            }
-            // 3. Uniamo lo stato iniziale richiesto
-            $creationData = array_merge($templateData, [
-                'status' => DocumentStatus::PENDING->value,
-            ]);
-
-            // 4. Eseguiamo il firstOrCreate in sicurezza
-            $document = Document::firstOrCreate(
-                [
-                    'company_id' => $companyId,
-                    'documentable_type' => $this->taskable,
-                    'documentable_id' => $documentableId,
-                    'document_type_id' => $documentType->id,
-                ],
-                $creationData
-            );
-
-            if ($document->wasRecentlyCreated) {
-                $createdCount++;
-            }
+        if ($record === null) {
+            return 0;
         }
 
-        return $createdCount;
+        return $this->generateDocumentsFor($record, (int) $companyId, $is_debug)['created'];
     }
 
     /**
