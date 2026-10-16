@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\Tasks\Pages\CreateTask;
+use App\Filament\Resources\Tasks\Pages\EditTask;
 use App\Filament\Resources\Tasks\Pages\ListTasks;
 use App\Models\DocumentType;
 use App\Models\Pratica;
@@ -90,5 +91,21 @@ class TaskConditionsTest extends TestCase
         $clone = Task::where('name', 'Plico con documenti (Copia)')->firstOrFail();
         $this->assertDatabaseHas('document_requirements', ['task_id' => $clone->id, 'document_type_id' => $type->id, 'is_required' => 0, 'documentable' => 'client']);
         $this->assertSame(['richiedente', 'garante'], $clone->documentRequirements()->first()->client_roles);
+    }
+
+    public function test_edit_page_populates_the_task_from_a_subtask(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        Filament::setCurrentPanel('admin');
+        $type = DocumentType::create(['name' => 'TEGM', 'code' => 'TEGM']);
+        $task = Task::create(['name' => 'Mutuo', 'taskable' => 'pratica']);
+        $sub = Task::create(['name' => 'Documenti comuni', 'taskable' => 'pratica', 'parent_id' => $task->id]);
+        $sub->documentRequirements()->create(['document_type_id' => $type->id, 'sort_order' => 1]);
+
+        Livewire::test(EditTask::class, ['record' => $task->getKey()])
+            ->callAction('importaDaSubtask', ['source_id' => $sub->id])
+            ->assertNotified();
+
+        $this->assertDatabaseHas('document_requirements', ['task_id' => $task->id, 'document_type_id' => $type->id]);
     }
 }

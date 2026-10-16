@@ -55,6 +55,14 @@ class TaskForm
                             ->searchable()
                             ->helperText('Seleziona un task padre se questa attività deve attivarsi solo al completamento di quella precedente.'),
 
+                        Select::make('children')
+                            ->label('Subtask')
+                            ->relationship('children', 'name')
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->helperText('Task collegati a questo, ad esempio i documenti comuni a più plichi. Il pulsante «Popola da subtask» ne copia i documenti.'),
+
                         Select::make('company_id')
                             ->label('Company')
                             ->relationship('company', 'name')
