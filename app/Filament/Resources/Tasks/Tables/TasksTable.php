@@ -167,7 +167,7 @@ class TasksTable
                         $clonedTask->save();
 
                         foreach ($record->documentRequirements as $requirement) {
-                            $clonedTask->documentRequirements()->create($requirement->only(['document_type_id', 'is_required', 'sort_order', 'documentable', 'client_roles', 'signer_model']));
+                            $clonedTask->documentRequirements()->create($requirement->only(['document_type_id', 'is_required', 'sort_order', 'documentable', 'client_roles', 'signer_model', 'phase']));
                         }
 
                         foreach ($record->getMedia('documents') as $media) {
