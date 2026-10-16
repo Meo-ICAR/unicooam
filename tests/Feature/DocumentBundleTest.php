@@ -162,7 +162,7 @@ class DocumentBundleTest extends TestCase
         return DocumentType::query()->create([
             'name' => $name,
             'slug' => str($name)->slug()->append('-'.uniqid())->toString(),
-            'priority' => 1,
+            'is_company' => true,
             'is_monitored' => true,
             'duration' => $duration,
             'duration_unit' => $unit,
