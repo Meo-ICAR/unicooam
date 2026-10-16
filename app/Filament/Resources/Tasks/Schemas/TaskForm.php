@@ -175,13 +175,23 @@ class TaskForm
                                             ->preload()
                                             ->required()
                                             ->distinct()
-                                            ->columnSpan(3),
+                                            ->columnSpan(2),
+                                        Select::make('documentable')
+                                            ->label('Documento su')
+                                            ->options(['client' => 'Cliente della pratica'])
+                                            ->placeholder('Il modello del plico')
+                                            ->live(),
+                                        Select::make('client_role')
+                                            ->label('Ruolo del cliente')
+                                            ->options(['richiedente' => 'Richiedente', 'coobbligato' => 'Coobbligato', 'garante' => 'Garante'])
+                                            ->placeholder('Tutti')
+                                            ->visible(fn (Get $get) => $get('documentable') === 'client'),
                                         Toggle::make('is_required')
                                             ->label('Obbligatorio')
                                             ->default(true)
                                             ->inline(false),
                                     ])
-                                    ->columns(4)
+                                    ->columns(5)
                                     ->addActionLabel('Aggiungi documento')
                                     ->collapsible()
                                     ->columnSpanFull(),
