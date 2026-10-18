@@ -204,10 +204,6 @@ class EmployeesTable
         $existing = User::withTrashed()->whereRaw('LOWER(email) = ?', [$email])->first();
 
         if ($existing !== null) {
-            if ($existing->trashed()) {
-                $existing->restore();
-            }
-
             $linkedToAnotherEmployee = Employee::query()
                 ->where('user_id', $existing->id)
                 ->whereKeyNot($record->id)
@@ -221,6 +217,10 @@ class EmployeesTable
                     ->send();
 
                 return;
+            }
+
+            if ($existing->trashed()) {
+                $existing->restore();
             }
 
             $record->update(['user_id' => $existing->id]);

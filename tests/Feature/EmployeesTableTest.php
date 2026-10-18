@@ -124,4 +124,50 @@ class EmployeesTableTest extends TestCase
         $this->assertNull($second->refresh()->user_id);
         $this->assertSame(2, User::query()->count());
     }
+
+    public function test_crea_utente_keeps_deleted_user_deleted_when_email_is_linked_to_another_employee(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        Filament::setCurrentPanel('admin');
+        $existing = User::factory()->create(['email' => 'eliminato@example.com', 'role' => 'employee']);
+        Employee::query()->create([
+            'name' => 'Primo',
+            'email' => 'eliminato@example.com',
+            'user_id' => $existing->id,
+            'hiring_date' => '2020-01-01',
+        ]);
+        $existing->delete();
+        $second = Employee::query()->create([
+            'name' => 'Secondo',
+            'email' => 'eliminato@example.com',
+            'hiring_date' => '2020-01-01',
+        ]);
+
+        Livewire::test(ListEmployees::class)
+            ->callTableAction('createUser', $second)
+            ->assertNotified();
+
+        $this->assertNull($second->refresh()->user_id);
+        $this->assertTrue(User::withTrashed()->find($existing->id)->trashed());
+    }
+
+    public function test_crea_utente_restores_deleted_user_when_linking_it(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        Filament::setCurrentPanel('admin');
+        $existing = User::factory()->create(['email' => 'tornato@example.com', 'role' => 'employee']);
+        $existing->delete();
+        $employee = Employee::query()->create([
+            'name' => 'Terzo',
+            'email' => 'tornato@example.com',
+            'hiring_date' => '2020-01-01',
+        ]);
+
+        Livewire::test(ListEmployees::class)
+            ->callTableAction('createUser', $employee)
+            ->assertNotified();
+
+        $this->assertSame($existing->id, $employee->refresh()->user_id);
+        $this->assertFalse(User::withTrashed()->find($existing->id)->trashed());
+    }
 }
