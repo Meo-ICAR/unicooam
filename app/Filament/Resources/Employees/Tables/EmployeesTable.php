@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Employees\Tables;
 // use App\Filament\Traits\CanExportTable;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Company;
+use App\Models\Employee;
 use App\Models\Task;
+use App\Models\User;
 use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
@@ -23,6 +25,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 
 class EmployeesTable
@@ -69,6 +72,24 @@ class EmployeesTable
                     ->label('Data cessazione')
                     ->date('d/m/y')
                     ->sortable(),
+                TextColumn::make('crea_utente')
+                    ->label('Crea utente')
+                    ->state(fn (Employee $record): ?string => self::canCreateLinkedUser($record) ? 'Crea utente' : null)
+                    ->placeholder('')
+                    ->icon(fn (Employee $record): ?string => self::canCreateLinkedUser($record) ? 'heroicon-m-user-plus' : null)
+                    ->color(fn (Employee $record): ?string => self::canCreateLinkedUser($record) ? 'primary' : null)
+                    ->disabledClick(fn (Employee $record): bool => ! self::canCreateLinkedUser($record))
+                    ->action(
+                        Action::make('createUser')
+                            ->label('Crea utente')
+                            ->visible(fn (Employee $record): bool => self::canCreateLinkedUser($record))
+                            ->requiresConfirmation()
+                            ->modalHeading('Crea utente')
+                            ->modalDescription(fn (Employee $record): string => "Verrà creato un utente con l'email {$record->email} e collegato a {$record->name}.")
+                            ->action(function (Employee $record): void {
+                                self::createLinkedUser($record);
+                            }),
+                    ),
             ])
             ->filters([
                 Filter::make('semestre_attuale')
@@ -166,5 +187,68 @@ class EmployeesTable
                         }),
                 ]),
             ]);  // toolbarActions
+    }
+
+    private static function canCreateLinkedUser(Employee $record): bool
+    {
+        return $record->user_id === null && filled(trim((string) $record->email));
+    }
+
+    private static function createLinkedUser(Employee $record): void
+    {
+        if (! self::canCreateLinkedUser($record)) {
+            return;
+        }
+
+        $email = Str::lower(trim((string) $record->email));
+        $existing = User::withTrashed()->whereRaw('LOWER(email) = ?', [$email])->first();
+
+        if ($existing !== null) {
+            if ($existing->trashed()) {
+                $existing->restore();
+            }
+
+            $linkedToAnotherEmployee = Employee::query()
+                ->where('user_id', $existing->id)
+                ->whereKeyNot($record->id)
+                ->exists();
+
+            if ($linkedToAnotherEmployee) {
+                Notification::make()
+                    ->title('Email già usata')
+                    ->body('Esiste già un utente con questa email collegato a un altro collaboratore.')
+                    ->danger()
+                    ->send();
+
+                return;
+            }
+
+            $record->update(['user_id' => $existing->id]);
+
+            Notification::make()
+                ->title('Utente collegato')
+                ->body("{$record->name} è stato collegato all'utente esistente {$email}.")
+                ->success()
+                ->send();
+
+            return;
+        }
+
+        $user = User::query()->create([
+            'name' => $record->name ?: $email,
+            'email' => $email,
+            'role' => 'employee',
+            'company_id' => $record->company_id,
+            'profile_type' => 'employee',
+            'profile_id' => $record->id,
+        ]);
+
+        $record->update(['user_id' => $user->id]);
+
+        Notification::make()
+            ->title('Utente creato')
+            ->body("Creato l'utente {$email} e collegato a {$record->name}.")
+            ->success()
+            ->send();
     }
 }
