@@ -40,11 +40,11 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()->label('Manuali')->collapsed(),
                 NavigationGroup::make()->label('Settings')->collapsed(),
             ])
-            ->brandLogo(asset('images/unicooam.png'))
+            ->brandLogo(asset('brand/logos/unico-oam.jpg'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
-            //   ->brandLogoHeight('3rem')
+                        ->brandLogoHeight('2.75rem')
             // Imposta l'icona del browser (favicon)
-            ->favicon(asset('images/unicoOAM.png'))
+            ->favicon(asset('brand/icons/unico-oam-64.png'))
 
             ->login()
             ->colors([
