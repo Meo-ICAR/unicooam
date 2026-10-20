@@ -31,7 +31,7 @@ class TaskResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Plichi';
 
-    protected static UnitEnum|string|null $navigationGroup = 'System';
+    protected static UnitEnum|string|null $navigationGroup = 'Settings';
 
     public static function form(Schema $schema): Schema
     {

@@ -37,10 +37,8 @@ class AdminPanelProvider extends PanelProvider
                 //  NavigationGroup::make()->label('Pratiche'),
                 //  NavigationGroup::make()->label('Contabilita'),
                 NavigationGroup::make()->label('Anagrafiche'),  // ->collapsed(),
-                NavigationGroup::make()->label('System')->collapsed(),
-                NavigationGroup::make()->label('Configurazioni')->collapsed(),
-                NavigationGroup::make()->label('Documentazione')->collapsed(),
                 NavigationGroup::make()->label('Manuali')->collapsed(),
+                NavigationGroup::make()->label('Settings')->collapsed(),
             ])
             ->brandLogo(asset('images/unicooam.png'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
@@ -106,7 +104,7 @@ class AdminPanelProvider extends PanelProvider
                 ActivityLogPlugin::make()
                     ->label('Log')
                     ->pluralLabel('Logs')
-                    ->navigationGroup('System')
+                    ->navigationGroup('Settings')
             )
             ->authMiddleware([
                 Authenticate::class,

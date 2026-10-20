@@ -32,7 +32,7 @@ class AssistenteAi extends Page
 
     protected static ?string $navigationLabel = 'Assistente AI';
 
-    protected static UnitEnum|string|null $navigationGroup = 'Documentazione';
+    protected static UnitEnum|string|null $navigationGroup = 'Manuali';
 
     // Dopo i link "Manuale Utente" (99) e "Manuale tecnico OAM" (100) in AdminPanelProvider.
     protected static ?int $navigationSort = 101;

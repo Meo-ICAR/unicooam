@@ -21,7 +21,7 @@
         "neuron-core/neuron-ai": "^3.16",
         "neuron-core/neuron-laravel": "^1.3",
         "owenvoke/blade-fontawesome": "^3.3",
-        "pxlrbt/filament-excel": "^3.6",
+        "pxlrbt/filament-excel": "^4.1",
         "socialiteproviders/google": "^4.1",
         "socialiteproviders/microsoft": "^4.9",
         "spatie/laravel-activitylog": "^5.0"
