@@ -42,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandLogo(asset('brand/logos/unico-oam.jpg'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
-                        ->brandLogoHeight('2.75rem')
+                        ->brandLogoHeight('5rem')
             // Imposta l'icona del browser (favicon)
             ->favicon(asset('brand/icons/unico-oam-64.png'))
 
