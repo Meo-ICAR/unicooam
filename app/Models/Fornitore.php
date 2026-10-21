@@ -13,7 +13,7 @@ use Unico\Core\Models\Fornitore as CoreFornitore;
 
 /**
  * Agenti di commercio / Collaboratori (Fornitori di servizi).
- * Legge e scrive sulla connessione core (unico_core_test in locale).
+ * Legge e scrive sulla connessione core (unicosuite in locale).
  */
 class Fornitore extends CoreFornitore
 {

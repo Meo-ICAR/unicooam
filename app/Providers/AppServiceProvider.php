@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
     {
         config(['unico-core.documents.oam_semester_filter' => true]);
 
-        // Anagrafiche sul database condiviso (connessione `core`, unico_core_test): le migration del pacchetto
+        // Anagrafiche sul database condiviso (connessione `core`, unicosuite): le migration del pacchetto
         // non si eseguono da qui. Nei test UNICO_CORE_DB_CONNECTION coincide col default e le tabelle si creano con `migrate`.
         if (config('unico-core.connection') === config('database.default')) {
             $this->loadMigrationsFrom(UnicoCoreServiceProvider::migrationsPath());

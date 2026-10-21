@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -67,7 +67,7 @@ return [
 
         // Tabelle condivise del pacchetto meo-icar/unico-core (companies, users, employees,
         // clients, fornitoris, clientis, pratiches, provvigioni_rules, ...).
-        // Punta al database unico_core_test condiviso fra tutte le app Unico.
+        // Punta al database unicosuite condiviso fra tutte le app Unico.
         'core' => [
             'driver' => 'mysql',
             'host' => env('CORE_DB_HOST', env('DB_HOST', '127.0.0.1')),
