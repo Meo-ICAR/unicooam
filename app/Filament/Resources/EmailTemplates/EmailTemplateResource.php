@@ -7,7 +7,7 @@ use App\Filament\Resources\EmailTemplates\Pages\EditEmailTemplate;
 use App\Filament\Resources\EmailTemplates\Pages\ListEmailTemplates;
 use App\Filament\Resources\EmailTemplates\Schemas\EmailTemplateForm;
 use App\Filament\Resources\EmailTemplates\Tables\EmailTemplatesTable;
-use App\Filament\Traits\HasPlanAccess;
+use App\Filament\Traits\ManagedInUnicobpm;
 use App\Models\EmailTemplate;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -18,7 +18,10 @@ use UnitEnum;
 
 class EmailTemplateResource extends Resource
 {
-    use HasPlanAccess;
+    use ManagedInUnicobpm;
+
+    /** Percorso della risorsa in UnicoBPM, dove si modifica. */
+    public const BPM_SLUG = 'email-templates';
 
     protected static ?string $model = EmailTemplate::class;
 

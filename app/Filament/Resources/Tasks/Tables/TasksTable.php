@@ -2,13 +2,11 @@
 
 namespace App\Filament\Resources\Tasks\Tables;
 
+use App\Filament\Resources\Tasks\TaskResource;
 use App\Models\Company;
 use App\Models\Fornitore;
 use App\Models\Task;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -149,36 +147,7 @@ class TasksTable
                     ),
             ])
             ->recordActions([
-                EditAction::make(),
-                // ... all'interno di ->actions([
-                Action::make('clone')
-                    ->label('Clona')
-                    ->icon('heroicon-o-document-duplicate')
-                    ->color('warning')
-                    ->requiresConfirmation()
-                    ->modalHeading('Clona Task e Documenti')
-                    ->modalDescription('Sei sicuro di voler clonare questo task insieme a tutti i tipi di documento associati?')
-                    ->action(function ($record) {
-                        // 1. Clona l'istanza del Task
-                        $clonedTask = $record->replicate();
-
-                        // Opzionale: Modifica il nome per distinguere il clone
-                        $clonedTask->name = $clonedTask->name.' (Copia)';
-                        $clonedTask->save();
-
-                        foreach ($record->documentRequirements as $requirement) {
-                            $clonedTask->documentRequirements()->create($requirement->only(['document_type_id', 'is_required', 'sort_order', 'documentable', 'client_roles', 'signer_model', 'phase']));
-                        }
-
-                        foreach ($record->getMedia('documents') as $media) {
-                            $media->copy($clonedTask, 'documents');
-                        }
-
-                        Notification::make()
-                            ->title('Task clonato con successo!')
-                            ->success()
-                            ->send();
-                    }),
+                TaskResource::openInUnicobpmAction(),
             ])
             ->headerActions([
                 Action::make('create')
@@ -229,11 +198,6 @@ class TasksTable
                                 ->send();
                         }
                     }),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }

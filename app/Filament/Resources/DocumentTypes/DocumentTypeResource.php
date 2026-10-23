@@ -7,7 +7,7 @@ use App\Filament\Resources\DocumentTypes\Pages\EditDocumentType;
 use App\Filament\Resources\DocumentTypes\Pages\ListDocumentTypes;
 use App\Filament\Resources\DocumentTypes\Schemas\DocumentTypeForm;
 use App\Filament\Resources\DocumentTypes\Tables\DocumentTypesTable;
-use App\Filament\Traits\HasPlanAccess;
+use App\Filament\Traits\ManagedInUnicobpm;
 use App\Models\DocumentType;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -20,7 +20,10 @@ use UnitEnum;
 
 class DocumentTypeResource extends Resource
 {
-    use HasPlanAccess;
+    use ManagedInUnicobpm;
+
+    /** Percorso della risorsa in UnicoBPM, dove si modifica. */
+    public const BPM_SLUG = 'document-types';
 
     protected static ?string $model = DocumentType::class;
 

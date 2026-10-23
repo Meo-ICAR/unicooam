@@ -2,9 +2,7 @@
 
 namespace App\Filament\Resources\EmailTemplates\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use App\Filament\Resources\EmailTemplates\EmailTemplateResource;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TernaryFilter;
@@ -45,12 +43,7 @@ class EmailTemplatesTable
                     ->default(true),
             ])
             ->recordActions([
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                EmailTemplateResource::openInUnicobpmAction(),
             ]);
     }
 }

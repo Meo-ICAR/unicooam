@@ -2,11 +2,8 @@
 
 namespace App\Filament\Resources\DocumentTypes\Tables;
 
+use App\Filament\Resources\DocumentTypes\DocumentTypeResource;
 use App\Models\DocumentType;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -122,13 +119,7 @@ class DocumentTypesTable
             // AZIONI DI RIGA E DI GRUPPO
             // ==========================================
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                DocumentTypeResource::openInUnicobpmAction(),
             ]);
     }
 }
