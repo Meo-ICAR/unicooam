@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Employees\Tables;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\Company;
 use App\Models\Employee;
+use App\Models\EmployeeType;
 use App\Models\Task;
 use App\Models\User;
 use App\ValueObjects\OamSemester;
@@ -53,8 +54,14 @@ class EmployeesTable
                     ->searchable(),
                 TextColumn::make('employee_roles')
                     ->label('Ruolo')
+                    ->badge()
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('uffici')
+                    ->label('Ufficio')
+                    ->state(fn (Employee $record): array => EmployeeType::query()->whereIn('name', (array) $record->employee_roles)->whereNotNull('code')->orderBy('description')->pluck('description')->all())
+                    ->listWithLineBreaks()
+                    ->placeholder('—'),
 
                 TextColumn::make('hiring_date')
                     ->label('Data assunzione')
@@ -102,17 +109,14 @@ class EmployeesTable
                             : $query;
                     }),
 
-                SelectFilter::make('employee_types')
-                    ->label('Filtra per Ruolo')
-                    ->options([
-                        'dipendente' => 'Dipendente',
-                        'cda' => 'CdA',
-                        'compliance' => 'Compliance',
-                        'audit' => 'Audit',
-                        'quality' => 'Quality',
-                    ])
-                    ->query(fn (Builder $query, array $data): Builder => $data['value']
-                            ? $query->whereJsonContains('employee_types', $data['value'])
+                SelectFilter::make('employee_roles')
+                    ->label('Ruolo / ufficio')
+                    ->options(fn (): array => EmployeeType::query()->orderBy('name')->get()
+                        ->mapWithKeys(fn (EmployeeType $role): array => [$role->name => $role->code ? "{$role->description} ({$role->name})" : ucfirst($role->name)])
+                        ->all())
+                    ->searchable()
+                    ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                            ? $query->whereJsonContains('employee_roles', $data['value'])
                             : $query
                     ),
 

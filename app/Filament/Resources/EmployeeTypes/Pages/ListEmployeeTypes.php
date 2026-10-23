@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\EmployeeTypes\Pages;
 
 use App\Filament\Resources\EmployeeTypes\EmployeeTypeResource;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListEmployeeTypes extends ListRecords
@@ -11,6 +12,8 @@ class ListEmployeeTypes extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            CreateAction::make(),
+        ];
     }
 }

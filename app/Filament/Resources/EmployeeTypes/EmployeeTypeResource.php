@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\EmployeeTypes;
 
+use App\Filament\Resources\EmployeeTypes\Pages\CreateEmployeeType;
 use App\Filament\Resources\EmployeeTypes\Pages\EditEmployeeType;
 use App\Filament\Resources\EmployeeTypes\Pages\ListEmployeeTypes;
 use App\Filament\Resources\EmployeeTypes\Pages\ViewEmployeeType;
@@ -27,9 +28,9 @@ class EmployeeTypeResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static UnitEnum|string|null $navigationGroup = 'Settings';
+    protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
-    protected static ?string $navigationLabel = 'Ruoli';
+    protected static ?string $navigationLabel = 'Ruoli e uffici';
 
     protected static ?string $modelLabel = 'Ruolo';
 
@@ -66,19 +67,10 @@ class EmployeeTypeResource extends Resource
     {
         return [
             'index' => ListEmployeeTypes::route('/'),
+            'create' => CreateEmployeeType::route('/create'),
             'view' => ViewEmployeeType::route('/{record}'),
             'edit' => EditEmployeeType::route('/{record}/edit'),
         ];
-    }
-
-    public static function canCreate(): bool
-    {
-        return false;
-    }
-
-    public static function canEdit(Model $record): bool
-    {
-        return false;
     }
 
     public static function canDelete(Model $record): bool
