@@ -2,9 +2,10 @@
 
 namespace App\Filament\Exports\Sheets;
 
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class OamCompletoExport implements WithMultipleSheets
+class OamCompletoExport implements Export, WithMultipleSheets
 {
     protected array $datiAnagrafica;
 

@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Fornitore;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
@@ -10,11 +11,18 @@ use Tests\TestCase;
 
 /**
  * Verifica la regola di unicità della partita IVA usata dal form Fornitore
- * (App\Filament\Resources\Fornitores\Schemas\FornitoreForm). Le assertion
- * leggono record dal database core condiviso.
+ * (App\Filament\Resources\Fornitores\Schemas\FornitoreForm). Ogni test crea i
+ * fornitori che gli servono: non dipende dai dati del database condiviso.
  */
 class FornitorePivaUniqueRuleTest extends TestCase
 {
+    use LazilyRefreshDatabase;
+
+    /**
+     * @var array<int, string>
+     */
+    protected array $connectionsToTransact = [null, 'core'];
+
     private function pivaUniqueRule(): Unique
     {
         return Rule::unique(Fornitore::class, 'piva')
@@ -23,11 +31,8 @@ class FornitorePivaUniqueRuleTest extends TestCase
 
     public function test_placeholder_piva_values_do_not_conflict_with_each_other(): void
     {
-        $record = Fornitore::where('piva', '---')->first();
-
-        if (! $record) {
-            $this->markTestSkipped('Nessun fornitore con piva placeholder "---" sul database proforma per il test.');
-        }
+        $record = Fornitore::create(['name' => 'Segnaposto 1', 'piva' => '---']);
+        Fornitore::create(['name' => 'Segnaposto 2', 'piva' => '---']);
 
         $validator = Validator::make(
             ['piva' => '---'],
@@ -39,11 +44,8 @@ class FornitorePivaUniqueRuleTest extends TestCase
 
     public function test_blank_piva_values_do_not_conflict_with_each_other(): void
     {
-        $record = Fornitore::where(fn ($query) => $query->whereNull('piva')->orWhere('piva', ''))->first();
-
-        if (! $record) {
-            $this->markTestSkipped('Nessun fornitore con piva vuota sul database proforma per il test.');
-        }
+        $record = Fornitore::create(['name' => 'Senza piva 1', 'piva' => '']);
+        Fornitore::create(['name' => 'Senza piva 2', 'piva' => null]);
 
         $validator = Validator::make(
             ['piva' => ''],
@@ -55,23 +57,11 @@ class FornitorePivaUniqueRuleTest extends TestCase
 
     public function test_a_genuinely_duplicated_piva_still_fails_validation(): void
     {
-        $duplicatedPiva = Fornitore::query()
-            ->whereNotNull('piva')
-            ->where('piva', '!=', '')
-            ->where('piva', '!=', '---')
-            ->select('piva')
-            ->groupBy('piva')
-            ->havingRaw('count(*) > 1')
-            ->value('piva');
-
-        if (! $duplicatedPiva) {
-            $this->markTestSkipped('Nessuna partita IVA realmente duplicata sul database proforma per il test.');
-        }
-
-        $firstRecord = Fornitore::where('piva', $duplicatedPiva)->first();
+        $firstRecord = Fornitore::create(['name' => 'Doppione 1', 'piva' => 'IT-DOPPIA-123']);
+        Fornitore::create(['name' => 'Doppione 2', 'piva' => 'IT-DOPPIA-123']);
 
         $validator = Validator::make(
-            ['piva' => $duplicatedPiva],
+            ['piva' => 'IT-DOPPIA-123'],
             ['piva' => [$this->pivaUniqueRule()->ignore($firstRecord->id)]]
         );
 

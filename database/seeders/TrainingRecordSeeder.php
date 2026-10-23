@@ -20,7 +20,6 @@ class TrainingRecordSeeder extends Seeder
         $companyId = DB::table('companies')->value('id') ?? (string) Str::uuid();
 
         // Per il polimorfismo stabiliamo che il corso sia frequentato da un Fornitore
-        $fornitoreId = Fornitore::first()->id;
         $trainableType = Fornitore::class;
         $userId = User::first()->id;
 
@@ -66,11 +65,11 @@ class TrainingRecordSeeder extends Seeder
                 'notes' => 'Attestato di sola frequenza richiesto dal reparto HR.',
                 'created_at' => now(),
                 'updated_at' => now(),
-            ]
+            ],
         ];
 
         // Se le tabelle principali sono vuote disabilitiamo temporaneamente i controlli FK per sicurezza
-        if (!DB::table('companies')->exists()) {
+        if (! DB::table('companies')->exists()) {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             TrainingRecord::insert($records);
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');

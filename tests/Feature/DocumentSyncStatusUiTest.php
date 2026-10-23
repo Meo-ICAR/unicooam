@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use Unico\Core\Enums\DocumentStatus;
-use Unico\Core\Enums\SyncStatus;
 use App\Filament\Resources\Documents\Pages\ListDocuments;
 use App\Jobs\UploadDocumentToSharePoint;
 use App\Models\Company;
@@ -20,6 +18,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
+use Unico\Core\Enums\DocumentStatus;
+use Unico\Core\Enums\SyncStatus;
 
 class DocumentSyncStatusUiTest extends TestCase
 {
@@ -83,10 +83,10 @@ class DocumentSyncStatusUiTest extends TestCase
     {
         Storage::fake('public');
         config([
-            'services.sharepoint.tenant_id' => 't',
-            'services.sharepoint.client_id' => 'c',
-            'services.sharepoint.client_secret' => 's',
-            'services.sharepoint.drive_id' => 'D',
+            'unico-core.sharepoint.tenant_id' => 't',
+            'unico-core.sharepoint.client_id' => 'c',
+            'unico-core.sharepoint.client_secret' => 's',
+            'unico-core.sharepoint.drive_id' => 'D',
         ]);
         Bus::fake();
         $document = $this->document(SyncStatus::FAILED->value, ['sync_error' => 'boom'], withMedia: true);
@@ -96,23 +96,23 @@ class DocumentSyncStatusUiTest extends TestCase
             ->callAction(TestAction::make('retrySharePointUpload')->table($document))
             ->assertNotified('Upload rimesso in coda');
 
-        Bus::assertDispatched(UploadDocumentToSharePoint::class, fn ($job) => $job->documentId === $document->id);
+        Bus::assertDispatched(UploadDocumentToSharePoint::class, fn ($job) => $job->documentId === (string) $document->id);
     }
 
     public function test_retry_action_is_hidden_for_synced_documents_and_when_sharepoint_is_not_configured(): void
     {
         Storage::fake('public');
         Bus::fake();
-        config(['services.sharepoint.drive_id' => null]);
+        config(['unico-core.sharepoint.drive_id' => null]);
         $failedUnconfigured = $this->document(SyncStatus::FAILED->value, withMedia: true);
 
         $this->listPage()->assertActionHidden(TestAction::make('retrySharePointUpload')->table($failedUnconfigured));
 
         config([
-            'services.sharepoint.tenant_id' => 't',
-            'services.sharepoint.client_id' => 'c',
-            'services.sharepoint.client_secret' => 's',
-            'services.sharepoint.drive_id' => 'D',
+            'unico-core.sharepoint.tenant_id' => 't',
+            'unico-core.sharepoint.client_id' => 'c',
+            'unico-core.sharepoint.client_secret' => 's',
+            'unico-core.sharepoint.drive_id' => 'D',
         ]);
         $synced = $this->document(SyncStatus::SYNCED->value, ['web_url' => 'https://sp/x'], withMedia: true);
 

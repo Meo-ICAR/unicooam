@@ -4,18 +4,21 @@ namespace App\Filament\Exports;
 
 use App\Exports\Sheets\M510AnagraficaSheet;
 use App\Exports\Sheets\M510PrudenzialeSheet;
-use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-// Importa i tuoi modelli reali del database
 use App\Models\Audit;
 use App\Models\Company;
 use App\Models\Employee;
+// Importa i tuoi modelli reali del database
+use Maatwebsite\Excel\Concerns\Export;
+use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class OamSemestraleExport implements WithMultipleSheets
+class OamSemestraleExport implements Export, WithMultipleSheets
 {
     use Exportable;
 
     protected int $anno;
+
     protected int $semestre;
 
     public function __construct(int $anno, int $semestre)
@@ -92,19 +95,22 @@ class OamSemestraleExport implements WithMultipleSheets
             new M510AnagraficaSheet($datiAnagrafica),
             new M510PrudenzialeSheet($datiPrudenziale),
             // Placeholder temporanei per gli altri 3 fogli per non far fallire l'esportazione a 5 tab
-            new class implements \Maatwebsite\Excel\Concerns\WithTitle {
+            new class implements WithTitle
+            {
                 public function title(): string
                 {
                     return 'Profilo Economico Base';
                 }
             },
-            new class implements \Maatwebsite\Excel\Concerns\WithTitle {
+            new class implements WithTitle
+            {
                 public function title(): string
                 {
                     return 'Trasparenza';
                 }
             },
-            new class implements \Maatwebsite\Excel\Concerns\WithTitle {
+            new class implements WithTitle
+            {
                 public function title(): string
                 {
                     return 'Antiriciclaggio';

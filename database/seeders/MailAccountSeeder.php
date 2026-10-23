@@ -23,6 +23,11 @@ class MailAccountSeeder extends Seeder
             'imap_port' => 993,
             'imap_username' => 'amministrazione@pec.racesfinance.it',
             'imap_password' => 'SuperSecretPecPassword2026!',
+            // Colonne storiche della tabella condivisa (obbligatorie): stessi valori dell'IMAP.
+            'incoming_host' => 'imaps.pec.aruba.it',
+            'incoming_port' => 993,
+            'incoming_username' => 'amministrazione@pec.racesfinance.it',
+            'incoming_password' => 'SuperSecretPecPassword2026!',
             'imap_encryption' => 'ssl',
             'smtp_host' => 'smtps.pec.aruba.it',
             'smtp_port' => 465,
@@ -44,6 +49,11 @@ class MailAccountSeeder extends Seeder
             'imap_port' => 993,
             'imap_username' => 'compilance@races.it',
             'imap_password' => 'SuperSecretPecPassword2026!',
+            // Colonne storiche della tabella condivisa (obbligatorie): stessi valori dell'IMAP.
+            'incoming_host' => 'imaps.pec.aruba.it',
+            'incoming_port' => 993,
+            'incoming_username' => 'compilance@races.it',
+            'incoming_password' => 'SuperSecretPecPassword2026!',
             'imap_encryption' => 'ssl',
             'smtp_host' => 'smtps.pec.aruba.it',
             'smtp_port' => 465,

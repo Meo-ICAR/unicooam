@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property string $id
@@ -216,7 +217,7 @@ class Clienti extends Model
         return $this
             ->belongsToMany(
                 OamCode::class,  // Il modello correlato
-                'unicooam.clienti_oam',  // La tabella pivot personalizzata
+                DB::connection()->getDatabaseName().'.clienti_oam',  // La tabella pivot personalizzata; il database è quello in uso, non scritto a mano
                 'clienti_id',  // La chiave esterna di questa tabella nella pivot
                 'oam_code_id'  // La chiave esterna del modello correlato nella pivot
             )

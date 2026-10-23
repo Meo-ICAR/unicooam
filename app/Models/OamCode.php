@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Facades\DB;
 use Unico\Core\Models\OamCode as CoreOamCode;
 
 class OamCode extends CoreOamCode
@@ -18,7 +19,7 @@ class OamCode extends CoreOamCode
         return $this
             ->belongsToMany(
                 Clienti::class,
-                'unicooam.clienti_oam',  // Qualificata: la relazione interroga la connessione di Clienti (mysql_proforma), dove la tabella pivot non esiste
+                DB::connection()->getDatabaseName().'.clienti_oam',  // Qualificata: la relazione interroga la connessione di Clienti (mysql_proforma), dove la tabella pivot non esiste; il database è quello in uso, non scritto a mano
                 'oam_code_id',  // Invertito: prima la chiave di questo modello nella pivot
                 'clienti_id'  // Poi la chiave del modello correlato
             )
@@ -73,14 +74,23 @@ class OamCode extends CoreOamCode
         return $query->whereNotExists(fn (QueryBuilder $subQuery) => $this->addConvenzioniExistsConstraints($subQuery));
     }
 
+    /**
+     * Convenzioni attive del codice OAM. I nomi dei database vengono dalle connessioni (di norma lo stesso, unicosuite):
+     * scriverli a mano farebbe leggere un database diverso da quello in uso, anche nei test.
+     */
     protected function addConvenzioniExistsConstraints(QueryBuilder $subQuery): void
     {
+        $pivot = $this->getConnection()->getDatabaseName().'.clienti_oam';
+        $clientis = $this->getConnection()->getDatabaseName() === DB::connection('mysql_proforma')->getDatabaseName()
+            ? 'clientis'
+            : DB::connection('mysql_proforma')->getDatabaseName().'.clientis';
+
         $subQuery
             ->selectRaw('1')
-            ->from('unicooam.clienti_oam')
-            ->join('proforma.clientis', 'proforma.clientis.id', '=', 'unicooam.clienti_oam.clienti_id')
-            ->whereColumn('unicooam.clienti_oam.oam_code_id', $this->getTable().'.id')
-            ->where('proforma.clientis.is_active', true)
-            ->whereNull('proforma.clientis.deleted_at');
+            ->from($pivot)
+            ->join($clientis, "{$clientis}.id", '=', "{$pivot}.clienti_id")
+            ->whereColumn("{$pivot}.oam_code_id", $this->getTable().'.id')
+            ->where("{$clientis}.is_active", true)
+            ->whereNull("{$clientis}.deleted_at");
     }
 }

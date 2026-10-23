@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Filament\Exports\Sheets\M510EconomicoOldSheet;
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Facades\Excel;
@@ -68,7 +69,7 @@ class M510EconomicoOldSheetTest extends TestCase
         // trattato come "vuoto", lasciando la cella bianca invece di scrivere 0.
         $sheet = new M510EconomicoOldSheet($this->rows());
 
-        $export = new class($sheet) implements WithMultipleSheets
+        $export = new class($sheet) implements Export, WithMultipleSheets
         {
             use Exportable;
 

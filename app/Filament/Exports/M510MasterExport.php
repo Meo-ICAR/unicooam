@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Exports;
 
 use App\Filament\Exports\Sheets\M510AnagraficaSheet;
@@ -6,17 +7,22 @@ use App\Filament\Exports\Sheets\M510EconomicoBaseSheet;
 use App\Filament\Exports\Sheets\M510InformativoSheet;
 use App\Filament\Exports\Sheets\M510PrudenzialeSheet;
 use App\Filament\Exports\Sheets\M510SediSheet;
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class M510MasterExport implements WithMultipleSheets
+class M510MasterExport implements Export, WithMultipleSheets
 {
     use Exportable;
 
     protected array $datiAnagrafica;
+
     protected array $datiEconomico;
+
     protected array $datiPrudenziale;
+
     protected array $datiInformativo;
+
     protected array $datiSedi;
 
     public function __construct(

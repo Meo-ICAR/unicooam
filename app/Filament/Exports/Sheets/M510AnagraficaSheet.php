@@ -2,13 +2,14 @@
 
 namespace App\Filament\Exports\Sheets;
 
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class M510AnagraficaSheet implements WithEvents, WithTitle
+class M510AnagraficaSheet implements Export, WithEvents, WithTitle
 {
     protected array $dati;
 
@@ -44,12 +45,12 @@ class M510AnagraficaSheet implements WithEvents, WithTitle
                 $sheet->getStyle('A1:B1')->applyFromArray([
                     'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => '008080']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
                 $sheet->getStyle('C1:D1')->applyFromArray([
                     'font' => ['bold' => true, 'italic' => true, 'underlined' => true, 'color' => ['argb' => 'FFCC0000']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFF2F2F2']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
                 // --- MAPPARE I CAMPI DEL DATABASE DEL TUO ARRAY ---
@@ -101,7 +102,7 @@ class M510AnagraficaSheet implements WithEvents, WithTitle
                     $sheet->setCellValue("C{$riga}", $info[2]);
                     $this->applicaStileRigaForm($sheet, $riga);
                 }
-            }
+            },
         ];
     }
 

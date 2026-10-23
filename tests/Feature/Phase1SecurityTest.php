@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Unico\Core\Enums\DocumentStatus;
 use App\Filament\Resources\Audits\AuditResource;
 use App\Filament\Resources\Employees\EmployeeResource;
 use App\Models\Company;
@@ -12,6 +11,7 @@ use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Tests\TestCase;
+use Unico\Core\Enums\DocumentStatus;
 
 class Phase1SecurityTest extends TestCase
 {
@@ -52,18 +52,19 @@ class Phase1SecurityTest extends TestCase
     public function test_plan_feature_gate_reads_config_not_env(): void
     {
         config()->set('unico-core.access.plan', 'full');
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
 
         $this->assertTrue(checkPiano('audits'));
     }
 
-    public function test_restricted_role_cannot_access_resource_by_authorization_method(): void
+    public function test_inspector_can_view_resources_but_not_create(): void
     {
         $inspector = User::factory()->create(['role' => 'inspector']);
         $this->actingAs($inspector);
 
-        // L'ispettore ha "audits" fra le sue feature ma non "employees".
+        // L'ispettore è un admin in sola lettura: vede ciò che il piano copre, non crea né modifica.
         $this->assertTrue(AuditResource::canViewAny());
-        $this->assertFalse(EmployeeResource::canViewAny());
+        $this->assertTrue(EmployeeResource::canViewAny());
         $this->assertFalse(EmployeeResource::canCreate());
     }
 

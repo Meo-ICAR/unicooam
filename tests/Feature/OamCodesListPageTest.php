@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\OamCodes\Pages\ListOamCodes;
 use App\Models\OamCode;
-use App\Models\PROFORMA\Clienti;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -52,17 +51,19 @@ class OamCodesListPageTest extends TestCase
             'is_active' => true,
         ]);
 
-        $clienteAttivo = Clienti::where('is_active', true)->first();
-        $this->assertNotNull($clienteAttivo, 'Serve almeno un cliente attivo sul database proforma per il test.');
+        // Gli id di clientis sono interi (schema condiviso): si inserisce senza passare dal modello, che genera UUID.
+        $clienteId = DB::connection('mysql_proforma')->table('clientis')->insertGetId(['name' => 'Banca di prova', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()]);
 
         DB::connection('mysql')->table('clienti_oam')->insert([
-            'clienti_id' => $clienteAttivo->id,
+            'clienti_id' => $clienteId,
             'oam_code_id' => $conProdotto->id,
         ]);
 
         $this->actingAs(User::factory()->create());
 
+        // Si cerca per prefisso così gli altri codici presenti nella tabella non spingono i due di prova su un'altra pagina.
         Livewire::test(ListOamCodes::class)
+            ->searchTable('TEST.')
             ->filterTable('clienti_count', true)
             ->assertCanSeeTableRecords([$conProdotto])
             ->assertCanNotSeeTableRecords([$senzaProdotto])
