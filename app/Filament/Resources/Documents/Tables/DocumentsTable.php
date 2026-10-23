@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Documents\Tables;
 
-use Unico\Core\Enums\DocumentStatus;
 use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Utils\TableHelper;
 use App\Models\Document;
@@ -26,6 +25,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
+use Unico\Core\Enums\DocumentStatus;
 
 class DocumentsTable
 {
@@ -101,6 +101,8 @@ class DocumentsTable
                         'complaint' => 'Registri Reclami',
 
                         'cliente' => 'Clienti',
+                        'clienti' => 'Clienti',
+                        'audit_checklist_evaluation' => 'Voce checklist audit',
                         'company' => 'Aziende',
 
                         'employee' => 'Dipendenti',

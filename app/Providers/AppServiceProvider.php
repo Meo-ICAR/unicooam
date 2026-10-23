@@ -47,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
             'audit' => Audit::class,
             'branch' => Branch::class,
             'cliente' => Clienti::class,
+            'clienti' => Clienti::class,
             'company' => Company::class,
             'complaint' => ComplaintRegistry::class,
             'document' => Document::class,

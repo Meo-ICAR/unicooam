@@ -29,7 +29,9 @@ class TableHelper
                     'employee' => 'Dipendente',
                     'audit' => 'Audit',
                     'complaint' => 'Reclamo',
+                    'audit_checklist_evaluation' => 'Voce checklist audit',
                     'cliente' => 'Istituto',
+                    'clienti' => 'Istituto',
                     'branch' => 'Filiale',
                 ];
 

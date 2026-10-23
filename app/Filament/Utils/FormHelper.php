@@ -21,7 +21,9 @@ class FormHelper
                     'audit' => 'Audit',
                     'company' => 'Azienda',
                     'employee' => 'Dipendente',
+                    'audit_checklist_evaluation' => 'Voce checklist audit',
                     'cliente' => 'Mandante',
+                    'clienti' => 'Mandante',
                     'fornitore' => 'Produttore',
                     'branch' => 'Filiale',
                 ];
