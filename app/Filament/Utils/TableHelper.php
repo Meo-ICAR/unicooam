@@ -25,6 +25,7 @@ class TableHelper
                 // Dizionario delle tue traduzioni commerciali personalizzate
                 $labels = [
                     'fornitore' => 'Produttore',
+                    'client' => 'Cliente',
                     'company' => 'Azienda',
                     'employee' => 'Dipendente',
                     'audit' => 'Audit',

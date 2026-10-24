@@ -14,25 +14,23 @@ use App\Models\EmailTemplate;
 use App\Models\Employee;
 use App\Models\Fornitore;
 use App\Services\DocumentReminderService;
-use Unico\Core\Documents\Reminders\DocumentReminderService as CoreDocumentReminderService;
-use Unico\Core\Documents\Reminders\ReminderDraft;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\DatePicker;  // Importante per il form nel modal
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Placeholder;  // Importante per il form nel modal
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
-// use Illuminate\Support\Collection;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
+// use Illuminate\Support\Collection;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -50,6 +48,8 @@ use Illuminate\Support\HtmlString;
 use Maatwebsite\Excel\Excel as ExcelFormat;
 use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
+use Unico\Core\Documents\Reminders\DocumentReminderService as CoreDocumentReminderService;
+use Unico\Core\Documents\Reminders\ReminderDraft;
 use UnitEnum;
 
 class DocumentScheduleResource extends Resource
@@ -171,7 +171,7 @@ class DocumentScheduleResource extends Resource
                     ->query(fn (Builder $query): Builder => $query
                         ->whereDate('expires_at', '>=', now()->toDateString())
                         ->whereDate('expires_at', '<=', now()->addDays(30)->toDateString())),
-                TableHelper::polymorphicFilter('documentable_type', 'Destinatari'),
+                TableHelper::polymorphicFilter('documentable_type', 'Destinatari')->default('fornitore'),
                 Filter::make('last_sent_at')
                     ->label('Ultimo sollecito prima 7gg')
                     ->query(fn (Builder $query): Builder => $query->whereDate('expires_at', '<', now()->subDays(7)->toDateString())),

@@ -83,7 +83,6 @@ class ClientisTable
                 Filter::make('semestre_attuale')
                     ->label('Solo semestre in corso')
                     ->toggle() // <--- Trasforma la Checkbox in un interruttore Toggle grafico
-                    ->default(true)
                     ->query(function (Builder $query, array $data): Builder {
                         return $data['isActive']
                             ? $query->perSemestreOam(OamSemester::getInBaseAlMeseCorrente())

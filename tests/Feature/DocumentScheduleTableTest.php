@@ -59,6 +59,7 @@ class DocumentScheduleTableTest extends TestCase
 
         foreach (['expires_at', 'entity_name', 'document_name', 'days_until_expiry', 'reminders_count', 'last_sent_at'] as $column) {
             Livewire::test(ManageDocumentSchedules::class)
+                ->removeTableFilter('documentable_type')
                 ->sortTable($column)
                 ->assertSuccessful()
                 ->sortTable($column, 'desc')
@@ -66,6 +67,7 @@ class DocumentScheduleTableTest extends TestCase
         }
 
         Livewire::test(ManageDocumentSchedules::class)
+            ->removeTableFilter('documentable_type')
             ->searchTable('ROSSI')
             ->assertCanSeeTableRecords([$rossi])
             ->assertCanNotSeeTableRecords([$bianchi])
@@ -81,6 +83,7 @@ class DocumentScheduleTableTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test(ManageDocumentSchedules::class)
+            ->removeTableFilter('documentable_type')
             ->searchTable('rossi@example.com')
             ->assertCanSeeTableRecords([$rossi])
             ->assertCanNotSeeTableRecords([$bianchi]);
@@ -94,6 +97,7 @@ class DocumentScheduleTableTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test(ManageDocumentSchedules::class)
+            ->removeTableFilter('documentable_type')
             ->searchTable('rossi@example.com')
             ->assertSuccessful()
             ->assertCanSeeTableRecords([$rossi])
@@ -111,8 +115,26 @@ class DocumentScheduleTableTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test(ManageDocumentSchedules::class)
+            ->removeTableFilter('documentable_type')
             ->assertTableColumnExists('document_name', fn ($column) => $column->getUrl() === route('documents.download', $withFile->document_id), $withFile)
             ->assertTableColumnExists('document_name', fn ($column) => $column->getUrl() === route('documents.download', $withUrl->document_id), $withUrl)
             ->assertTableColumnExists('document_name', fn ($column) => $column->getUrl() === null, $without);
+    }
+
+    public function test_the_recipients_filter_defaults_to_the_producer_and_can_be_removed(): void
+    {
+        $produttore = $this->schedule('ZZ PRODUTTORE', 'Doc produttore', now()->addDays(5)->toDateString());
+        $produttore->forceFill(['documentable_type' => 'fornitore', 'documentable_id' => (string) Str::uuid()])->save();
+        $this->schedule('ZZ DIPENDENTE', 'Doc dipendente', now()->addDays(6)->toDateString());
+
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test(ManageDocumentSchedules::class)
+            ->assertCountTableRecords(1)
+            ->assertSee('ZZ PRODUTTORE')
+            ->assertDontSee('ZZ DIPENDENTE')
+            ->removeTableFilter('documentable_type')
+            ->assertCountTableRecords(2)
+            ->assertSee('ZZ DIPENDENTE');
     }
 }

@@ -53,6 +53,7 @@ class BulkReminderActionTest extends TestCase
         $this->actingAs($admin);
 
         Livewire::test(ManageDocumentSchedules::class)
+            ->removeTableFilter('documentable_type')
             ->selectTableRecords([$row->getKey()])
             ->callAction(TestAction::make('inviaSollecito')->table()->bulk(), ['email_template_id' => $template->id, 'subject' => $template->subject, 'body' => $template->body, 'is_demo' => false])
             ->assertHasNoActionErrors();
@@ -70,6 +71,7 @@ class BulkReminderActionTest extends TestCase
         $this->actingAs(User::factory()->create(['email' => 'admin@example.com']));
 
         Livewire::test(ManageDocumentSchedules::class)
+            ->removeTableFilter('documentable_type')
             ->selectTableRecords([$row->getKey()])
             ->callAction(TestAction::make('inviaSollecito')->table()->bulk(), ['email_template_id' => $template->id, 'subject' => 'Oggetto', 'body' => '<p>Testo</p>', 'is_demo' => true]);
 
