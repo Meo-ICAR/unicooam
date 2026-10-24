@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\Employee;
+use App\Models\Fornitore;
 use App\Services\DocumentReminderService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
@@ -91,6 +92,47 @@ class CheckStatusApiControllerTest extends TestCase
             ->assertJsonPath('command', 'documents:check-expired');
 
         $this->assertStringContainsString('scaduto il', (string) $response->json('value'));
+    }
+
+    public function test_a_renewed_document_is_not_counted_while_the_new_one_is(): void
+    {
+        $old = $this->documentExpiringIn(-5);
+        $new = $this->documentExpiringIn(10);
+
+        $this->assertSame(2, (int) app(DocumentReminderService::class)->expiryStatus()->value);
+
+        $old->forceFill(['renewed_by' => $new->getKey()])->saveQuietly();
+
+        $this->assertSame(1, (int) app(DocumentReminderService::class)->expiryStatus()->value);
+    }
+
+    public function test_the_documents_of_a_dismissed_producer_are_never_counted_nor_scheduled(): void
+    {
+        $document = $this->documentExpiringIn(-5);
+        $producer = Fornitore::query()->create(['name' => 'Produttore dimesso', 'piva' => '97'.random_int(100000000, 999999999)]);
+        $document->forceFill(['documentable_type' => 'fornitore', 'documentable_id' => (string) $producer->getKey()])->saveQuietly();
+        $service = app(DocumentReminderService::class);
+
+        $this->assertSame(1, (int) $service->expiryStatus()->value);
+        $this->assertSame(1, $service->scheduleQuery()->count());
+
+        $producer->forceFill(['dismissed_at' => now()->subDay()])->saveQuietly();
+
+        $this->assertSame(0, (int) $service->expiryStatus()->value);
+        $this->assertSame(0, $service->scheduleQuery()->count());
+    }
+
+    public function test_the_documents_of_a_terminated_employee_are_not_counted(): void
+    {
+        $document = $this->documentExpiringIn(-5);
+        $employee = Employee::query()->findOrFail($document->documentable_id);
+        $document->forceFill(['documentable_type' => 'employee'])->saveQuietly();
+
+        $this->assertSame(1, (int) app(DocumentReminderService::class)->expiryStatus()->value);
+
+        $employee->forceFill(['termination_date' => now()->subDay()])->saveQuietly();
+
+        $this->assertSame(0, (int) app(DocumentReminderService::class)->expiryStatus()->value);
     }
 
     public function test_api_rejects_commands_that_are_not_checks(): void
