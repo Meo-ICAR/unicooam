@@ -15,7 +15,7 @@ class DocumentReminderService
 {
     public function __construct(private CoreDocumentReminderService $core) {}
 
-    public function expiryStatus(int $windowDays = 30): CheckStatus
+    public function expiryStatus(int $windowDays = 15): CheckStatus
     {
         $status = $this->core->expiryStatus($windowDays);
 

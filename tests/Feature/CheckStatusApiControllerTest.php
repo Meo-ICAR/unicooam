@@ -48,7 +48,7 @@ class CheckStatusApiControllerTest extends TestCase
 
     public function test_severity_follows_the_most_urgent_document(): void
     {
-        $this->documentExpiringIn(25);
+        $this->documentExpiringIn(12);
         $this->assertSame(Severity::Regular, app(DocumentReminderService::class)->expiryStatus()->severity);
 
         $this->documentExpiringIn(5);
