@@ -16,3 +16,10 @@ Schedule::command('oam:import-pratiche')
     ->weeklyOn(1, '03:00')
     ->withoutOverlapping()
     ->runInBackground();
+
+// Ricalcolo notturno dello scadenziario documenti, prima dei processi di UnicoBPM (06:00): i controlli
+// interrogati via API (documents:check-expired) leggono lo scadenziario così com'è.
+Schedule::command('documents:sync-schedule')
+    ->dailyAt('05:30')
+    ->withoutOverlapping()
+    ->runInBackground();

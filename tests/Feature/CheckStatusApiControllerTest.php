@@ -80,6 +80,19 @@ class CheckStatusApiControllerTest extends TestCase
             ->assertJsonPath('severity', 'warning');
     }
 
+    public function test_api_runs_a_check_that_reads_its_options(): void
+    {
+        $this->documentExpiringIn(-3);
+        $this->artisan('documents:sync-schedule')->assertSuccessful();
+
+        // documents:check-expired ha l'opzione --no-sync: via API non si ricalcola lo scadenziario, si legge quello della notte.
+        $response = $this->getJson('/api/checks/documents:check-expired')
+            ->assertOk()
+            ->assertJsonPath('command', 'documents:check-expired');
+
+        $this->assertStringContainsString('scaduto il', (string) $response->json('value'));
+    }
+
     public function test_api_rejects_commands_that_are_not_checks(): void
     {
         $this->getJson('/api/checks/migrate')->assertNotFound();
