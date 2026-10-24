@@ -58,6 +58,7 @@ class ManualAssistantAgent extends RAG
         return [
             base_path('CLAUDE.md'),
             resource_path('manuals/manuale-operativo-oam.html'),
+            resource_path('manuals/manuale-tecnico.html'),
         ];
     }
 

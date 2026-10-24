@@ -27,14 +27,14 @@ e dei Mediatori): tenuta del registro reclami, delle segnalazioni di operazioni
 sospette (SOS/antiriciclaggio), degli audit periodici e la compilazione della
 <strong>relazione semestrale</strong> da inviare all'OAM. I dati sulle pratiche di
 finanziamento e sulle provvigioni non si inseriscono qui a mano: arrivano importati
-dal gestionale Proforma, che gira sullo stesso server MySQL ma su un database
+dal gestionale UnicoCoge (già Proforma), che gira sullo stesso server MySQL ma su un database
 separato, in sola lettura.</p>
 
 <div class="toc">
 <strong>Indice</strong>
 <a href="#accessi">1. Accesso e ruoli</a>
 <a href="#anagrafiche">2. Anagrafiche</a>
-<a href="#import">3. Import delle pratiche da Proforma</a>
+<a href="#import">3. Import delle pratiche da UnicoCoge</a>
 <a href="#semestrale">4. Relazione semestrale OAM (M510)</a>
 <a href="#audit">5. Audit interni e rilievi</a>
 <a href="#reclami">6. Registro reclami</a>
@@ -80,47 +80,47 @@ crearne o cancellarne le righe.</p>
 
 <p>Nel gruppo di menu <strong>Anagrafiche</strong>:</p>
 
-<h3>Azienda</h3>
+<h3 id="azienda">Azienda</h3>
 <p>Scheda unica con i dati della società di mediazione: ragione sociale, partita
 IVA, numero di iscrizione OAM e data iscrizione/rinnovo, eventuale iscrizione
 IVASS (sezione RUI, numero, data), gruppo/sponsor di appartenenza. Questi dati
 alimentano il foglio "Anagrafica" della relazione semestrale, quindi vanno
 tenuti aggiornati prima di generare l'export.</p>
 
-<h3>Sedi</h3>
+<h3 id="sedi">Sedi</h3>
 <p>Elenco delle sedi operative e della sede legale (una sola marcata come "Sede
 principale"). Per ciascuna: indirizzo completo, responsabile di sede, data di
 apertura ed eventuale chiusura. Alimentano il foglio "Sedi" della relazione
 semestrale.</p>
 
-<h3>Siti web</h3>
+<h3 id="siti-web">Siti web</h3>
 <p>Domini istituzionali o commerciali collegati alla società, con la data di
 pubblicazione del foglio informativo/trasparenza: alimenta il foglio
 "Informativo" della relazione semestrale.</p>
 
-<h3>Istituti Eroganti e Produttori</h3>
+<h3 id="istituti-eroganti-e-produttori">Istituti Eroganti e Produttori</h3>
 <p>"Istituti Eroganti" è l'anagrafica delle banche/istituti finanziari mandanti
-(dati importati da Proforma, in sola lettura); "Produttori" è l'anagrafica degli
-agenti/collaboratori commerciali (anch'essa da Proforma). Da qui si verifica se
+(dati condivisi con le altre app della suite, in sola lettura); "Produttori" è l'anagrafica degli
+agenti/collaboratori commerciali (anch'essa condivisa con la suite). Da qui si verifica se
 un istituto è convenzionato e si consultano eventuali blacklist.</p>
 
-<h3>Codici OAM</h3>
+<h3 id="codici-oam">Codici OAM</h3>
 <p>Tabella di corrispondenza tra il tipo di prodotto gestito internamente (es.
 "Mutuo", "Cessione del Quinto") e la classificazione di prodotto creditizio
 richiesta dall'OAM. Va mantenuta aggiornata: se manca la corrispondenza per un
 nuovo tipo di prodotto, l'importazione delle pratiche (§3) non riesce a
 classificarlo correttamente nella relazione.</p>
 
-<h3>Organigramma (Collaboratori)</h3>
+<h3 id="organigramma-collaboratori">Organigramma (Collaboratori)</h3>
 <p>Anagrafica dei dipendenti e collaboratori interni, con iscrizioni professionali
 (OAM, RUI/IVASS), sede di appartenenza, responsabile diretto e ruoli
 privacy/GDPR. Da qui si assegna anche il <strong>tipo di collaboratore</strong>
 usato per calcolare i permessi granulari (§11).</p>
 
-<h2 id="import">3. Import delle pratiche da Proforma</h2>
+<h2 id="import">3. Import delle pratiche da UnicoCoge</h2>
 
 <p>Le pratiche di finanziamento e le relative provvigioni sono gestite nel
-gestionale <strong>Proforma</strong>, su un database separato dello stesso
+gestionale <strong>UnicoCoge</strong> (già Proforma), su un database separato dello stesso
 server MySQL, collegato in <strong>sola lettura</strong>: da UnicoOAM non si
 crea né si modifica mai una pratica direttamente.</p>
 
@@ -151,7 +151,7 @@ un messaggio esplicito, non genera un doppio conteggio.
 <p>Durante l'importazione il sistema, per ogni pratica del semestre:</p>
 <ol>
 <li>recupera l'istituto erogante, il produttore/agente e le provvigioni
-(cliente, istituto, premio, agente, eventuali storni) sommandole da Proforma;</li>
+(cliente, istituto, premio, agente, eventuali storni) sommandole da UnicoCoge;</li>
 <li>calcola l'erogato lordo (0 se l'istituto non è una banca convenzionata,
 altrimenti l'importo netto o l'importo lordo a seconda del tipo di prodotto);</li>
 <li>classifica il prodotto creditizio tramite i Codici OAM (§2) e distingue le
@@ -296,7 +296,7 @@ scadenza, con collegamento diretto allo scadenzario.</p>
 <p>Il download di un allegato richiede sempre di essere autenticati
 nell'applicativo: un link al singolo file non è mai accessibile pubblicamente.</p>
 
-<h3>Aggiornare un documento senza caricare un nuovo allegato</h3>
+<h3 id="aggiornare-un-documento-senza-caricare-un-nuovo-allegato">Aggiornare un documento senza caricare un nuovo allegato</h3>
 
 <p>Quando un documento va semplicemente rinnovato (es. rinnovo annuale di
 un'iscrizione) senza sostituire il file allegato, dall'elenco dello
@@ -305,7 +305,7 @@ si apre una finestra con il campo "Nuova data di emissione", da compilare e
 confermare. Il sistema ricalcola in automatico la nuova data di scadenza in
 base alla durata di validità prevista per quel tipo documento.</p>
 
-<h3>Aggiornare un documento caricando un nuovo allegato</h3>
+<h3 id="aggiornare-un-documento-caricando-un-nuovo-allegato">Aggiornare un documento caricando un nuovo allegato</h3>
 
 <p>Se invece il documento va rinnovato sostituendo anche il file allegato,
 nella stessa finestra (click sulla riga in Scadenziario, campo "Nuova data di
@@ -316,7 +316,7 @@ emissione/scadenza, mentre il documento precedente viene conservato in
 archivio con stato "scaduto", mantenendo così lo storico delle versioni
 precedenti.</p>
 
-<h3>Eliminare un vecchio documento</h3>
+<h3 id="eliminare-un-vecchio-documento">Eliminare un vecchio documento</h3>
 
 <p>Per eliminare uno o più documenti dallo Scadenziario: selezionare il/i
 documento/i spuntando il quadratino di selezione sulla riga corrispondente,
@@ -381,7 +381,7 @@ domande:</p>
 <ul>
 <li><strong>domande procedurali</strong> ("come si registra un reclamo?", "dove
 si trova lo scadenzario documenti?"): la risposta viene cercata in questo
-manuale;</li>
+manuale e nel manuale tecnico;</li>
 <li><strong>domande sui dati operativi</strong> ("quante pratiche OAM in
 lavorazione ci sono questo semestre?", "quali documenti scadono questo mese?"):
 l'assistente interroga il database in sola lettura, limitatamente alle tabelle
@@ -401,7 +401,7 @@ endpoint applicativi (non fanno parte della relazione semestrale OAM) e al
 momento non richiedono autenticazione: sono pensati per essere chiamati solo da
 sistemi interni fidati.</p>
 
-<h3>Sincronizzazione ed email</h3>
+<h3 id="sincronizzazione-ed-email">Sincronizzazione ed email</h3>
 
 <table>
 <tr><th>Endpoint</th><th>Metodo</th><th>Cosa fa</th></tr>
@@ -431,7 +431,7 @@ scadenziario, come il pulsante corrispondente a pannello) e inviano email: non
 vanno richiamati per prova su dati di produzione senza necessità.
 </div>
 
-<h3>Integrazione con UnicoBPM</h3>
+<h3 id="integrazione-con-unicobpm">Integrazione con UnicoBPM</h3>
 
 <p>UnicoBPM è un'altra applicazione della suite, che usa questi endpoint per
 leggere/scrivere dati di UnicoOAM senza collegarsi direttamente al database:</p>
@@ -484,13 +484,20 @@ non richiede autenticazione: va esposto solo verso sistemi interni fidati, non
 pubblicamente.
 </div>
 
+
+<h3 id="controlli-letti-da-unicobpm">Controlli letti da UnicoBPM</h3>
+<p>UnicoBPM, il coordinatore della suite, interroga ogni giorno lo scadenziario con due controlli (<code>GET /api/checks/{controllo}</code>): <code>documents:check-expired</code>
+(documenti scaduti: <em>regular</em> oltre 7 giorni, <em>warning</em> oltre 15, <em>alert</em> oltre 30) e <code>documents:check-expiring</code> (documenti monitorati scaduti o in
+scadenza). I controlli restituiscono solo valore e grado: chi riceve l'email lo decide UnicoBPM con la RACI del passo «Documentazione» del processo Compliance (R segreteria,
+A ufficio compliance, I amministratore). Lo scadenziario si ricalcola ogni notte alle 05:30, prima dei processi di UnicoBPM.</p>
+
 <h2 id="glossario">14. Glossario</h2>
 
 <table>
 <tr><th>Termine</th><th>Significato</th></tr>
 <tr><td>OAM</td><td>Organismo degli Agenti e dei Mediatori: l'ente di vigilanza a cui la società è iscritta.</td></tr>
 <tr><td>M510</td><td>Il modello di relazione semestrale richiesto dall'OAM.</td></tr>
-<tr><td>Proforma</td><td>Il gestionale esterno, sullo stesso server MySQL, da cui vengono importate pratiche e provvigioni (in sola lettura).</td></tr>
+<tr><td>UnicoCoge (già Proforma)</td><td>Il gestionale esterno, sullo stesso server MySQL, da cui vengono importate pratiche e provvigioni (in sola lettura).</td></tr>
 <tr><td>Pratica</td><td>Un'operazione di finanziamento seguita da un agente/collaboratore per conto di un cliente presso un istituto erogante.</td></tr>
 <tr><td>Erogato</td><td>L'importo effettivamente liquidato dall'istituto su una pratica.</td></tr>
 <tr><td>Storno / rivalsa</td><td>Restituzione, totale o parziale, di una provvigione già percepita su una pratica successivamente estinta o annullata.</td></tr>
