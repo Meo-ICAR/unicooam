@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Employees\Pages;
 
+use App\Filament\Resources\Clients\ClientResource;
 use App\Filament\Resources\Employees\EmployeeResource;
 use App\Models\Client;
 use App\Models\EmployeeType;
@@ -22,15 +23,25 @@ class ListEmployees extends ListRecords
     {
         return [
             CreateAction::make(),
+            Action::make('nuovoConsulente')
+                ->label('Nuovo consulente')
+                ->icon('heroicon-o-user-plus')
+                ->color('gray')
+                ->url(fn (): string => ClientResource::getUrl('create')),
             Action::make('ruoliEsterno')
                 ->label('Ruoli di un esterno')
                 ->icon('heroicon-o-briefcase')
                 ->color('gray')
-                ->modalDescription('Un consulente esterno può ricoprire solo i ruoli esternalizzabili (es. Internal Audit, Compliance, AML, DPO).')
+                ->modalHeading('Ruoli di un consulente esterno')
+                ->modalDescription('Un consulente esterno può ricoprire solo i ruoli esternalizzabili (es. Internal Audit, Compliance, AML, DPO). Chi ricopre un ruolo è un consulente aziendale.')
+                ->modalSubmitActionLabel('Salva i ruoli')
                 ->schema([
                     Select::make('client_id')
-                        ->label('Esterno')
-                        ->options(fn (): array => Client::query()->orderBy('name')->limit(500)->pluck('name', 'id')->all())
+                        ->label('Consulente esterno')
+                        ->helperText('Si scelgono solo i consulenti aziendali; per aggiungerne uno nuovo si crea il client e gli si assegna un ruolo.')
+                        ->options(fn (): array => Client::query()->where('is_company', true)->orderBy('name')->limit(50)->pluck('name', 'id')->all())
+                        ->getSearchResultsUsing(fn (string $search): array => Client::query()->where('is_company', true)->where('name', 'like', "%{$search}%")->orderBy('name')->limit(50)->pluck('name', 'id')->all())
+                        ->getOptionLabelUsing(fn ($value): ?string => Client::query()->find($value)?->name)
                         ->searchable()
                         ->required()
                         ->live()

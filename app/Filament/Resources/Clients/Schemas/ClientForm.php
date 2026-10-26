@@ -7,7 +7,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class ClientForm
 {
@@ -26,13 +28,29 @@ class ClientForm
                             ->email()
                             ->nullable()
                             ->maxLength(255),
-                        TextInput::make('tax_code')
-                            ->label('Codice fiscale / P.IVA')
-                            ->nullable()
-                            ->maxLength(16),
                         Toggle::make('is_person')
                             ->label('Persona fisica')
-                            ->default(true),
+                            ->helperText('Spento = società o studio (persona giuridica).')
+                            ->default(true)
+                            ->live(),
+                        TextInput::make('tax_code')
+                            ->label('Codice fiscale')
+                            ->nullable()
+                            ->maxLength(16),
+                        TextInput::make('vat_number')
+                            ->label('Partita IVA')
+                            ->nullable()
+                            ->regex('/^\d{11}$/')
+                            ->validationMessages(['regex' => 'La partita IVA ha 11 cifre.'])
+                            ->maxLength(20),
+                        Select::make('employer_id')
+                            ->label('Datore di lavoro')
+                            ->helperText('Per le persone fisiche: la società o lo studio in cui lavorano (es. Ancora S.r.l.).')
+                            ->relationship('employer', 'name', fn (Builder $query) => $query->where('is_person', false))
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->visible(fn (Get $get): bool => (bool) $get('is_person')),
                         Select::make('employee_roles')
                             ->label('Ruoli')
                             ->multiple()
@@ -43,7 +61,7 @@ class ClientForm
                             )
                             ->searchable()
                             ->nullable()
-                            ->helperText('Ruoli EmployeeType associati a questo consulente (stessa struttura degli Employee).'),
+                            ->helperText('Ruoli dell\'organigramma ricoperti da questo consulente (stessa struttura dei dipendenti).'),
                     ]),
             ]);
     }

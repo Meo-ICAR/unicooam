@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class ClientResource extends Resource
@@ -26,15 +27,21 @@ class ClientResource extends Resource
 
     protected static UnitEnum|string|null $navigationGroup = 'Anagrafiche';
 
-    protected static ?string $navigationLabel = 'Clienti / Consulenti';
+    protected static ?string $navigationLabel = 'Consulenti';
 
-    protected static ?string $modelLabel = 'Cliente / Consulente';
+    protected static ?string $modelLabel = 'Consulente';
 
-    protected static ?string $pluralModelLabel = 'Clienti / Consulenti';
+    protected static ?string $pluralModelLabel = 'Consulenti';
 
     protected static ?int $navigationSort = 8;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    /** In organigramma interessano solo i consulenti aziendali: gli altri client nascono dalle fatture e non si gestiscono qui. */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('is_company', true);
+    }
 
     public static function form(Schema $schema): Schema
     {

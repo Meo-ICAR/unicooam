@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Clients\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -21,8 +22,18 @@ class ClientsTable
                 TextColumn::make('email')
                     ->label('Email')
                     ->searchable(),
+                IconColumn::make('is_person')
+                    ->label('Persona fisica')
+                    ->boolean(),
                 TextColumn::make('tax_code')
-                    ->label('CF / P.IVA')
+                    ->label('Codice fiscale')
+                    ->searchable(),
+                TextColumn::make('vat_number')
+                    ->label('Partita IVA')
+                    ->searchable(),
+                TextColumn::make('employer.name')
+                    ->label('Datore di lavoro')
+                    ->placeholder('—')
                     ->searchable(),
                 TextColumn::make('employee_roles')
                     ->label('Ruoli')
