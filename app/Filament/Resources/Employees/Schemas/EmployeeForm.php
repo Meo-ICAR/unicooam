@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class EmployeeForm
 {
@@ -57,8 +58,12 @@ class EmployeeForm
                         DatePicker::make('hiring_date')
                             ->label('Inizio')
                             ->required(),
-                        DatePicker::make('termination_date')
-                            ->label('Cessazione')
+                        Select::make('employer_id')
+                            ->label('Datore di lavoro')
+                            ->helperText('Società o studio per cui lavora (es. Ancora S.r.l.).')
+                            ->relationship('employer', 'name', fn (Builder $query) => $query->where('is_person', false))
+                            ->searchable()
+                            ->preload()
                             ->nullable(),
                         Select::make('branch_id')
                             ->label('Sede')
@@ -73,6 +78,9 @@ class EmployeeForm
                             ->preload()
                             ->nullable(),
                         // ->helperText('Seleziona un coordinatore della stessa sede'),
+                        DatePicker::make('termination_date')
+                            ->label('Cessazione')
+                            ->nullable(),
                     ]),
                 // Dati OAM e RUI
                 Section::make('Dati OAM e RUI')

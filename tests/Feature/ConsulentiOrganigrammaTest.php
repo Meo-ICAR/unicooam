@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\Clients\Pages\CreateClient;
 use App\Filament\Resources\Clients\Pages\ListClients;
+use App\Filament\Resources\Employees\Pages\EditEmployee;
 use App\Models\Client;
+use App\Models\Employee;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -51,5 +53,24 @@ class ConsulentiOrganigrammaTest extends TestCase
             ->fillForm(['name' => 'Errata', 'vat_number' => '123'])
             ->call('create')
             ->assertHasFormErrors(['vat_number']);
+    }
+
+    public function test_an_employee_can_have_an_employer_and_the_termination_closes_the_work_section(): void
+    {
+        $ancora = Client::query()->create(['name' => 'Ancora S.r.l.', 'is_person' => false, 'is_company' => true]);
+        $employee = Employee::query()->create(['name' => 'Rossi Anna', 'hiring_date' => '2024-01-01']);
+
+        Livewire::test(EditEmployee::class, ['record' => $employee->getKey()])
+            ->fillForm(['employer_id' => $ancora->id])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame($ancora->id, $employee->fresh()->employer->id);
+
+        $fields = collect(Livewire::test(EditEmployee::class, ['record' => $employee->getKey()])->instance()->form->getFlatFields())->keys()->values();
+        $this->assertSame(
+            ['hiring_date', 'employer_id', 'branch_id', 'coordinated_by_id', 'termination_date'],
+            $fields->intersect(['hiring_date', 'employer_id', 'branch_id', 'coordinated_by_id', 'termination_date'])->values()->all(),
+        );
     }
 }
