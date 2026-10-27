@@ -4,9 +4,12 @@ use App\Http\Controllers\Api\CheckStatusApiController;
 use App\Http\Controllers\Api\DocumentScheduleSyncApiController;
 use App\Http\Controllers\Api\ModelFieldsApiController;
 use App\Http\Controllers\Api\ModelFieldValueApiController;
+use App\Http\Controllers\Api\ProducerLookupApiController;
 use App\Http\Controllers\Api\ProducerTrainingSummaryApiController;
 use App\Http\Controllers\Api\UserLookupApiController;
 use Illuminate\Support\Facades\Route;
+use Unico\Core\Bridge\Http\Middleware\CorrelationId;
+use Unico\Core\Bridge\Http\Middleware\VerifyBridgeKey;
 
 // Consumato da UnicoBPM per configurare i processi (select dei campi
 // disponibili) e per scrivere un campo senza accedere direttamente ai
@@ -34,3 +37,8 @@ Route::post('/fornitori/training-summary-email', [ProducerTrainingSummaryApiCont
 // autenticazione per ora (ambiente non di produzione), da aggiungere prima del rilascio.
 Route::get('/checks', [CheckStatusApiController::class, 'index'])->name('api.checks.index');
 Route::get('/checks/{command}', [CheckStatusApiController::class, 'show'])->name('api.checks.show');
+
+// Consumato da unicoagent: dato il numero WhatsApp dice se è di un produttore (fornitore) e di quale società. Contiene dati
+// personali dei produttori, quindi con la chiave X-Api-Key del bridge (BPM_BRIDGE_API_KEY): senza chiave risponde 503.
+Route::middleware([CorrelationId::class, VerifyBridgeKey::class, 'throttle:300,1'])
+    ->get('/produttori/lookup', [ProducerLookupApiController::class, 'show'])->name('api.produttori.lookup');
