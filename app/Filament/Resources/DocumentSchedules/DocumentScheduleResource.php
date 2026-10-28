@@ -54,6 +54,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 use Unico\Core\Documents\Reminders\DocumentReminderService as CoreDocumentReminderService;
 use Unico\Core\Documents\Reminders\ReminderDraft;
+use Unico\Core\Enums\DocumentStatus;
 use UnitEnum;
 
 class DocumentScheduleResource extends Resource
@@ -129,7 +130,10 @@ class DocumentScheduleResource extends Resource
                     }),
                 TextColumn::make('status')
                     ->label('Stato')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (DocumentSchedule $record): string|array|null => $record->status === DocumentStatus::ANOMALY->value
+                        ? 'danger'
+                        : DocumentStatus::tryFrom((string) $record->status)?->getColor()),
                 TextColumn::make('reminders_count')
                     ->label('Solleciti inviati')
                     ->sortable(),
@@ -177,6 +181,12 @@ class DocumentScheduleResource extends Resource
                     ->query(fn (Builder $query): Builder => $query
                         ->whereDate('expires_at', '>=', now()->toDateString())
                         ->whereDate('expires_at', '<=', now()->addDays(30)->toDateString())),
+                Filter::make('in_scadenza_60')
+                    ->label('In scadenza (60 gg)')
+                    ->default()
+                    ->query(fn (Builder $query): Builder => $query
+                        ->whereDate('expires_at', '>=', now()->toDateString())
+                        ->whereDate('expires_at', '<=', now()->addDays(60)->toDateString())),
                 TableHelper::polymorphicFilter('documentable_type', 'Destinatari')->default('fornitore'),
                 Filter::make('last_sent_at')
                     ->label('Ultimo sollecito prima 7gg')

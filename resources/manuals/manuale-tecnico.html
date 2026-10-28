@@ -69,7 +69,7 @@
         <thead><tr><th>Comando</th><th>Effetto</th></tr></thead>
         <tbody>
             <tr><td><code>documents:sync-schedule</code></td><td>Ricalcola lo scadenziario (ogni notte alle 05:30, prima dei processi di unicobpm: i controlli leggono lo scadenziario com’è).</td></tr>
-            <tr><td><code>documents:check-expired</code></td><td>Controllo per unicobpm: documenti scaduti; <code>regular</code> oltre 7 giorni, <code>warning</code> oltre 15, <code>alert</code> oltre 30. Opzione <code>--no-sync</code>.</td></tr>
+            <tr><td><code>documents:check-expired</code></td><td>Controllo per unicobpm: documenti scaduti e in scadenza entro 60 giorni (opzione <code>--days</code>, 0 = solo scaduti); il grado dipende dal più vecchio scaduto: <code>regular</code> oltre 7 giorni, <code>warning</code> oltre 15, <code>alert</code> oltre 30. Opzione <code>--no-sync</code>.</td></tr>
             <tr><td><code>documents:check-expiring</code></td><td>Controllo per unicobpm: documenti monitorati scaduti o in scadenza (valore: il loro numero).</td></tr>
             <tr><td><code>documents:sync-and-email</code></td><td>Ricalcolo e invio del riepilogo per email.</td></tr>
             <tr><td><code>oam:import-pratiche</code></td><td>Importa il semestre corrente (<code>--year</code>, <code>--semester</code>); schedulato ogni lunedì alle 03:00.</td></tr>

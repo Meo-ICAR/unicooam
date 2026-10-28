@@ -497,7 +497,7 @@ pubblicamente.
 
 <h3 id="controlli-letti-da-unicobpm">Controlli letti da UnicoBPM</h3>
 <p>UnicoBPM, il coordinatore della suite, interroga ogni giorno lo scadenziario con due controlli (<code>GET /api/checks/{controllo}</code>): <code>documents:check-expired</code>
-(documenti scaduti: <em>regular</em> oltre 7 giorni, <em>warning</em> oltre 15, <em>alert</em> oltre 30) e <code>documents:check-expiring</code> (documenti monitorati scaduti o in
+(documenti scaduti o in scadenza entro 60 giorni; il grado dipende dal più vecchio scaduto: <em>regular</em> oltre 7 giorni, <em>warning</em> oltre 15, <em>alert</em> oltre 30) e <code>documents:check-expiring</code> (documenti monitorati scaduti o in
 scadenza). I controlli restituiscono solo valore e grado: chi riceve l'email lo decide UnicoBPM con la RACI del passo «Documentazione» del processo Compliance (R segreteria,
 A ufficio compliance, I amministratore). Lo scadenziario si ricalcola ogni notte alle 05:30, prima dei processi di UnicoBPM.</p>
 

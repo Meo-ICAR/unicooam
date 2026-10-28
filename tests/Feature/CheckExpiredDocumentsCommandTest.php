@@ -51,11 +51,11 @@ class CheckExpiredDocumentsCommandTest extends TestCase
         ]);
     }
 
-    private function checkResult(): array
+    private function checkResult(array $options = []): array
     {
         $command = $this->app->make(CheckExpiredDocumentsCommand::class);
         $command->setLaravel($this->app);
-        $command->run(new ArrayInput(['--no-sync' => true]), new NullOutput);
+        $command->run(new ArrayInput(['--no-sync' => true] + $options), new NullOutput);
 
         return $command->checkStatus()->toArray();
     }
@@ -87,16 +87,39 @@ class CheckExpiredDocumentsCommandTest extends TestCase
     {
         $this->schedule(10, 'Visura');
         $this->schedule(40, 'Casellario');
-        $this->schedule(-3, 'Futuro');
+        $this->schedule(-90, 'Lontano');
 
         $status = $this->checkResult();
 
         $this->assertStringContainsString('Casellario', $status['value']);
         $this->assertStringContainsString('Visura', $status['value']);
-        $this->assertStringNotContainsString('Futuro', $status['value']);
+        $this->assertStringNotContainsString('Lontano', $status['value']);
         $this->assertLessThan(strpos($status['value'], 'Visura'), strpos($status['value'], 'Casellario'));
         $this->assertSame('2 documenti scaduti, il più vecchio da 40 giorni.', $status['details']);
         $this->assertSame('alert', $status['severity']);
+    }
+
+    public function test_by_default_includes_documents_expiring_within_60_days(): void
+    {
+        $this->schedule(-30, 'Prossimo');
+
+        $status = $this->checkResult();
+
+        $this->assertStringContainsString('Prossimo', $status['value']);
+        $this->assertStringContainsString('scade il', $status['value']);
+        $this->assertSame('1 documenti in scadenza entro 60 giorni.', $status['details']);
+        $this->assertSame('ok', $status['severity']);
+    }
+
+    public function test_days_zero_lists_only_expired_documents(): void
+    {
+        $this->schedule(-30, 'Prossimo');
+        $this->schedule(10, 'Scaduto');
+
+        $status = $this->checkResult(['--days' => 0]);
+
+        $this->assertStringNotContainsString('Prossimo', $status['value']);
+        $this->assertStringContainsString('Scaduto', $status['value']);
     }
 
     public function test_is_exposed_through_the_checks_api(): void
