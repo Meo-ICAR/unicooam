@@ -25,7 +25,7 @@ class DocumentType extends CoreDocumentType implements HasMedia
         'is_monitored' => 'boolean',
         'is_sensible' => 'boolean',
         'is_stored' => 'boolean',
-        'is_end_month' => 'boolean',
+        'is_end_month' => 'integer',
         'is_AiAbstract' => 'boolean',
         'is_AiCheck' => 'boolean',
         'allow_auto_verification' => 'boolean',

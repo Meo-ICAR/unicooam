@@ -3,12 +3,14 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
+use App\Models\Client;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\DocumentSchedule;
 use App\Models\DocumentType;
 use App\Models\Employee;
 use App\Models\User;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -136,5 +138,47 @@ class DocumentScheduleTableTest extends TestCase
             ->removeTableFilter('documentable_type')
             ->assertCountTableRecords(2)
             ->assertSee('ZZ DIPENDENTE');
+    }
+
+    public function test_the_subject_opens_its_registry_card_when_it_has_one(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        $employeeRow = $this->schedule('ROSSI MARIO', 'Casellario', '2026-11-01');
+        $consultant = Client::query()->create(['name' => 'Studio Alfa', 'is_person' => false, 'is_company' => true]);
+        $plainClient = Client::query()->create(['name' => 'Cliente da fattura', 'is_person' => true, 'is_company' => false]);
+
+        $row = fn (string $type, int|string $id) => $employeeRow->replicate()->forceFill(['documentable_type' => $type, 'documentable_id' => (string) $id]);
+        $column = Livewire::test(ManageDocumentSchedules::class)->instance()->getTable()->getColumn('entity_name');
+        $urlOf = fn (DocumentSchedule $record): ?string => $column->record($record)->getUrl();
+
+        $this->assertStringEndsWith('/employees/'.$employeeRow->documentable_id.'/edit', (string) $urlOf($employeeRow));
+        $this->assertStringEndsWith('/clients/'.$consultant->id.'/edit', (string) $urlOf($row('client', $consultant->id)));
+        $this->assertNull($urlOf($row('client', $plainClient->id)), 'Un client che non è consulente non ha scheda in questa app');
+        $this->assertNull($urlOf($row('pratica', 1)), 'Le pratiche non hanno una scheda');
+    }
+
+    public function test_renew_shows_document_and_owner_then_clones_the_document_keeping_the_old_one_as_previous_version(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+        $row = $this->schedule('ROSSI MARIO', 'Polizza RC', now()->addDays(5)->toDateString());
+        $row->document->update(['emitted_at' => now()->subYear()->toDateString(), 'is_monitored' => true]);
+        $old = $row->document;
+
+        $page = Livewire::test(ManageDocumentSchedules::class)->removeTableFilters()->mountAction(TestAction::make('renew')->table($row));
+        $modal = $page->instance()->getMountedAction();
+
+        $this->assertSame('Rinnova: Polizza RC', $modal->getModalHeading());
+        $this->assertStringContainsString('Proprietario: ROSSI MARIO', (string) $modal->getModalDescription());
+
+        $page->callMountedAction(['emitted_at' => now()->toDateString()])->assertHasNoFormErrors();
+
+        $new = Document::query()->where('replaced_by_id', null)->where('name', 'Polizza RC')->where('id', '!=', $old->id)->sole();
+        $old->refresh();
+
+        $this->assertSame($new->id, $old->replaced_by_id, 'Il documento attuale è la versione precedente della copia');
+        $this->assertSame('scaduto', $old->status instanceof \BackedEnum ? $old->status->value : $old->status);
+        $this->assertSame($old->documentable_id, $new->documentable_id);
+        $this->assertSame($old->document_type_id, $new->document_type_id);
+        $this->assertSame($new->id, $row->fresh()->document_id, 'La riga dello scadenziario punta alla copia');
     }
 }

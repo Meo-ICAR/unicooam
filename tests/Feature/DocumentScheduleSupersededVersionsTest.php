@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Unico\Core\Enums\DocumentStatus;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\DocumentType;
@@ -11,6 +10,7 @@ use App\Services\DocumentReminderService;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
+use Unico\Core\Enums\DocumentStatus;
 
 class DocumentScheduleSupersededVersionsTest extends TestCase
 {
@@ -69,7 +69,7 @@ class DocumentScheduleSupersededVersionsTest extends TestCase
     public function test_older_version_of_the_same_type_is_not_scheduled(): void
     {
         $old = $this->document(now()->subYears(2)->toDateString(), now()->subYear()->toDateString());
-        $new = $this->document(now()->subDays(20)->toDateString(), now()->addDays(30)->toDateString());
+        $new = $this->document(now()->subDays(20)->toDateString(), now()->addDays(12)->toDateString());
 
         $this->assertSame([$new->id], $this->scheduledIds());
         $this->assertNotContains($old->id, $this->scheduledIds());
@@ -114,9 +114,9 @@ class DocumentScheduleSupersededVersionsTest extends TestCase
     public function test_other_types_and_other_recipients_are_not_affected(): void
     {
         $a = $this->document(now()->subYear()->toDateString(), now()->addDays(10)->toDateString());
-        $otherType = $this->document(now()->subDays(5)->toDateString(), now()->addDays(20)->toDateString(), ['document_type_id' => $this->type()->id]);
+        $otherType = $this->document(now()->subDays(5)->toDateString(), now()->addDays(12)->toDateString(), ['document_type_id' => $this->type()->id]);
         $this->employee = $this->employee('Luca Bianchi');
-        $otherEmployee = $this->document(now()->subDays(5)->toDateString(), now()->addDays(20)->toDateString(), ['document_type_id' => $a->document_type_id]);
+        $otherEmployee = $this->document(now()->subDays(5)->toDateString(), now()->addDays(12)->toDateString(), ['document_type_id' => $a->document_type_id]);
 
         $this->assertEqualsCanonicalizing([$a->id, $otherType->id, $otherEmployee->id], $this->scheduledIds());
     }
@@ -125,7 +125,7 @@ class DocumentScheduleSupersededVersionsTest extends TestCase
     {
         $emitted = now()->subMonths(3)->toDateString();
         $earlier = $this->document($emitted, now()->addDays(10)->toDateString());
-        $later = $this->document($emitted, now()->addDays(40)->toDateString());
+        $later = $this->document($emitted, now()->addDays(14)->toDateString());
 
         $this->assertSame([$later->id], $this->scheduledIds());
         $this->assertNotContains($earlier->id, $this->scheduledIds());
@@ -147,7 +147,7 @@ class DocumentScheduleSupersededVersionsTest extends TestCase
         $this->type->update(['renewed_by_id' => $renewingType->id]);
 
         $old = $this->document(now()->subYears(2)->toDateString(), now()->subYear()->toDateString());
-        $renewing = $this->document(now()->subDays(20)->toDateString(), now()->addDays(30)->toDateString(), ['document_type_id' => $renewingType->id]);
+        $renewing = $this->document(now()->subDays(20)->toDateString(), now()->addDays(12)->toDateString(), ['document_type_id' => $renewingType->id]);
 
         $this->assertSame([$renewing->id], $this->scheduledIds());
         $this->assertNotContains($old->id, $this->scheduledIds());
@@ -158,11 +158,11 @@ class DocumentScheduleSupersededVersionsTest extends TestCase
         $renewingType = $this->type();
         $this->type->update(['renewed_by_id' => $renewingType->id]);
 
-        $current = $this->document(now()->subDays(20)->toDateString(), now()->addDays(30)->toDateString());
+        $current = $this->document(now()->subDays(20)->toDateString(), now()->addDays(12)->toDateString());
         $olderRenewing = $this->document(now()->subYear()->toDateString(), now()->addDays(5)->toDateString(), ['document_type_id' => $renewingType->id]);
-        $rejectedRenewing = $this->document(now()->subDays(2)->toDateString(), now()->addDays(60)->toDateString(), ['document_type_id' => $renewingType->id, 'status' => 'respinto']);
+        $rejectedRenewing = $this->document(now()->subDays(2)->toDateString(), now()->addDays(14)->toDateString(), ['document_type_id' => $renewingType->id, 'status' => 'respinto']);
         $this->employee = $this->employee('Luca Bianchi');
-        $otherRecipient = $this->document(now()->subDays(1)->toDateString(), now()->addDays(60)->toDateString(), ['document_type_id' => $renewingType->id]);
+        $otherRecipient = $this->document(now()->subDays(1)->toDateString(), now()->addDays(14)->toDateString(), ['document_type_id' => $renewingType->id]);
 
         $this->assertContains($current->id, $this->scheduledIds());
         $this->assertContains($olderRenewing->id, $this->scheduledIds());

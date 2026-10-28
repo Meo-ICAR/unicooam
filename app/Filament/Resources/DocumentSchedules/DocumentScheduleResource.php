@@ -3,7 +3,12 @@
 namespace App\Filament\Resources\DocumentSchedules;
 
 use App\Filament\Exports\DynamicGroupExport;
+use App\Filament\Resources\Clientis\ClientiResource;
+use App\Filament\Resources\Clients\ClientResource;
+use App\Filament\Resources\Companies\CompanyResource;
 use App\Filament\Resources\DocumentSchedules\Pages\ManageDocumentSchedules;
+use App\Filament\Resources\Employees\EmployeeResource;
+use App\Filament\Resources\Fornitores\FornitoreResource;
 use App\Filament\Traits\HasPlanAccess; // Assicurati di importare questo!
 use App\Filament\Utils\TableHelper; // Importa la tua nuova Mailable
 use App\Mail\ScadenziarioReportMail;
@@ -43,7 +48,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Maatwebsite\Excel\Excel as ExcelFormat;
 use Maatwebsite\Excel\Facades\Excel;
@@ -98,7 +102,9 @@ class DocumentScheduleResource extends Resource
                 TextColumn::make('entity_name')
                     ->label('Soggetto / Entità')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn (DocumentSchedule $record): ?string => static::entityUrl($record))
+                    ->color(fn (DocumentSchedule $record): ?string => static::entityUrl($record) ? 'primary' : null),
                 TextColumn::make('document_name')
                     ->label('Documento')
                     ->searchable()
@@ -191,40 +197,27 @@ class DocumentScheduleResource extends Resource
             ])
             ->recordActions([
                 Action::make('renew')
-                    ->label('Aggiorna')
-                    ->icon('heroicon-o-pencil-square')
+                    ->label('Rinnova')
+                    ->icon('heroicon-o-arrow-path')
+                    ->modalHeading(fn (DocumentSchedule $record): string => 'Rinnova: '.$record->document_name)
+                    ->modalDescription(fn (DocumentSchedule $record): string => 'Proprietario: '.$record->entity_name
+                        .($record->document_type_name ? ' · Tipo: '.$record->document_type_name : '')
+                        .($record->expires_at ? ' · Scadenza attuale: '.$record->expires_at->format('d/m/Y') : '')
+                        .'. Inviando, il documento attuale resta come versione precedente di una nuova copia con la nuova data di emissione.')
                     ->action(function (DocumentSchedule $record, array $data): void {
                         $document = $record->document;
-                        $newAttachmentPath = $data['new_attachment'] ?? null;
+                        // Si clona il documento attuale: la copia è la versione corrente con la nuova data di emissione, quello attuale
+                        // resta come versione precedente (stato "scaduto", sostituito dalla copia).
+                        $newDocument = $document->renewWithFile($data['emitted_at'], $data['new_attachment'] ?? null);
 
-                        if (filled($newAttachmentPath)) {
-                            // Un nuovo allegato è stato caricato: creiamo una nuova versione
-                            // del documento con il file aggiornato, mentre quello attuale
-                            // viene conservato come versione precedente (stato "scaduto").
-                            $newDocument = $document->renew($data['emitted_at']);
-                            $newDocument->addMediaFromDisk($newAttachmentPath, 'public')
-                                ->toMediaCollection('documents');
-                            Storage::disk('public')->delete($newAttachmentPath);
-
-                            $record->update([
-                                'document_id' => $newDocument->id,
-                                'expires_at' => $newDocument->expires_at,
-                                'status' => $newDocument->status,
-                            ]);
-                        } else {
-                            // Nessun nuovo allegato: aggiorniamo solo la data di emissione
-                            // sul documento esistente.
-                            $document->emitted_at = $data['emitted_at'];
-                            $document->save();
-                            $document->refresh();
-
-                            $record->update([
-                                'expires_at' => $document->expires_at,
-                            ]);
-                        }
+                        $record->update([
+                            'document_id' => $newDocument->id,
+                            'expires_at' => $newDocument->expires_at,
+                            'status' => $newDocument->status,
+                        ]);
 
                         Notification::make()
-                            ->title('Documento aggiornato')
+                            ->title('Documento rinnovato')
                             ->success()
                             ->send();
                     })
@@ -236,7 +229,7 @@ class DocumentScheduleResource extends Resource
                             ->required(),
                         FileUpload::make('new_attachment')
                             ->label('Nuovo allegato (opzionale)')
-                            ->helperText('Se carichi un file, viene creata una nuova versione del documento con il nuovo allegato; il documento attuale viene conservato come versione precedente con stato "scaduto".')
+                            ->helperText('Se carichi un file, la nuova versione ha il nuovo allegato; altrimenti conserva quello del documento attuale. Il documento attuale resta come versione precedente con stato "scaduto".')
                             ->disk('public')
                             ->directory('document-renewals')
                             ->acceptedFileTypes(['application/pdf', 'image/*', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
@@ -383,6 +376,28 @@ class DocumentScheduleResource extends Resource
                         }),
                 ]),
             ]);
+    }
+
+    /**
+     * Scheda anagrafica del soggetto del documento: produttore, dipendente, consulente (i client che non lo sono non hanno scheda in
+     * questa app), società o istituto. Nessun link per i soggetti senza una scheda, come le pratiche.
+     */
+    protected static function entityUrl(DocumentSchedule $record): ?string
+    {
+        $resource = match ($record->documentable_type) {
+            'fornitore' => FornitoreResource::class,
+            'employee' => EmployeeResource::class,
+            'company' => CompanyResource::class,
+            'clienti' => ClientiResource::class,
+            'client' => $record->documentable?->is_company ? ClientResource::class : null,
+            default => null,
+        };
+
+        if ($resource === null || ! $record->documentable_id || ! $resource::canViewAny() || ! $resource::hasPage('edit')) {
+            return null;
+        }
+
+        return $resource::getUrl('edit', ['record' => $record->documentable_id]);
     }
 
     /** Link di download del documento collegato, se ha un allegato. */
