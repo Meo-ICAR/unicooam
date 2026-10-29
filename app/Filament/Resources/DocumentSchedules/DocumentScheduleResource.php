@@ -81,7 +81,7 @@ class DocumentScheduleResource extends Resource
     {
         return $table
             // ->recordTitleAttribute('name')
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('document.media'))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['document.media', 'documentable']))
             ->defaultPaginationPageOption(50)
             ->reorderableColumns()
             ->defaultSort('expires_at')
@@ -134,6 +134,16 @@ class DocumentScheduleResource extends Resource
                     ->color(fn (DocumentSchedule $record): string|array|null => $record->status === DocumentStatus::ANOMALY->value
                         ? 'danger'
                         : DocumentStatus::tryFrom((string) $record->status)?->getColor()),
+                TextColumn::make('gestione_app')
+                    ->label('App')
+                    ->badge()
+                    ->state(fn (DocumentSchedule $record): string => $record->gestione()['app']),
+                TextColumn::make('gestione_menu')
+                    ->label('Menu')
+                    ->state(fn (DocumentSchedule $record): string => $record->gestione()['menu']),
+                TextColumn::make('gestione_funzione')
+                    ->label('Funzione')
+                    ->state(fn (DocumentSchedule $record): string => $record->gestione()['funzione']),
                 TextColumn::make('reminders_count')
                     ->label('Solleciti inviati')
                     ->sortable(),
@@ -168,6 +178,14 @@ class DocumentScheduleResource extends Resource
                             fn (Builder $query, $value) => $query->where('document_type_name', $value)
                         );
                     }),
+                SelectFilter::make('funzione')
+                    ->label('Funzione')
+                    ->multiple()
+                    ->options(array_combine(array_keys(DocumentSchedule::FUNZIONI_RUOLI), array_keys(DocumentSchedule::FUNZIONI_RUOLI)))
+                    ->default(fn (): array => DocumentSchedule::funzioniDelloUtente(auth()->user()))
+                    ->query(fn (Builder $query, array $data): Builder => ($data['values'] ?? []) !== []
+                        ? $query->gestiteDa($data['values'])
+                        : $query),
                 Filter::make('scaduti')
                     ->label('Già scaduti')
                     ->query(fn (Builder $query): Builder => $query->whereDate('expires_at', '<', now()->toDateString())),
@@ -187,7 +205,7 @@ class DocumentScheduleResource extends Resource
                     ->query(fn (Builder $query): Builder => $query
                         ->whereDate('expires_at', '>=', now()->toDateString())
                         ->whereDate('expires_at', '<=', now()->addDays(60)->toDateString())),
-                TableHelper::polymorphicFilter('documentable_type', 'Destinatari')->default('fornitore'),
+                TableHelper::polymorphicFilter('documentable_type', 'Destinatari'),
                 Filter::make('last_sent_at')
                     ->label('Ultimo sollecito prima 7gg')
                     ->query(fn (Builder $query): Builder => $query->whereDate('expires_at', '<', now()->subDays(7)->toDateString())),

@@ -123,7 +123,7 @@ class DocumentScheduleTableTest extends TestCase
             ->assertTableColumnExists('document_name', fn ($column) => $column->getUrl() === null, $without);
     }
 
-    public function test_the_recipients_filter_defaults_to_the_producer_and_can_be_removed(): void
+    public function test_the_recipients_filter_is_not_applied_by_default_and_can_narrow_to_the_producer(): void
     {
         $produttore = $this->schedule('ZZ PRODUTTORE', 'Doc produttore', now()->addDays(5)->toDateString());
         $produttore->forceFill(['documentable_type' => 'fornitore', 'documentable_id' => (string) Str::uuid()])->save();
@@ -132,12 +132,12 @@ class DocumentScheduleTableTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test(ManageDocumentSchedules::class)
+            ->assertCountTableRecords(2)
+            ->assertSee('ZZ DIPENDENTE')
+            ->filterTable('documentable_type', 'fornitore')
             ->assertCountTableRecords(1)
             ->assertSee('ZZ PRODUTTORE')
-            ->assertDontSee('ZZ DIPENDENTE')
-            ->removeTableFilter('documentable_type')
-            ->assertCountTableRecords(2)
-            ->assertSee('ZZ DIPENDENTE');
+            ->assertDontSee('ZZ DIPENDENTE');
     }
 
     public function test_the_subject_opens_its_registry_card_when_it_has_one(): void
