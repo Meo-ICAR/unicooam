@@ -2,16 +2,17 @@
 
 namespace Tests\Feature;
 
-use Unico\Core\Enums\DocumentStatus;
 use App\Models\Company;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\TestCase;
+use Unico\Core\Enums\DocumentStatus;
 
 class DocumentRenewalTest extends TestCase
 {
@@ -52,6 +53,9 @@ class DocumentRenewalTest extends TestCase
         $document->addMedia(UploadedFile::fake()->create('vecchio.pdf', 10, 'application/pdf'))
             ->toMediaCollection('documents');
 
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
         $newEmittedAt = now()->toDateString();
         $newDocument = $document->renew($newEmittedAt);
         $newDocument->addMedia(UploadedFile::fake()->create('nuovo.pdf', 10, 'application/pdf'))
@@ -67,6 +71,10 @@ class DocumentRenewalTest extends TestCase
 
         $this->assertSame(DocumentStatus::EXPIRED, $document->status);
         $this->assertSame($newDocument->id, $document->replaced_by_id);
+        $this->assertSame($newDocument->id, $document->renewed_by_id);
+        $this->assertSame($user->id, $document->renewed_by);
+        $this->assertSame($user->id, $newDocument->created_by);
+        $this->assertNotNull($newDocument->expires_at);
         $this->assertTrue($document->hasMedia('documents'));
         $this->assertSame('vecchio.pdf', $document->getFirstMedia('documents')->file_name);
     }

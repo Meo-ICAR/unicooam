@@ -23,7 +23,6 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use pxlrbt\FilamentExcel\Actions\ExportAction;
 use Unico\Core\Enums\DocumentStatus;
 
@@ -163,13 +162,7 @@ class DocumentsTable
                             ->maxSize(20480),
                     ])
                     ->action(function (Document $record, array $data): void {
-                        $newDocument = $record->renew($data['emitted_at']);
-
-                        if (filled($data['new_attachment'] ?? null)) {
-                            $newDocument->addMediaFromDisk($data['new_attachment'], 'public')
-                                ->toMediaCollection('documents');
-                            Storage::disk('public')->delete($data['new_attachment']);
-                        }
+                        $record->renewWithFile($data['emitted_at'], $data['new_attachment'] ?? null);
 
                         Notification::make()
                             ->title('Documento rinnovato')
