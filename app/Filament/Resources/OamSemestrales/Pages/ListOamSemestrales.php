@@ -50,7 +50,7 @@ class ListOamSemestrales extends ListRecords
      * prodotto creditizio (raggruppamento + groupsOnly), nascondendo il
      * dettaglio per istituto erogante.
      */
-    public bool $onlySummary = true;
+    public bool $onlySummary = false;
 
     /**
      * Il titolo va sempre su una riga separata rispetto ai tasti header

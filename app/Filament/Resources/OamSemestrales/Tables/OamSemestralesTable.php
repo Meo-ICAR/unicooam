@@ -69,7 +69,7 @@ class OamSemestralesTable
                 // icona (stato null) se non c'è convenzione.
                 IconColumn::make('has_convenzione')
                     ->label('Convenzione')
-                    ->getStateUsing(fn (OamSemestrale $record): ?bool => OamCode::isIstitutoConvenzionato($record->abi_name, $record->prodotto_creditizio) ?: null)
+                    ->getStateUsing(fn (OamSemestrale $record): ?bool => OamCode::isIstitutoConvenzionato((string) $record->abi_name, (string) $record->prodotto_creditizio) ?: null)
                     ->icon(fn (?bool $state): ?string => $state ? 'heroicon-o-check-circle' : null)
                     ->color('success')
                     ->alignCenter(),

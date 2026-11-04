@@ -14,49 +14,49 @@ class OamSemestralesOnlySummaryToggleTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
-    public function test_onlysummary_defaults_to_true_and_the_toggle_action_flips_it(): void
+    public function test_onlysummary_defaults_to_false_and_the_toggle_action_flips_it(): void
     {
         Company::factory()->create();
         $this->actingAs(User::factory()->create());
 
         Livewire::test(ListOamSemestrales::class)
-            ->assertSet('onlySummary', true)
-            ->callAction('toggleOnlySummary')
             ->assertSet('onlySummary', false)
             ->callAction('toggleOnlySummary')
-            ->assertSet('onlySummary', true);
+            ->assertSet('onlySummary', true)
+            ->callAction('toggleOnlySummary')
+            ->assertSet('onlySummary', false);
     }
 
-    public function test_table_groups_only_by_prodotto_by_default_and_stops_when_the_flag_is_off(): void
+    public function test_table_shows_detail_by_default_and_groups_only_by_prodotto_when_the_flag_is_on(): void
     {
         Company::factory()->create();
         $this->actingAs(User::factory()->create());
 
         $component = Livewire::test(ListOamSemestrales::class);
-
-        $table = $component->instance()->getTable();
-        $this->assertTrue($table->isGroupsOnly());
-        $this->assertSame('prodotto_creditizio', $table->getDefaultGroup()?->getId());
-
-        $component->callAction('toggleOnlySummary');
 
         $table = $component->instance()->getTable();
         $this->assertFalse($table->isGroupsOnly());
         $this->assertNull($table->getDefaultGroup());
+
+        $component->callAction('toggleOnlySummary');
+
+        $table = $component->instance()->getTable();
+        $this->assertTrue($table->isGroupsOnly());
+        $this->assertSame('prodotto_creditizio', $table->getDefaultGroup()?->getId());
     }
 
-    public function test_finanziatore_column_is_hidden_in_summary_and_shown_with_detail(): void
+    public function test_finanziatore_column_is_shown_with_detail_and_hidden_in_summary(): void
     {
         Company::factory()->create();
         $this->actingAs(User::factory()->create());
 
         $component = Livewire::test(ListOamSemestrales::class);
 
-        $this->assertTrue($component->instance()->getTable()->getColumn('abi_name')->isHidden());
+        $this->assertFalse($component->instance()->getTable()->getColumn('abi_name')->isHidden());
 
         $component->callAction('toggleOnlySummary');
 
-        $this->assertFalse($component->instance()->getTable()->getColumn('abi_name')->isHidden());
+        $this->assertTrue($component->instance()->getTable()->getColumn('abi_name')->isHidden());
     }
 
     public function test_prodotto_group_uses_natural_order_with_uncoded_products_last(): void
