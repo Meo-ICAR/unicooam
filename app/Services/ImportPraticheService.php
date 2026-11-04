@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\OamPratiche;
-use App\Models\PROFORMA\Clienti;
 use App\Models\Fornitore;
+use App\Models\OamPratiche;
 use App\Models\Pratica;
+use App\Models\PROFORMA\Clienti;
 use App\Models\PROFORMA\Provvigione;
 use App\ValueObjects\OamSemester;
 use Illuminate\Support\Collection;
@@ -210,7 +210,7 @@ class ImportPraticheService
      * erogated_at ma, ai fini della classificazione, vale come non erogata
      * (pratica in lavorazione).
      */
-    private function applyBusinessRules(OamSemester $semester, string $period, string $companyId): void
+    public function applyBusinessRules(OamSemester $semester, string $period, string $companyId, bool $segnalazione = true): void
     {
         $semesterEnd = $semester->end->toDateTimeString();
 
@@ -226,13 +226,15 @@ class ImportPraticheService
 
         // Segnalazione: l'istituto erogante non e' una banca. Un mutuo diventa
         // sempre Segnalazione Mutuo, ogni altro prodotto Segnalazione Finanziamento.
-        DB::update(
-            "UPDATE oam_pratiches o
-             SET o.prodotto_creditizio = IF(o.tipo_prodotto = 'Mutuo', 'Segnalazione Mutuo', 'Segnalazione Finanziamento')
-             WHERE (o.principal_type IS NULL OR o.principal_type <> 'banca')
-               AND o.period = ? AND o.company_id = ?",
-            [$period, $companyId]
-        );
+        if ($segnalazione) {
+            DB::update(
+                "UPDATE oam_pratiches o
+                 SET o.prodotto_creditizio = IF(o.tipo_prodotto = 'Mutuo', 'Segnalazione Mutuo', 'Segnalazione Finanziamento')
+                 WHERE (o.principal_type IS NULL OR o.principal_type <> 'banca')
+                   AND o.period = ? AND o.company_id = ?",
+                [$period, $companyId]
+            );
+        }
 
         DB::update(
             'UPDATE oam_pratiches o

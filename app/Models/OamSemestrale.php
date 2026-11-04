@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Unico\Core\Models\OamSemestrale as CoreOamSemestrale;
@@ -9,6 +10,7 @@ use Unico\Core\Models\OamSemestrale as CoreOamSemestrale;
 class OamSemestrale extends CoreOamSemestrale
 {
     use HasFactory;
+    use ScopedToUserCompany;
 
     public $timestamps = false;
 

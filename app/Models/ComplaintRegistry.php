@@ -7,8 +7,8 @@ use App\Enums\ComplaintMacroCategory;
 use App\Enums\ComplaintStatus;
 use App\Enums\ReceptionChannel;
 use App\Models\Concerns\LogsComplianceActivity;
+use App\Models\Concerns\ScopedToUserCompany;
 use App\Models\PROFORMA\Clienti;
-use App\Models\Fornitore;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +21,7 @@ use Unico\Core\Models\ComplaintRegistry as CoreComplaintRegistry;
 class ComplaintRegistry extends CoreComplaintRegistry
 {
     use HasFactory, LogsComplianceActivity, SoftDeletes;
+    use ScopedToUserCompany;
 
     /**
      * Cast degli attributi per l'integrazione nativa con gli Enum.

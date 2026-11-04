@@ -26,6 +26,9 @@ class OamSemestraleService
         }
 
         return DB::transaction(function () use ($period, $companyId) {
+            $semesterStart = "CASE WHEN RIGHT(period, 2) = '06' THEN CONCAT(LEFT(period, 4), '-01-01') ELSE CONCAT(LEFT(period, 4), '-07-01') END";
+            $semesterEnd = "CASE WHEN RIGHT(period, 2) = '06' THEN CONCAT(LEFT(period, 4), '-06-30') ELSE CONCAT(LEFT(period, 4), '-12-31') END";
+
             $query = OamPratiche::query()
                 ->select('company_id', 'period', 'abi_name', 'prodotto_creditizio')
                 ->selectRaw('SUM(intermediari_convenzionati) as intermediari_convenzionati')
@@ -51,6 +54,16 @@ class OamSemestraleService
                 ->orderBy('period')
                 ->orderBy('abi_name')               // <-- Primo
                 ->orderBy('prodotto_creditizio');   // <-- Secondo
+
+            // Restano fuori le pratiche erogate in un semestre precedente (salvo quelle con storni
+            // nel semestre) e quelle inserite dopo la fine del semestre.
+            $query->where(fn ($q) => $q
+                ->whereNull('erogated_at')
+                ->orWhereRaw("erogated_at >= {$semesterStart}")
+                ->orWhere('importo_retrocesse', '>', 0))
+                ->where(fn ($q) => $q
+                    ->whereNull('sended_at')
+                    ->orWhereRaw("sended_at < DATE_ADD({$semesterEnd}, INTERVAL 1 DAY)"));
 
             if ($period) {
                 $query->where('period', $period);

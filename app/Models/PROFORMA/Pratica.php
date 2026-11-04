@@ -2,6 +2,8 @@
 
 namespace App\Models\PROFORMA;
 
+use App\Models\Concerns\ScopedToUserCompany;
+
 /**
  * Alias di compatibilità: le pratiche stanno su unico-core.
  *
@@ -9,4 +11,5 @@ namespace App\Models\PROFORMA;
  */
 class Pratica extends \App\Models\Pratica
 {
+    use ScopedToUserCompany;
 }

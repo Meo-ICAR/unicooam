@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OamSemestrales\Pages;
 
 use App\Filament\Actions\ImportOamAction;
+use App\Filament\Actions\ImportSentoviaAction;
 use App\Filament\Exports\Sheets\M510AnagraficaSheet;
 use App\Filament\Exports\Sheets\M510EconomicoBaseSheet;
 use App\Filament\Exports\Sheets\M510EconomicoOldSheet;
@@ -144,12 +145,15 @@ class ListOamSemestrales extends ListRecords
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('info'),
 
+            ImportSentoviaAction::make(),
+
             // --- EXCEL GLOBALE MULTI-SHEET ---
             Action::make('export_completo')
                 ->label('Completo')
                 ->icon('heroicon-o-document-duplicate')
                 ->color('success')
-                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->disabled(fn (Action $action): bool => ! checkPiano($action->getName()))
+                ->tooltip(fn (Action $action): ?string => checkPiano($action->getName()) ? null : 'Non disponibile con il piano attuale')
                 ->action(fn (): BinaryFileResponse => Excel::download(
                     new OamCompletoExport(
                         $this->getDatiAnagrafica(),
@@ -183,7 +187,8 @@ class ListOamSemestrales extends ListRecords
 
             Action::make('Anagrafica')
                 ->label('Anagrafica')
-                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->disabled(fn (Action $action): bool => ! checkPiano($action->getName()))
+                ->tooltip(fn (Action $action): ?string => checkPiano($action->getName()) ? null : 'Non disponibile con il piano attuale')
                 ->icon('heroicon-o-identification')
                 ->color('success')
                 ->action(fn (): BinaryFileResponse => Excel::download(
@@ -192,7 +197,8 @@ class ListOamSemestrales extends ListRecords
                 )),
 
             Action::make('Informativo')
-                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->disabled(fn (Action $action): bool => ! checkPiano($action->getName()))
+                ->tooltip(fn (Action $action): ?string => checkPiano($action->getName()) ? null : 'Non disponibile con il piano attuale')
                 ->label('Informativo')
                 ->icon('heroicon-o-information-circle')
                 ->color('success')
@@ -202,7 +208,8 @@ class ListOamSemestrales extends ListRecords
                 )),
 
             Action::make('Sedi')
-                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->disabled(fn (Action $action): bool => ! checkPiano($action->getName()))
+                ->tooltip(fn (Action $action): ?string => checkPiano($action->getName()) ? null : 'Non disponibile con il piano attuale')
                 ->label('Sedi')
                 ->icon('heroicon-o-map-pin')
                 ->color('success')
@@ -213,7 +220,8 @@ class ListOamSemestrales extends ListRecords
 
             Action::make('Prudenziale')
                 ->label('Prudenziale')
-                ->visible(fn (Action $action) => checkPiano($action->getName()))
+                ->disabled(fn (Action $action): bool => ! checkPiano($action->getName()))
+                ->tooltip(fn (Action $action): ?string => checkPiano($action->getName()) ? null : 'Non disponibile con il piano attuale')
                 ->icon('heroicon-o-shield-check')
                 ->color('warning')
                 ->action(fn (): BinaryFileResponse => Excel::download(

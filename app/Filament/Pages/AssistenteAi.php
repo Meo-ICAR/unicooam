@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Traits\HasPlanAccess;
 use App\Mail\AssistantEscalationMail;
 use App\Models\User;
 use App\Neuron\ManualAssistantAgent;
@@ -26,6 +27,8 @@ use UnitEnum;
  */
 class AssistenteAi extends Page
 {
+    use HasPlanAccess;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
     protected string $view = 'filament.pages.assistente-ai';

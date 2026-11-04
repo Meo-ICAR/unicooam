@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,6 +15,7 @@ use Unico\Core\Models\DocumentType as CoreDocumentType;
 class DocumentType extends CoreDocumentType implements HasMedia
 {
     use HasFactory, InteractsWithMedia, SoftDeletes;
+    use ScopedToUserCompany;
 
     protected $orderBy = 'name';
 

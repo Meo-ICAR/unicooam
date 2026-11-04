@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsComplianceActivity;
+use App\Models\Concerns\ScopedToUserCompany;
 use App\Models\PROFORMA\Clienti;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +15,7 @@ use Unico\Core\Models\SuspiciousActivityReport as CoreSuspiciousActivityReport;
 class SuspiciousActivityReport extends CoreSuspiciousActivityReport
 {
     use LogsComplianceActivity, SoftDeletes;
+    use ScopedToUserCompany;
 
     /**
      * I cast nativi per gli attributi del database.

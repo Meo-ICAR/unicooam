@@ -2,24 +2,17 @@
 
 namespace App\Models;
 
-use Unico\Core\Enums\DocumentStatus;
-use App\ValueObjects\OamSemester;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Unico\Core\Models\Document as CoreDocument;
 
 class Document extends CoreDocument
 {
     use HasFactory, SoftDeletes;
+    use ScopedToUserCompany;
 
     /**
      * Relazione: Tipo di documento

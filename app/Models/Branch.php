@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Fornitore;
+use App\Models\Concerns\ScopedToUserCompany;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,6 +14,7 @@ use Unico\Core\Models\Branch as CoreBranch;
 class Branch extends CoreBranch
 {
     use HasFactory, SoftDeletes;
+    use ScopedToUserCompany;
 
     protected $orderBy = 'name';
 

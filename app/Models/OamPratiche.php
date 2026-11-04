@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -10,6 +11,7 @@ use Unico\Core\Models\OamPratica as CoreOamPratica;
 class OamPratiche extends CoreOamPratica
 {
     use HasFactory, SoftDeletes;
+    use ScopedToUserCompany;
 
     // Casting esplicito dei tipi di dato
     protected $casts = [

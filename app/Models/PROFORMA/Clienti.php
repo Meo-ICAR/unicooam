@@ -3,6 +3,7 @@
 namespace App\Models\PROFORMA;
 
 use App\Models\Branch;
+use App\Models\Concerns\ScopedToUserCompany;
 use App\Models\Document;
 use App\Models\OamCode;
 use App\Models\ProvvigioniRule;
@@ -10,7 +11,6 @@ use App\Models\TipoprodottoSubConstraint;
 use App\Models\Website;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
- * @property string $id
+ * @property int $id
  * @property string|null $cf
  * @property string|null $coge
  * @property string|null $codice
@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\DB;
  * @property string|null $email
  * @property string|null $regione
  * @property string|null $citta
- * @property string $company_id
+ * @property int $company_id
  * @property int|null $customertype_id
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
@@ -39,7 +39,8 @@ use Illuminate\Support\Facades\DB;
  */
 class Clienti extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, SoftDeletes;
+    use ScopedToUserCompany;
 
     /**
      * The table associated with the model.
@@ -66,14 +67,14 @@ class Clienti extends Model
      *
      * @var string
      */
-    protected $keyType = 'string';
+    protected $keyType = 'int';
 
     /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
      */
-    public $incrementing = false;
+    public $incrementing = true;
 
     /**
      * The attributes that are mass assignable.

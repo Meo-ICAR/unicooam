@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -10,6 +11,8 @@ use Unico\Core\Models\Client as CoreClient;
 
 class Client extends CoreClient
 {
+    use ScopedToUserCompany;
+
     /**
      * Il cast degli attributi ai tipi nativi.
      * Garantisce che i tinyint diventino booleani puri e gestisce i timestamp.

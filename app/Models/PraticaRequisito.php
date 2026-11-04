@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class PraticaRequisito extends DocumentType
 {
+    use ScopedToUserCompany;
+
     protected function codice(): Attribute
     {
         return Attribute::make(get: fn () => $this->code, set: fn ($value) => ['code' => $value]);

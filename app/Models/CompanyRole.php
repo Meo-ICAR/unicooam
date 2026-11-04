@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ use Unico\Core\Models\CompanyRole as CoreCompanyRole;
 class CompanyRole extends CoreCompanyRole
 {
     use HasFactory;
+    use ScopedToUserCompany;
 
     // Casting automatico dei tipi di dato
     protected function casts(): array

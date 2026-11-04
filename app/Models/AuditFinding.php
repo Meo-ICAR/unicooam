@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\FindingSeverity;
 use App\Enums\FindingStatus;
 use App\Models\Concerns\LogsComplianceActivity;
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,6 +14,7 @@ use Unico\Core\Models\AuditFinding as CoreAuditFinding;
 class AuditFinding extends CoreAuditFinding
 {
     use HasFactory, LogsComplianceActivity, SoftDeletes;
+    use ScopedToUserCompany;
 
     /**
      * I cast nativi per gli attributi del database.

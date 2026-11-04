@@ -2,17 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use App\Models\PROFORMA\Clienti;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Unico\Core\Models\Website as CoreWebsite;
 
 class Website extends CoreWebsite
 {
     use HasFactory, SoftDeletes;
+    use ScopedToUserCompany;
+
     protected $orderBy = 'name';
+
     protected $orderDirection = 'asc';
 
     /**

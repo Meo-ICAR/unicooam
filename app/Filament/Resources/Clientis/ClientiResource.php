@@ -48,6 +48,11 @@ class ClientiResource extends Resource
 
     public static function getRelations(): array
     {
+        // Con il piano BASE le schede collegate non sono disponibili.
+        if (! checkPiano('clientis-relations')) {
+            return [];
+        }
+
         return [
             DocumentsRelationManager::class,
             //   WebsitesRelationManager::class,

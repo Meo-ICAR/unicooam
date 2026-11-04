@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AuditStatus;
 use App\Models\Concerns\LogsComplianceActivity;
+use App\Models\Concerns\ScopedToUserCompany;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,6 +18,7 @@ use Unico\Core\Models\Audit as CoreAudit;
 class Audit extends CoreAudit
 {
     use HasFactory, LogsComplianceActivity, SoftDeletes;
+    use ScopedToUserCompany;
 
     /**
      * Definizione dei Casts (Nuovo standard nativo da Laravel 11/12/13 tramite metodo).

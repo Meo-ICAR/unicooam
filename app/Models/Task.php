@@ -3,25 +3,27 @@
 namespace App\Models;
 
 use App\Events\TaskActivated;
-use Filament\Facades\Filament;
-use Illuminate\Database\Eloquent\Builder; // <-- Add this line!
+use App\Models\Concerns\ScopedToUserCompany;
+use Filament\Facades\Filament; // <-- Add this line!
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\MediaLibrary\HasMedia;
 /*
      * 1. GLOBAL SCOPE ISOLAMENTO E TASK COMUNI
      * Caricato automaticamente su tutte le query dell'applicazione.
 */
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Unico\Core\Models\Task as CoreTask;
 
 class Task extends CoreTask implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
+    use ScopedToUserCompany;
 
     protected $orderBy = 'name';
 

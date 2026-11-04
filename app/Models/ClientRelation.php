@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -22,6 +23,7 @@ use Unico\Core\Models\ClientRelation as CoreClientRelation;
 class ClientRelation extends CoreClientRelation
 {
     use HasFactory;
+    use ScopedToUserCompany;
 
     protected $casts = [
         'shares_percentage' => 'decimal:2',

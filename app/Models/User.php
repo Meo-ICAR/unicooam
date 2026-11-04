@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Concerns\ScopedToUserCompany;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
@@ -12,7 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -24,7 +24,7 @@ use Unico\Core\Models\User as CoreUser;
 class User extends CoreUser implements FilamentUser, HasAvatar // , LogsActivity
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, LogsActivity, Notifiable;
+    use HasFactory, LogsActivity, Notifiable, ScopedToUserCompany;
 
     protected $orderBy = 'name';
 
@@ -41,6 +41,12 @@ class User extends CoreUser implements FilamentUser, HasAvatar // , LogsActivity
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ]);
+    }
+
+    /** Un utente con company_id vede solo gli utenti della stessa company. */
+    protected static function includesSharedCompanyRows(): bool
+    {
+        return false;
     }
 
     protected static function booted(): void

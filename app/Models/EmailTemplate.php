@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,6 +11,7 @@ use Unico\Core\Models\EmailTemplate as CoreEmailTemplate;
 class EmailTemplate extends CoreEmailTemplate
 {
     use HasFactory;
+    use ScopedToUserCompany;
 
     /**
      * The attributes that should be cast.

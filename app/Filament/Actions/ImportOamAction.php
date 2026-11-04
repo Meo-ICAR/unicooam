@@ -2,6 +2,7 @@
 
 namespace App\Filament\Actions;
 
+use App\Services\CompanyResolver;
 use App\Services\ImportPraticheService;
 use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
@@ -26,6 +27,7 @@ class ImportOamAction extends Action
             ->modalHeading('Importa Pratiche dal Gestionale')
             ->modalDescription('ATTENZIONE! Tutte le modifiche manuali saranno rimosse. ')
             ->modalWidth('md')
+            ->hidden(fn (): bool => strcasecmp((string) app(CompanyResolver::class)->resolve()->crm, 'Sentovia') === 0)
 
             ->action(function (array $data): void {
                 $semestre = OamSemester::current();

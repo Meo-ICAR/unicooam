@@ -2,6 +2,8 @@
 
 namespace App\Models\PROFORMA;
 
+use App\Models\Concerns\ScopedToUserCompany;
+
 /**
  * Alias di compatibilità: l'anagrafica fornitori sta su unico-core.
  *
@@ -9,4 +11,5 @@ namespace App\Models\PROFORMA;
  */
 class Fornitore extends \App\Models\Fornitore
 {
+    use ScopedToUserCompany;
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use App\Models\PROFORMA\Clienti;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,6 +19,7 @@ use Unico\Core\Models\Fornitore as CoreFornitore;
 class Fornitore extends CoreFornitore
 {
     use HasFactory;
+    use ScopedToUserCompany;
 
     protected $orderBy = 'name';
 

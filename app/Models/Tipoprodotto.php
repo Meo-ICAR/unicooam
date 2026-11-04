@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Unico\Core\Models\TipoProdotto as CoreTipoProdotto;
 
 class Tipoprodotto extends CoreTipoProdotto
 {
+    use ScopedToUserCompany;
+
     /**
      * I cast nativi per i tipi di dato.
      *

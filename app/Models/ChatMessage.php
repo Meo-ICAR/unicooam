@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use NeuronAI\Laravel\Models\ChatMessage as BaseChatMessage;
 use Unico\Core\Models\ChatMessage as CoreChatMessage;
 
 /**
@@ -14,6 +14,8 @@ use Unico\Core\Models\ChatMessage as CoreChatMessage;
  */
 class ChatMessage extends CoreChatMessage
 {
+    use ScopedToUserCompany;
+
     protected static function booted(): void
     {
         parent::booted();

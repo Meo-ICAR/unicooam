@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -11,7 +12,10 @@ use Unico\Core\Models\TrainingRecord as CoreTrainingRecord;
 class TrainingRecord extends CoreTrainingRecord
 {
     use HasFactory, SoftDeletes;
+    use ScopedToUserCompany;
+
     protected $orderBy = 'expiry_date';
+
     protected $orderDirection = 'asc';
 
     protected $casts = [

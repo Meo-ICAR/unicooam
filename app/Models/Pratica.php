@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use App\Models\PROFORMA\Clienti;
 use App\Models\PROFORMA\Provvigione;
 use App\ValueObjects\OamSemester;
@@ -21,6 +22,8 @@ use Unico\Core\Models\TipoProdotto as CoreTipoProdotto;
  */
 class Pratica extends CorePratica
 {
+    use ScopedToUserCompany;
+
     protected function casts(): array
     {
         return array_merge(parent::casts(), [

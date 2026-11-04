@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\LogsComplianceActivity;
+use App\Models\Concerns\ScopedToUserCompany;
 use Database\Factories\QualityReviewFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,8 @@ class QualityReview extends CoreQualityReview
 {
     /** @use HasFactory<QualityReviewFactory> */
     use HasFactory, LogsComplianceActivity, SoftDeletes;
+
+    use ScopedToUserCompany;
 
     /**
      * @return array<string, string>

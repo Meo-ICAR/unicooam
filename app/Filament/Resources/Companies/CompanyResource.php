@@ -50,6 +50,11 @@ class CompanyResource extends Resource
 
     public static function getRelations(): array
     {
+        // Con il piano BASE le schede collegate (documenti, ruoli, sedi, siti, caselle, utilizzo chat) non sono disponibili.
+        if (! checkPiano('companies-relations')) {
+            return [];
+        }
+
         return [
             DocumentsRelationManager::class,
             CompanyRolesRelationManager::class,

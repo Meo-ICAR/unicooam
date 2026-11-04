@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Pratica;
+use App\Models\Concerns\ScopedToUserCompany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Unico\Core\Models\DocumentRequest as CoreDocumentRequest;
@@ -14,6 +14,8 @@ use Unico\Core\Models\DocumentRequest as CoreDocumentRequest;
  */
 class PraticaRequisitoOperativo extends CoreDocumentRequest
 {
+    use ScopedToUserCompany;
+
     // --- RELAZIONI ---
 
     public function pratica(): BelongsTo

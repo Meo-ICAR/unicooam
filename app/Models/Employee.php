@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ScopedToUserCompany;
 use App\ValueObjects\OamSemester;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,6 +15,7 @@ use Unico\Core\Models\Employee as CoreEmployee;
 class Employee extends CoreEmployee
 {
     use HasFactory, SoftDeletes;
+    use ScopedToUserCompany;
 
     protected $orderBy = 'name';
 
