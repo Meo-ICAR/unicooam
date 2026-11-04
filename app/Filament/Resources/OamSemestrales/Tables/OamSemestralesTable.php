@@ -6,6 +6,7 @@ use App\Filament\Exports\DynamicGroupExport;
 use App\Filament\Resources\OamPratiches\OamPraticheResource;
 use App\Models\OamCode;
 use App\Models\OamSemestrale;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -189,6 +190,10 @@ class OamSemestralesTable
 
             ])
             ->filters([
+                SelectFilter::make('period')
+                    ->label('Semestre')
+                    ->options(OamSemester::filterOptions())
+                    ->default(fn (): string => OamSemestrale::query()->max('period') ?? OamSemester::current()->period()),
                 SelectFilter::make('abi_name')
                     ->label('Finanziatore')
                     ->multiple()
@@ -231,7 +236,7 @@ class OamSemestralesTable
                     ->url(fn ($record) => OamPraticheResource::getUrl('index', [
                         'filters' => [
                             // 'company_id' => ['value' => $record->company_id],
-                            //  'period' => ['value' => $record->period],
+                            'period' => ['value' => $record->period],
                             'abi_name' => ['values' => [0 => $record->abi_name]],
                             'prodotto_creditizio' => ['values' => [0 => $record->prodotto_creditizio]],
                         ],

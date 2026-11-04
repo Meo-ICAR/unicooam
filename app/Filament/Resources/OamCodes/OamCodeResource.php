@@ -36,7 +36,7 @@ class OamCodeResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Codici';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = -3;
 
     //    protected static bool $shouldRegisterNavigation = false;
 

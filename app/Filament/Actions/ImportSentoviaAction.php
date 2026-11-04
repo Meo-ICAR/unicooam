@@ -5,11 +5,15 @@ namespace App\Filament\Actions;
 use App\Services\ImportSentoviaService;
 use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class ImportSentoviaAction extends Action
 {
+    private const DIRECTORY = 'sentovia/upload';
+
     public static function getDefaultName(): ?string
     {
         return 'importSentovia';
@@ -24,14 +28,33 @@ class ImportSentoviaAction extends Action
             ->icon('heroicon-o-arrow-up-tray')
             ->color('warning')
             ->modalHeading('Importa Pratiche da Sentovia')
-            ->modalDescription('ATTENZIONE! Tutte le modifiche manuali saranno rimosse. ')
+            ->modalDescription(fn (): string => 'ATTENZIONE! Tutte le modifiche manuali del semestre saranno rimosse. Carica i due file estratti da Sentovia (testo separato da tabulazioni): vengono importati nel semestre '.OamSemester::current()->label().'.')
             ->modalWidth('md')
-
+            ->schema([
+                FileUpload::make('pratiche')
+                    ->label('File pratiche')
+                    ->helperText('Colonne: ID Pratica, Data Inserimento Pratica, Data_erogazione, Data Annullamento, Stato Pratica, Tipo Prodotto, Denominazione Istituto, Importo_Erogazione')
+                    ->disk('local')
+                    ->directory(self::DIRECTORY)
+                    ->acceptedFileTypes(['text/plain', 'text/tab-separated-values', 'text/csv'])
+                    ->required(),
+                FileUpload::make('provvigioni')
+                    ->label('File provvigioni')
+                    ->helperText('Colonne: ID Pratica, Tipo, Tipologia Premio, Importo, Data Status')
+                    ->disk('local')
+                    ->directory(self::DIRECTORY)
+                    ->acceptedFileTypes(['text/plain', 'text/tab-separated-values', 'text/csv'])
+                    ->required(),
+            ])
             ->action(function (array $data): void {
-                $semestre = OamSemester::current();
+                $disk = Storage::disk('local');
 
                 try {
-                    $count = app(ImportSentoviaService::class)->import($semestre);
+                    $count = app(ImportSentoviaService::class)->import(
+                        OamSemester::current(),
+                        $disk->path($data['pratiche']),
+                        $disk->path($data['provvigioni']),
+                    );
 
                     Notification::make()
                         ->title('Importazione completata')
@@ -44,6 +67,8 @@ class ImportSentoviaAction extends Action
                         ->body($e->getMessage())
                         ->danger()
                         ->send();
+                } finally {
+                    $disk->delete([$data['pratiche'], $data['provvigioni']]);
                 }
             });
     }

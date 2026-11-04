@@ -38,8 +38,8 @@ class OamCodeSeeder extends Seeder
             ['id' => 23, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Aziendale', 'is_dummy' => true, 'is_active' => true, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 24, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Chirografario', 'is_dummy' => true, 'is_active' => true, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
             ['id' => 25, 'code' => 'A.1', 'name' => 'Mutui', 'description' => 'A.1 Mutui', 'tipo_prodotto' => 'Microcredito', 'is_dummy' => true, 'is_active' => true, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
-            ['id' => 26, 'code' => 'A.2', 'name' => 'Cessioni del V dello stipendio/pensione e delegazioni di pagamento', 'description' => 'A.2 Cessioni del V dello stipendio/pensione e delegazioni di pagamento', 'tipo_prodotto' => 'Cessione', 'is_dummy' => true, 'is_active' => true, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
-            ['id' => 27, 'code' => 'A.10', 'name' => 'Credito personale', 'description' => 'A.10 Credito personale', 'tipo_prodotto' => 'CREDITO', 'is_dummy' => true, 'is_active' => true, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+            ['id' => 26, 'code' => 'A.2', 'name' => 'Cessioni del V dello stipendio/pensione e delegazioni di pagamento', 'description' => 'A.2 Cessioni del V dello stipendio/pensione e delegazioni di pagamento', 'tipo_prodotto' => 'Cessione', 'is_dummy' => false, 'is_active' => true, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
+            ['id' => 27, 'code' => 'A.10', 'name' => 'Credito personale', 'description' => 'A.10 Credito personale', 'tipo_prodotto' => 'CREDITO', 'is_dummy' => false, 'is_active' => true, 'created_at' => '2026-03-16 04:20:44', 'updated_at' => '2026-03-16 04:20:44'],
         ];
 
         // L'upsert ora funzionerà correttamente perché la struttura dell'array è uniforme.

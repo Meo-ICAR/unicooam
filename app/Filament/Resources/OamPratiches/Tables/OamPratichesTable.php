@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OamPratiches\Tables;
 
 use App\Filament\Exports\DynamicGroupExport;
 use App\Models\OamPratiche;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -22,6 +23,8 @@ class OamPratichesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->delSemestre())
+            ->recordClasses(fn (OamPratiche $record): ?string => $record->pratiche_lavorazione ? 'oam-pratica-lavorazione' : null)
             ->columns([
 
                 TextColumn::make('abi_name')
@@ -192,6 +195,10 @@ class OamPratichesTable
             ->filters([
                 // TrashedFilter::make(),
                 // Dentro il metodo ->filters([...]) della tua tabella:
+                SelectFilter::make('period')
+                    ->label('Semestre')
+                    ->options(OamSemester::filterOptions())
+                    ->default(fn (): string => OamPratiche::query()->max('period') ?? OamSemester::current()->period()),
                 SelectFilter::make('abi_name')
                     ->label('Finanziatore')
                     ->multiple()

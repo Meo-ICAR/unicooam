@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\ScopedToUserCompany;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,6 +48,25 @@ class OamPratiche extends CoreOamPratica
     /**
      * Relazione: Azienda / Tenant
      */
+    /**
+     * Pratiche che appartengono al semestre della propria riga (period): restano fuori quelle erogate
+     * in un semestre precedente (salvo con storni nel semestre) e quelle inserite dopo la fine del semestre.
+     */
+    public function scopeDelSemestre(Builder $query): Builder
+    {
+        $start = "CASE WHEN RIGHT(period, 2) = '06' THEN CONCAT(LEFT(period, 4), '-01-01') ELSE CONCAT(LEFT(period, 4), '-07-01') END";
+        $end = "CASE WHEN RIGHT(period, 2) = '06' THEN CONCAT(LEFT(period, 4), '-06-30') ELSE CONCAT(LEFT(period, 4), '-12-31') END";
+
+        return $query
+            ->where(fn (Builder $q) => $q
+                ->whereNull('erogated_at')
+                ->orWhereRaw("erogated_at >= {$start}")
+                ->orWhere('importo_retrocesse', '>', 0))
+            ->where(fn (Builder $q) => $q
+                ->whereNull('sended_at')
+                ->orWhereRaw("sended_at < DATE_ADD({$end}, INTERVAL 1 DAY)"));
+    }
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);

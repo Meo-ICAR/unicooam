@@ -40,7 +40,8 @@ class ImportSentoviaService
     {
         $semester ??= OamSemester::current();
         $pratiche = $this->readTsv($pratichePath ?? self::defaultPratichePath());
-        $provvigioni = $this->aggregateProvvigioni($this->readTsv($provvigioniPath ?? self::defaultProvvigioniPath()), $semester);
+        $righeProvvigioni = $this->readTsv($provvigioniPath ?? self::defaultProvvigioniPath());
+        $provvigioni = $this->aggregateProvvigioni($righeProvvigioni, $semester);
 
         $lock = Cache::lock('oam:import-pratiche', 900);
 
@@ -77,7 +78,8 @@ class ImportSentoviaService
                     continue;
                 }
 
-                $this->importSingle($riga, $provvigioni[$riga['ID Pratica']] ?? [], $companyId, $period);
+                $cliente = $this->importSingle($riga, $provvigioni[$riga['ID Pratica']] ?? [], $companyId, $period);
+                $this->abilitaProdotti($cliente, [$riga['Tipo Prodotto']]);
                 $imported++;
             }
 
@@ -118,7 +120,7 @@ class ImportSentoviaService
      * @param  array<string, string>  $riga
      * @param  array<string, float>  $provv
      */
-    private function importSingle(array $riga, array $provv, string $companyId, string $period): OamPratiche
+    private function importSingle(array $riga, array $provv, string $companyId, string $period): Clienti
     {
         $istitutoNome = $riga['Denominazione Istituto'];
         $cliente = $this->istituto($istitutoNome, $companyId);
@@ -128,7 +130,7 @@ class ImportSentoviaService
         $erogatedAt = $this->parseDate($riga['Data_erogazione']);
         $storno = (float) ($provv['storno'] ?? 0.0);
 
-        return OamPratiche::updateOrCreate(
+        OamPratiche::updateOrCreate(
             ['pratica' => $riga['ID Pratica'], 'company_id' => $companyId, 'period' => $period],
             [
                 'company_id' => $companyId,
@@ -150,9 +152,38 @@ class ImportSentoviaService
                 'payout_rete_credito' => (float) ($provv['agente'] ?? 0.0),
                 'importo_retrocesse' => $storno,
                 'num_rivalse' => $storno > 0 ? 1 : 0,
-                'abi_name' => $cliente?->abi_name ?: $istitutoNome,
+                'abi_name' => $cliente->abi_name ?: $istitutoNome,
             ]
         );
+
+        return $cliente;
+    }
+
+    /**
+     * La coppia istituto / prodotto trovata nei file abilita il codice OAM (is_active)
+     * e lo associa all'istituto nella pivot clienti_oam.
+     *
+     * @param  list<string>  $tipiProdotto
+     */
+    private function abilitaProdotti(Clienti $cliente, array $tipiProdotto): void
+    {
+        foreach (array_unique(array_filter($tipiProdotto)) as $tipo) {
+            // Stessa connessione della transazione (non quella `core` di OamCode): la pivot ha una chiave esterna su oam_codes e le due si bloccherebbero.
+            DB::table('oam_codes')->where('tipo_prodotto', $tipo)->update(['is_active' => true, 'updated_at' => now()]);
+
+            foreach (DB::table('oam_codes')->where('tipo_prodotto', $tipo)->pluck('id') as $codeId) {
+                $existing = DB::table('clienti_oam')->where('clienti_id', $cliente->id)->where('oam_code_id', $codeId)->exists();
+
+                if (! $existing) {
+                    DB::table('clienti_oam')->insert([
+                        'clienti_id' => $cliente->id,
+                        'oam_code_id' => $codeId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
     }
 
     /**

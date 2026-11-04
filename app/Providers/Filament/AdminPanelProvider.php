@@ -42,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandLogo(asset('brand/logos/unico-oam.jpg'))
             // Opzionale: imposta un'altezza fissa se ti sembra troppo grande o piccolo
-                        ->brandLogoHeight('5rem')
+            ->brandLogoHeight('5rem')
             // Imposta l'icona del browser (favicon)
             ->favicon(asset('brand/icons/unico-oam-64.png'))
 
@@ -105,6 +105,7 @@ class AdminPanelProvider extends PanelProvider
                     ->label('Log')
                     ->pluralLabel('Logs')
                     ->navigationGroup('Settings')
+                    ->navigationSort(-2)
             )
             ->authMiddleware([
                 Authenticate::class,
@@ -127,6 +128,11 @@ class AdminPanelProvider extends PanelProvider
                         }
                     </script>
                     HTML),
+            )
+            // Pratiche in lavorazione di OAM Dettaglio (classe impostata in OamPratichesTable::recordClasses).
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): HtmlString => new HtmlString('<style>tr.oam-pratica-lavorazione > td { background-color: rgb(14 165 233 / 0.14); }</style>'),
             );
     }
 }

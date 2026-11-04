@@ -37,6 +37,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 // CORRETTO
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -90,9 +91,10 @@ class ListOamSemestrales extends ListRecords
                             ->merge(OamPratiche::query()->distinct()->pluck('period'))
                             ->unique()
                             ->sortDesc()
-                            ->mapWithKeys(fn (string $period): array => [$period => $period])
+                            ->mapWithKeys(fn (string $period): array => [$period => OamSemester::filterOptions()[$period] ?? $period])
                             ->all())
-                        ->default(fn (): string => OamSemester::current()->period())
+                        ->helperText('Di default il semestre scelto nel filtro «Semestre» della tabella.')
+                        ->default(fn (): ?string => $this->tableFilters['period']['value'] ?? OamSemestrale::query()->max('period'))
                         ->required(),
                     TextInput::make('note')->label('Nota')->maxLength(255),
                     Toggle::make('svuota')
@@ -146,25 +148,6 @@ class ListOamSemestrales extends ListRecords
                 ->color('info'),
 
             ImportSentoviaAction::make(),
-
-            // --- EXCEL GLOBALE MULTI-SHEET ---
-            Action::make('export_completo')
-                ->label('Completo')
-                ->icon('heroicon-o-document-duplicate')
-                ->color('success')
-                ->disabled(fn (Action $action): bool => ! checkPiano($action->getName()))
-                ->tooltip(fn (Action $action): ?string => checkPiano($action->getName()) ? null : 'Non disponibile con il piano attuale')
-                ->action(fn (): BinaryFileResponse => Excel::download(
-                    new OamCompletoExport(
-                        $this->getDatiAnagrafica(),
-                        $this->getDatiEconomici(),
-                        $this->getDatiInformativo(),
-                        $this->getDatiSedi(),
-                        $this->getDatiPrudenziale(),
-                        $this->getDatiEconomiciAggregatiPerProdotto()
-                    ),
-                    'OAM_Completo.xlsx'
-                )),
 
             // --- SINGOLI FOGLI ISOLATI ---
             Action::make('Base')
@@ -228,6 +211,25 @@ class ListOamSemestrales extends ListRecords
                     new M510PrudenzialeSheet($this->getDatiPrudenziale()),
                     'OAM_Prudenziale.xlsx'
                 )),
+
+            // --- EXCEL GLOBALE MULTI-SHEET ---
+            Action::make('export_completo')
+                ->label('Completo')
+                ->icon('heroicon-o-document-duplicate')
+                ->color('success')
+                ->disabled(fn (Action $action): bool => ! checkPiano($action->getName()))
+                ->tooltip(fn (Action $action): ?string => checkPiano($action->getName()) ? null : 'Non disponibile con il piano attuale')
+                ->action(fn (): BinaryFileResponse => Excel::download(
+                    new OamCompletoExport(
+                        $this->getDatiAnagrafica(),
+                        $this->getDatiEconomici(),
+                        $this->getDatiInformativo(),
+                        $this->getDatiSedi(),
+                        $this->getDatiPrudenziale(),
+                        $this->getDatiEconomiciAggregatiPerProdotto()
+                    ),
+                    'OAM_Completo.xlsx'
+                )),
         ];
     }
 
@@ -236,6 +238,15 @@ class ListOamSemestrales extends ListRecords
     | METODI GETTER DI PREPARAZIONE DATI (Zero Duplicazione)
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Righe semestrali del periodo scelto nel filtro «Semestre» (tutte se il filtro è vuoto).
+     */
+    protected function semestraleQuery(): Builder
+    {
+        return OamSemestrale::query()
+            ->when(filled($this->tableFilters['period']['value'] ?? null), fn (Builder $query) => $query->where('period', $this->tableFilters['period']['value']));
+    }
 
     protected function getDatiAnagrafica(): array
     {
@@ -259,7 +270,7 @@ class ListOamSemestrales extends ListRecords
 
     protected function getDatiEconomici(): array
     {
-        return OamSemestrale::all()->toArray();
+        return $this->semestraleQuery()->get()->toArray();
     }
 
     /**
@@ -277,7 +288,7 @@ class ListOamSemestrales extends ListRecords
     {
         $nonConvenzionatiPerProdotto = $this->contaIstitutiNonConvenzionatiPerProdotto();
 
-        return OamSemestrale::query()
+        return $this->semestraleQuery()
             ->selectRaw('prodotto_creditizio')
             ->selectRaw('SUM(pratiche_intermediate) as pratiche_intermediate')
             ->selectRaw('SUM(pratiche_lavorazione) as pratiche_lavorazione')
@@ -315,7 +326,7 @@ class ListOamSemestrales extends ListRecords
      */
     protected function contaIstitutiNonConvenzionatiPerProdotto(): array
     {
-        return OamSemestrale::query()
+        return $this->semestraleQuery()
             ->select('prodotto_creditizio', 'abi_name')
             ->distinct()
             ->get()

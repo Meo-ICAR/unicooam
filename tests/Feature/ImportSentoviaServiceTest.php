@@ -21,7 +21,9 @@ class ImportSentoviaServiceTest extends TestCase
         // Stessa connessione della transazione del test: evita il lock sulla company.
         DB::connection('mysql_proforma')->setPdo(DB::connection()->getPdo());
 
-        DB::table('oam_codes')->insert(['code' => 'A.2', 'name' => 'Cessioni del V', 'description' => 'A.2 Cessioni del V', 'tipo_prodotto' => 'Cessione', 'is_dummy' => 1, 'is_active' => 1]);
+        DB::table('oam_codes')->insert(['code' => 'A.2', 'name' => 'Cessioni del V', 'description' => 'A.2 Cessioni del V', 'tipo_prodotto' => 'Cessione', 'is_dummy' => 0, 'is_active' => 0]);
+        DB::table('oam_codes')->insert(['code' => 'A.10', 'name' => 'Credito personale', 'description' => 'A.10 Credito personale', 'tipo_prodotto' => 'CREDITO', 'is_dummy' => 0, 'is_active' => 0]);
+        DB::table('oam_codes')->insert(['code' => 'A.9', 'name' => 'Fido', 'description' => 'A.9 Fido', 'tipo_prodotto' => 'Fido', 'is_dummy' => 0, 'is_active' => 0]);
 
         $dir = sys_get_temp_dir().'/sentovia_'.uniqid();
         mkdir($dir);
@@ -54,5 +56,9 @@ class ImportSentoviaServiceTest extends TestCase
         $this->assertEquals(1, DB::table('oam_semestrales')->where('period', '202612')->sum('pratiche_intermediate'));
         $this->assertEquals(1, DB::table('oam_semestrales')->where('period', '202612')->sum('pratiche_lavorazione'));
         $this->assertSame(1, DB::connection('mysql_proforma')->table('clientis')->where('name', 'Istituto X')->count());
+
+        $clienteId = DB::connection('mysql_proforma')->table('clientis')->where('name', 'Istituto X')->value('id');
+        $this->assertSame(['Cessione'], DB::table('oam_codes')->where('is_active', 1)->pluck('tipo_prodotto')->all());
+        $this->assertSame(1, DB::table('clienti_oam')->where('clienti_id', $clienteId)->count());
     }
 }
