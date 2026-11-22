@@ -7,7 +7,7 @@ namespace App\Neuron;
 use Illuminate\Support\Facades\DB;
 use NeuronAI\Agent\SystemPrompt;
 use NeuronAI\Providers\AIProviderInterface;
-use NeuronAI\Providers\Anthropic\Anthropic;
+use Unico\Core\Ai\Neuron\RecordingAnthropic;
 use NeuronAI\RAG\Embeddings\EmbeddingsProviderInterface;
 use NeuronAI\RAG\RAG;
 use NeuronAI\RAG\VectorStore\FileVectorStore;
@@ -70,7 +70,7 @@ class ManualAssistantAgent extends RAG
             throw new RuntimeException('Chiave API Anthropic mancante: imposta ANTHROPIC_API_KEY nel file .env');
         }
 
-        return new Anthropic(
+        return new RecordingAnthropic(usageSource: 'neuron:ManualAssistantAgent',
             key: (string) $key,
             model: (string) env('ANTHROPIC_MODEL', 'claude-sonnet-4-6'),
             max_tokens: 4096,
