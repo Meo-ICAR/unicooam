@@ -384,3 +384,7 @@ Key config options in `config/activitylog.php`:
 </laravel-boost-guidelines>
 
 - **Solleciti:** la logica è del pacchetto (`Unico\Core\Documents\Reminders\DocumentReminderService`): `App\Services\DocumentReminderService` ne traduce solo lo stato in `CheckStatus` e inoltra il resto. L'azione di gruppo «Invia sollecito» usa `compose()`/`send()`: template per company, app e grado (escalation per scadenza e solleciti già inviati), casella mittente di tipo `sollecito` della company, demo/copia/allegati come prima. Le risposte si ricollegano al documento con l'intestazione `<doc-ID@dominio>` (`Mail\ThreadId`).
+
+## Lettura dei documenti: markitdown prima di Anthropic
+
+Per leggere il contenuto di un documento (Word, Excel, PowerPoint, OpenDocument, HTML, RTF, EPUB, e anche PDF quando serve solo il testo) usa `markitdown` (`/usr/local/bin/markitdown <file>`, stampa Markdown) invece di parsarlo a mano. Nel codice che manda documenti all'API Anthropic, i formati che l'API non legge in modo nativo si convertono prima con `Unico\Core\Documents\MarkitdownConverter` (unico-core) e si manda il testo; PDF e immagini restano in visione (firme, timbri e scansioni non si leggono dal solo testo). Binario e limiti: `unico-core.documents.markitdown.*` (`MARKITDOWN_BINARY`, `MARKITDOWN_TIMEOUT`, `MARKITDOWN_MAX_CHARS`).
