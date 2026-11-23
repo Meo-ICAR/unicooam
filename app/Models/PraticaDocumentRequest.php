@@ -9,7 +9,7 @@ class PraticaDocumentRequest extends Model
 {
     protected $connection = 'mysql_proforma';
 
-    protected $table = 'proforma.pratica_document_requests';
+    protected $table = 'pratica_document_requests'; // il database lo dà la connessione mysql_proforma (DB_PROFORMA)
 
     public $timestamps = false; // se gestiti manualmente o se hai creato la tabella senza timestamps
 

@@ -9,7 +9,9 @@ class PraticaStati extends Model
     /**
      * Il nome della tabella.
      */
-    protected $table = 'proforma.pratiches_statos';
+    protected $connection = 'mysql_proforma';
+
+    protected $table = 'pratiches_statos';
 
     /**
      * La chiave primaria della tabella.
