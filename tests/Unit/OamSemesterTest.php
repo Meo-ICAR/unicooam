@@ -52,12 +52,18 @@ class OamSemesterTest extends TestCase
     public static function monthProvider(): array
     {
         return [
-            'gennaio' => [1, 1, 2026],
+            'gennaio' => [1, 2, 2025],
             'giugno' => [6, 1, 2026],
             'ottobre' => [10, 1, 2026],
             'novembre' => [11, 2, 2026],
             'dicembre' => [12, 2, 2026],
         ];
+    }
+
+    public function test_current_switches_to_second_semester_on_november_15(): void
+    {
+        $this->assertSame(1, OamSemester::current(CarbonImmutable::create(2026, 11, 14))->semesterNumber);
+        $this->assertSame(2, OamSemester::current(CarbonImmutable::create(2026, 11, 15))->semesterNumber);
     }
 
     #[DataProvider('periodProvider')]

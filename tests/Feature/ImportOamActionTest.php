@@ -212,7 +212,8 @@ class ImportOamActionTest extends TestCase
             'febbraio: ultimo semestre anno precedente' => ['2027-02-28', '202612'],
             'luglio: primo semestre' => ['2026-07-01', '202606'],
             'ottobre: primo semestre' => ['2026-10-31', '202606'],
-            'novembre: secondo semestre' => ['2026-11-04', '202612'],
+            'novembre fino al 14: primo semestre' => ['2026-11-14', '202606'],
+            'novembre dal 15: secondo semestre' => ['2026-11-15', '202612'],
         ];
     }
 

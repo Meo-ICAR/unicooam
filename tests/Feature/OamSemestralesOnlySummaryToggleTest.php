@@ -45,6 +45,21 @@ class OamSemestralesOnlySummaryToggleTest extends TestCase
         $this->assertSame('prodotto_creditizio', $table->getDefaultGroup()?->getId());
     }
 
+    public function test_toggle_aligns_the_table_grouping_so_the_same_product_is_not_repeated(): void
+    {
+        Company::factory()->create();
+        $this->actingAs(User::factory()->create());
+
+        $component = Livewire::test(ListOamSemestrales::class)
+            ->assertSet('tableGrouping', null)
+            ->callAction('toggleOnlySummary')
+            ->assertSet('tableGrouping', 'prodotto_creditizio');
+
+        $this->assertSame('prodotto_creditizio', $component->instance()->getTableGrouping()?->getId());
+
+        $component->callAction('toggleOnlySummary')->assertSet('tableGrouping', null);
+    }
+
     public function test_finanziatore_column_is_shown_with_detail_and_hidden_in_summary(): void
     {
         Company::factory()->create();

@@ -76,6 +76,11 @@ class ListOamSemestrales extends ListRecords
                 ->color('gray')
                 ->action(function (): void {
                     $this->onlySummary = ! $this->onlySummary;
+
+                    // Il raggruppamento di default è selezionabile: Filament lo legge dalla proprietà
+                    // tableGrouping (impostata solo al caricamento), quindi va allineata al toggle,
+                    // altrimenti le righe dello stesso prodotto non vengono ordinate né raggruppate.
+                    $this->tableGrouping = $this->onlySummary ? 'prodotto_creditizio' : null;
                 }),
 
             Action::make('storicizza')
@@ -94,7 +99,7 @@ class ListOamSemestrales extends ListRecords
                             ->mapWithKeys(fn (string $period): array => [$period => OamSemester::filterOptions()[$period] ?? $period])
                             ->all())
                         ->helperText('Di default il semestre scelto nel filtro «Semestre» della tabella.')
-                        ->default(fn (): ?string => $this->tableFilters['period']['value'] ?? OamSemestrale::query()->max('period'))
+                        ->default(fn (): ?string => $this->tableFilters['period']['value'] ?? OamSemester::current()->period())
                         ->required(),
                     TextInput::make('note')->label('Nota')->maxLength(255),
                     Toggle::make('svuota')
@@ -258,11 +263,11 @@ class ListOamSemestrales extends ListRecords
         return [
             'ragione_sociale' => $azienda->name ?? 'AZIENDA DI TEST SPA',
             'piva' => $azienda->vat_number ?? '01234567890',
-            'periodo' => '01.01.2026 - 30.06.2026',
+            'periodo' => $semestre->start->format('d.m.Y').' - '.$semestre->end->format('d.m.Y'),
             'num_dipendenti' => $dipendenti->count(),
             'num_collaboratori' => $fornitori->count(),
             'sedi_territoriali' => $azienda?->branches()->count() ?? 0,
-            'progressivo' => '1/2026',
+            'progressivo' => $semestre->semesterNumber.'/'.$semestre->year,
             'profilo_analitico' => 'COMPILAZIONE OBBLIGATORIA',
             'profilo_base' => 'NO',
         ];

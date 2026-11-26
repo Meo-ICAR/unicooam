@@ -198,7 +198,7 @@ class OamPratichesTable
                 SelectFilter::make('period')
                     ->label('Semestre')
                     ->options(OamSemester::filterOptions())
-                    ->default(fn (): string => OamPratiche::query()->max('period') ?? OamSemester::current()->period()),
+                    ->default(fn (): string => OamSemester::current()->period()),
                 SelectFilter::make('abi_name')
                     ->label('Finanziatore')
                     ->multiple()

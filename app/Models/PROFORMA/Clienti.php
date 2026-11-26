@@ -163,24 +163,42 @@ class Clienti extends Model
     }
 
     /**
-     * Cerca un cliente per name, prende la piva, cerca il fornitore con la stessa piva
-     * e flag is_dummy = false, e ritorna il campo nome del fornitore.
+     * Istituto canonico di un cliente: se non e' dummy e' il cliente stesso, altrimenti
+     * quello con la stessa partita IVA e is_dummy = false (null se non esiste).
+     */
+    public function canonico(): ?static
+    {
+        if (! $this->is_dummy) {
+            return $this;
+        }
+
+        if (blank($this->piva)) {
+            return null;
+        }
+
+        return static::where('piva', $this->piva)
+            ->where('is_dummy', false)
+            ->first();
+    }
+
+    /**
+     * Istituto canonico a partire dalla denominazione (campo name) usata sulle pratiche.
+     */
+    public static function canonicoByName(?string $name): ?static
+    {
+        if (blank($name)) {
+            return null;
+        }
+
+        return static::where('name', $name)->first()?->canonico();
+    }
+
+    /**
+     * Cerca un cliente per name e ritorna il campo nome dell'istituto canonico (non dummy).
      */
     public static function getClienteNomeByName(string $name): ?string
     {
-        $cliente = static::where('name', $name)->first();
-        if (! $cliente) {
-            return null;
-        }
-        $nome = $cliente->nome;
-        if ($cliente->piva && $cliente->is_dummy) {
-            $clientex = static::where('piva', $cliente->piva)
-                ->where('is_dummy', false)
-                ->first();
-            $nome = $clientex?->nome;
-        }
-
-        return $nome;
+        return static::canonicoByName($name)?->nome;
     }
 
     public static function getClienteTipo(string $name): ?string
@@ -191,7 +209,7 @@ class Clienti extends Model
         return $tipo;
     }
 
-    public static function getClienteSubmission(?string $name, string $prodotto): ?string
+    public static function getClienteSubmission(?string $name, ?string $prodotto = null): ?string
     {
         if (empty($name)) {
             return '--';

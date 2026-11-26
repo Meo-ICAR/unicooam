@@ -36,25 +36,26 @@ class OamCode extends CoreOamCode
      */
     public static function isIstitutoConvenzionato(string $abiName, string $prodottoCreditizio): bool
     {
-        $oamCode = static::where('description', $prodottoCreditizio)->first();
+        $codici = static::where('description', $prodottoCreditizio)->get();
 
-        if (! $oamCode) {
-            return false;
-        }
-
-        return $oamCode->clienti()->where('abi_name', $abiName)->exists();
+        return $codici->contains(fn (self $oamCode): bool => $oamCode->clienti()
+            ->where(fn (Builder $query) => $query->where('abi_name', $abiName)->orWhere('nome', $abiName))
+            ->exists());
     }
 
     /**
      * Numero di finanziatori convenzionati per il prodotto creditizio
-     * indicato (matchato su OamCode.description), indipendentemente da
-     * quali finanziatori compaiano poi in OamSemestrale.
+     * indicato (matchato su OamCode.description, che puo' avere piu' codici
+     * con lo stesso testo), indipendentemente da quali finanziatori
+     * compaiano poi in OamSemestrale.
      */
     public static function countConvenzioniPerProdotto(string $prodottoCreditizio): int
     {
-        $oamCode = static::where('description', $prodottoCreditizio)->first();
-
-        return $oamCode?->clienti()->count() ?? 0;
+        return static::where('description', $prodottoCreditizio)
+            ->get()
+            ->flatMap(fn (self $oamCode) => $oamCode->clienti()->pluck('clientis.id'))
+            ->unique()
+            ->count();
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Filament\Actions;
 
 use App\Filament\Exports\OamSemestraleExport;
+use App\ValueObjects\OamSemester;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -34,14 +35,14 @@ class ExportOamAction extends Action
                         1 => '1° Semestre (Gennaio – Giugno)',
                         2 => '2° Semestre (Luglio – Dicembre)',
                     ])
-                    ->default(now()->month <= 6 ? 1 : 2)
+                    ->default(fn (): int => OamSemester::current()->semesterNumber)
                     ->required(),
                 TextInput::make('anno')
                     ->label('Anno')
                     ->numeric()
                     ->minValue(2020)
                     ->maxValue(now()->year)
-                    ->default(now()->year)
+                    ->default(fn (): int => OamSemester::current()->year)
                     ->required(),
             ])
             ->action(function (array $data): BinaryFileResponse {

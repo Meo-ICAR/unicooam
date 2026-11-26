@@ -10,7 +10,7 @@ class OamSemester extends CoreOamSemester
 {
     /**
      * Semestre della segnalazione in corso: da gennaio a febbraio è l'ultimo semestre dell'anno precedente,
-     * fino a ottobre il primo semestre dell'anno, da novembre il secondo.
+     * fino al 14 novembre il primo semestre dell'anno, dal 15 novembre il secondo.
      */
     public static function current(?CarbonImmutable $now = null): static
     {
@@ -20,7 +20,9 @@ class OamSemester extends CoreOamSemester
             return new static($now->year - 1, 2);
         }
 
-        return parent::current($now);
+        $isSecondSemester = $now->month > 11 || ($now->month === 11 && $now->day >= 15);
+
+        return new static($now->year, $isSecondSemester ? 2 : 1);
     }
 
     /**

@@ -115,8 +115,8 @@ class ImportPraticheService
     private function importSingle(Pratica $pratica, OamSemester $semester, string $companyId, string $period, ?Provvigione $provvigioni): OamPratiche
     {
         $istitutoNome = $pratica->denominazione_banca;
-        $istitutoCanonico = Clienti::getClienteNomeByName($istitutoNome);
-        $cliente = Clienti::query()->where('name', $istitutoNome)->first();
+        $cliente = Clienti::canonicoByName($istitutoNome);
+        $istitutoCanonico = $cliente?->nome;
 
         $tipoProdotto = $pratica->tipo_prodotto;
         $erogato = $this->erogatoLordo($pratica, $cliente?->principal_type, $tipoProdotto);
@@ -147,7 +147,7 @@ class ImportPraticheService
                 'payout_rete_credito' => (float) ($provvigioni->payout_rete_credito ?? 0.0),
                 'importo_retrocesse' => $storno,
                 'num_rivalse' => abs($storno) > 0 ? 1 : 0,
-                'abi_name' => $this->abiName($pratica, $cliente?->abi_name, $istitutoNome),
+                'abi_name' => $this->abiName($pratica, $cliente?->abi_name ?: $cliente?->nome, $istitutoNome, $cliente !== null),
             ]
         );
     }
@@ -173,7 +173,8 @@ class ImportPraticheService
     private function importStorno(Pratica $pratica, float $storno, string $companyId, string $period): OamPratiche
     {
         $istitutoNome = $pratica->denominazione_banca;
-        $istitutoCanonico = Clienti::getClienteNomeByName($istitutoNome);
+        $cliente = Clienti::canonicoByName($istitutoNome);
+        $istitutoCanonico = $cliente?->nome;
 
         return OamPratiche::updateOrCreate(
             ['pratica' => $pratica->codice_pratica],
@@ -196,7 +197,7 @@ class ImportPraticheService
                 'payout_rete_credito' => 0,
                 'importo_retrocesse' => abs($storno),
                 'num_rivalse' => 1,
-                'abi_name' => $pratica->abi_name,
+                'abi_name' => $this->abiName($pratica, $cliente?->abi_name ?: $cliente?->nome, $istitutoNome, $cliente !== null),
             ]
         );
     }
@@ -256,9 +257,17 @@ class ImportPraticheService
             : (float) $pratica->net;
     }
 
-    private function abiName(Pratica $pratica, ?string $clienteAbiName, ?string $istitutoNome): ?string
+    /**
+     * Denominazione dell'istituto: se esiste l'istituto canonico (non dummy) vince la sua,
+     * altrimenti si ripiega su quella della pratica.
+     */
+    private function abiName(Pratica $pratica, ?string $clienteAbiName, ?string $istitutoNome, bool $canonico = false): ?string
     {
-        foreach ([$pratica->abi_name, $clienteAbiName, $istitutoNome] as $candidate) {
+        $candidati = $canonico
+            ? [$clienteAbiName, $pratica->abi_name, $istitutoNome]
+            : [$pratica->abi_name, $clienteAbiName, $istitutoNome];
+
+        foreach ($candidati as $candidate) {
             if (filled($candidate) && ! str_starts_with((string) $candidate, '-')) {
                 return $candidate;
             }
