@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Enums\AuditStatus;
 use App\Models\Audit;
+use App\Models\Document;
 use App\Models\Fornitore;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -11,7 +12,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Unico\Core\Documents\Listeners\AnalyzeUploadedDocument;
 use Unico\Core\Documents\MarkitdownConverter;
+use Unico\Core\Enums\DocumentStatus;
+use Unico\Core\Models\DocumentType;
 
 /**
  * Audit interno per ogni produttore indicato, nato da un'email di UnicoPEC (verifiche ispettive periodiche): il testo standard (Word) diventa il corpo
@@ -26,7 +30,8 @@ class OpenAuditsFromEmailCommand extends Command
     protected $signature = 'audits:open-from-email
         {--email= : ID dell\'email in UnicoPEC}
         {--produttori= : ID dei produttori, separati da virgola}
-        {--dry-run : Mostra cosa farebbe senza creare audit né inviare email}';
+        {--dry-run : Mostra cosa farebbe senza creare audit né inviare email}
+        {--senza-email : Crea gli audit ma non invia nulla: i produttori restano da avvisare e un lancio successivo invia la comunicazione}';
 
     protected $description = 'Apre un audit interno per ciascun produttore indicato, nato da un\'email di UnicoPEC, e gli invia il testo standard con gli allegati';
 
@@ -98,7 +103,7 @@ class OpenAuditsFromEmailCommand extends Command
      * Testo standard (primo allegato Word) e allegati da inoltrare (tutti gli altri, scaricati da UnicoPEC).
      *
      * @param  array<string, mixed>  $email
-     * @return array{0: string, 1: array<int, array{name: string, mime: string, bytes: string}>}
+     * @return array{0: string, 1: array<int, array{id: int, name: string, mime: string, bytes: string}>}
      */
     private function content(array $email): array
     {
@@ -115,7 +120,7 @@ class OpenAuditsFromEmailCommand extends Command
                 continue;
             }
 
-            $files[] = ['name' => $name, 'mime' => (string) $attachment['mime'], 'bytes' => $bytes];
+            $files[] = ['id' => (int) $attachment['id'], 'name' => $name, 'mime' => (string) $attachment['mime'], 'bytes' => $bytes];
         }
 
         if (blank($text)) {
@@ -127,7 +132,7 @@ class OpenAuditsFromEmailCommand extends Command
 
     /**
      * @param  array<string, mixed>  $email
-     * @param  array<int, array{name: string, mime: string, bytes: string}>  $files
+     * @param  array<int, array{id: int, name: string, mime: string, bytes: string}>  $files
      */
     private function open(array $email, Fornitore $producer, string $text, array $files): void
     {
@@ -162,8 +167,21 @@ class OpenAuditsFromEmailCommand extends Command
             ])->save();
         }
 
+        // Questionario e checklist stanno tra i documenti dell'audit (non solo nell'email), così si vedono e si seguono dalla sua pagina.
+        $attached = $this->attachDocuments($audit, $email, $files);
+
+        if ($attached > 0) {
+            $this->line("{$producer->name}: {$attached} documenti aggiunti all'audit #{$audit->id}.");
+        }
+
         if ($audit->notified_at) {
             $this->line("{$producer->name}: audit #{$audit->id} già comunicato.");
+
+            return;
+        }
+
+        if ($this->option('senza-email')) {
+            $this->line("{$producer->name}: audit #{$audit->id} aperto, comunicazione NON inviata (oggetto «{$subject}», ".count($files).' allegati).');
 
             return;
         }
@@ -212,5 +230,51 @@ class OpenAuditsFromEmailCommand extends Command
         $title = preg_replace_callback("/(^|[\\s'\\-])(\\p{L})/u", fn ($m) => $m[1].mb_strtoupper($m[2]), mb_strtolower(trim($name)));
 
         return preg_replace_callback("/([aeiou])'(?=\\s|$)/u", fn ($m) => $accents[$m[1]], $title);
+    }
+
+    /**
+     * Aggiunge ogni allegato come documento dell'audit (una sola volta per email e allegato) e ne ritorna il numero aggiunto ora.
+     *
+     * @param  array<int, array{id: int, name: string, mime: string, bytes: string}>  $files
+     */
+    private function attachDocuments(Audit $audit, array $email, array $files): int
+    {
+        $type = DocumentType::query()->where('code', 'VERIFICA_ISPETTIVA')->value('id');
+        $added = 0;
+
+        foreach ($files as $file) {
+            $source = "incoming_email:{$email['id']}:media:{$file['id']}";
+
+            if ($audit->documents()->withoutGlobalScopes()->where('metadata->source', $source)->exists()) {
+                continue;
+            }
+
+            $document = $audit->documents()->create([
+                'company_id' => $audit->company_id,
+                'document_type_id' => $type,
+                'name' => mb_substr($file['name'], 0, 250),
+                'status' => DocumentStatus::UPLOADED,
+                'metadata' => ['source' => $source, 'incoming_email_id' => $email['id'], 'subject' => mb_substr((string) ($email['subject'] ?? ''), 0, 200)],
+            ]);
+
+            $tmp = tempnam(sys_get_temp_dir(), 'audit_doc_');
+
+            try {
+                file_put_contents($tmp, $file['bytes']);
+                // Sono documenti da compilare, non da analizzare: niente lettura con l'AI.
+                AnalyzeUploadedDocument::suspendedWhile(fn () => $document->addMedia($tmp)->usingFileName($file['name'])->toMediaCollection(Document::COLLECTION));
+            } catch (\Throwable $e) {
+                // Niente documenti senza file: se il salvataggio fallisce (es. permessi su storage) la riga si elimina e si riprova al prossimo lancio.
+                $document->forceDelete();
+
+                throw $e;
+            } finally {
+                @unlink($tmp);
+            }
+
+            $added++;
+        }
+
+        return $added;
     }
 }

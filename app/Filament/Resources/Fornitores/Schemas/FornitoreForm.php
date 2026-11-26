@@ -45,6 +45,26 @@ class FornitoreForm
                             ->label('Cod. Fiscale')
                             ->maxLength(20),
 
+                        // --- Regime fiscale: decide quali documenti contabili chiedere (registri IVA o fatture emesse nella checklist delle verifiche ispettive) ---
+                        Select::make('tax_regime')
+                            ->label('Regime IVA')
+                            ->options([
+                                'ordinario' => 'Ordinario (registri IVA)',
+                                'semplificato' => 'Contabilità semplificata',
+                                'forfettario' => 'Forfettario',
+                                'altro' => 'Altro',
+                            ])
+                            ->placeholder('Non indicato')
+                            ->helperText('Si compila anche da solo leggendo le fatture del produttore.')
+                            ->columnSpan(2),
+                        TextInput::make('withholding_percent')
+                            ->label('Ritenuta d\'acconto')
+                            ->numeric()
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->suffix('%')
+                            ->columnSpan(1),
+
                         // --- Riga 2 ---
                         DatePicker::make('stipulated_at')
                             ->label('Stipula')
