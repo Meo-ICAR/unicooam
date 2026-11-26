@@ -13,6 +13,10 @@ return [
         'description' => 'Ricalcola lo scadenziario documenti.',
         'options' => [],
     ],
+    'audits:open-from-email' => [
+        'description' => 'Apre un audit interno per ciascun produttore indicato, nato da un\'email di UnicoPEC (es. verifiche ispettive semestrali), e gli invia il testo standard con gli allegati.',
+        'options' => ['email', 'produttori'],
+    ],
     'sharepoint:retry-uploads' => [
         'description' => 'Riprova i caricamenti su SharePoint rimasti in sospeso.',
         'options' => ['local'],

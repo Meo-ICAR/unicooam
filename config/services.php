@@ -12,6 +12,11 @@ return [
      * | a conventional file to locate the various service credentials.
      * |
      */
+    // UnicoPEC (email e PEC): UnicoOAM ne legge le email e gli allegati con la chiave condivisa del bridge, per aprire gli audit nati da un'email.
+    'unicopec' => [
+        'url' => env('UNICOPEC_API_URL'),
+        'key' => env('BPM_BRIDGE_API_KEY'),
+    ],
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
