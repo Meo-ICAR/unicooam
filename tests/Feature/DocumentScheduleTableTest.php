@@ -55,8 +55,8 @@ class DocumentScheduleTableTest extends TestCase
 
     public function test_table_can_be_sorted_and_searched(): void
     {
-        $rossi = $this->schedule('ROSSI MARIO', 'Casellario', '2026-11-01', 'rossi@example.com');
-        $bianchi = $this->schedule('BIANCHI LUCA', 'Polizza', '2026-12-01');
+        $rossi = $this->schedule('ROSSI MARIO', 'Casellario', now()->addDays(5)->toDateString(), 'rossi@example.com');
+        $bianchi = $this->schedule('BIANCHI LUCA', 'Polizza', now()->addDays(35)->toDateString());
         $this->actingAs(User::factory()->create());
 
         foreach (['expires_at', 'entity_name', 'document_name', 'days_until_expiry', 'reminders_count', 'last_sent_at'] as $column) {
@@ -80,8 +80,8 @@ class DocumentScheduleTableTest extends TestCase
 
     public function test_table_can_be_searched_by_email(): void
     {
-        $rossi = $this->schedule('ROSSI MARIO', 'Casellario', '2026-11-01', 'rossi@example.com');
-        $bianchi = $this->schedule('BIANCHI LUCA', 'Polizza', '2026-12-01', 'bianchi@example.com');
+        $rossi = $this->schedule('ROSSI MARIO', 'Casellario', now()->addDays(5)->toDateString(), 'rossi@example.com');
+        $bianchi = $this->schedule('BIANCHI LUCA', 'Polizza', now()->addDays(35)->toDateString(), 'bianchi@example.com');
         $this->actingAs(User::factory()->create());
 
         Livewire::test(ManageDocumentSchedules::class)
@@ -93,8 +93,8 @@ class DocumentScheduleTableTest extends TestCase
 
     public function test_email_search_does_not_break_with_rows_of_other_databases(): void
     {
-        $rossi = $this->schedule('ROSSI MARIO', 'Casellario', '2026-11-01', 'rossi@example.com');
-        $fornitoreRow = $this->schedule('VERDI ANNA', 'Polizza', '2026-12-01');
+        $rossi = $this->schedule('ROSSI MARIO', 'Casellario', now()->addDays(5)->toDateString(), 'rossi@example.com');
+        $fornitoreRow = $this->schedule('VERDI ANNA', 'Polizza', now()->addDays(35)->toDateString());
         $fornitoreRow->forceFill(['documentable_type' => 'fornitore', 'documentable_id' => (string) Str::uuid()])->save();
         $this->actingAs(User::factory()->create());
 
@@ -109,11 +109,11 @@ class DocumentScheduleTableTest extends TestCase
     public function test_document_name_links_to_the_download_only_when_an_attachment_exists(): void
     {
         Storage::fake('public');
-        $withFile = $this->schedule('ROSSI MARIO', 'Con allegato', '2026-11-01');
+        $withFile = $this->schedule('ROSSI MARIO', 'Con allegato', now()->addDays(5)->toDateString());
         $withFile->document->addMedia(UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf'))->toMediaCollection('documents');
-        $withUrl = $this->schedule('BIANCHI LUCA', 'Con url', '2026-11-02');
+        $withUrl = $this->schedule('BIANCHI LUCA', 'Con url', now()->addDays(6)->toDateString());
         $withUrl->document->forceFill(['document_url' => 'https://remote.example/f.pdf'])->saveQuietly();
-        $without = $this->schedule('VERDI ANNA', 'Senza allegato', '2026-11-03');
+        $without = $this->schedule('VERDI ANNA', 'Senza allegato', now()->addDays(7)->toDateString());
         $this->actingAs(User::factory()->create());
 
         Livewire::test(ManageDocumentSchedules::class)
@@ -143,7 +143,7 @@ class DocumentScheduleTableTest extends TestCase
     public function test_the_subject_opens_its_registry_card_when_it_has_one(): void
     {
         $this->actingAs(User::factory()->create(['role' => 'admin']));
-        $employeeRow = $this->schedule('ROSSI MARIO', 'Casellario', '2026-11-01');
+        $employeeRow = $this->schedule('ROSSI MARIO', 'Casellario', now()->addDays(5)->toDateString());
         $consultant = Client::query()->create(['name' => 'Studio Alfa', 'is_person' => false, 'is_company' => true]);
         $plainClient = Client::query()->create(['name' => 'Cliente da fattura', 'is_person' => true, 'is_company' => false]);
 

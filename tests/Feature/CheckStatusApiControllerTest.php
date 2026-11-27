@@ -101,7 +101,7 @@ class CheckStatusApiControllerTest extends TestCase
 
         $this->assertSame(2, (int) app(DocumentReminderService::class)->expiryStatus()->value);
 
-        $old->forceFill(['renewed_by' => $new->getKey()])->saveQuietly();
+        $old->forceFill(['renewed_by_id' => $new->getKey()])->saveQuietly();
 
         $this->assertSame(1, (int) app(DocumentReminderService::class)->expiryStatus()->value);
     }
